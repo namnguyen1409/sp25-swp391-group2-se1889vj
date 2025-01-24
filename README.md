@@ -1,6 +1,6 @@
 # Rice Sales Management System (RSMS)
 
-RSMS is a application crafted to address the challenges faced by rice dealers. This innovative software empowers store owners to efficiently manage their business remotely, eliminating the need for physical presence. By embracing digital transformation, RSMS replaces traditional bookkeeping with a streamlined, modern solution, ensuring optimal control and efficiency in store operations.
+RSMS is an application crafted to address the challenges faced by rice dealers. This innovative software empowers store owners to efficiently manage their business remotely, eliminating the need for physical presence. By embracing digital transformation, RSMS replaces traditional bookkeeping with a streamlined, modern solution, ensuring optimal control and efficiency in store operations.
 
 ---
 
@@ -128,7 +128,19 @@ Open project with IDE
     
     spring.jpa.database-platform=org.hibernate.dialect.SQLServerDialect
     spring.jpa.hibernate.ddl-auto=update
-    
+    # Email configuration
+    spring.mail.host=smtp.gmail.com
+    spring.mail.port=465
+    spring.mail.protocol=smtps
+    spring.mail.username=your-gmail-address
+    spring.mail.password=your-gmail-password
+    spring.mail.properties.mail.smtp.auth=true
+    spring.mail.properties.mail.smtp.starttls.enable=true
+   
+    # Recaptcha configuration
+    google.recaptcha.key.site=your-site-key
+    google.recaptcha.key.secret=your-secret-key
+    google.recaptcha.url=https://www.google.com/recaptcha/api/siteverify
     ```
 3. Replace your_* with your actual details.
 
