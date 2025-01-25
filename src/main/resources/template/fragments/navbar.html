@@ -1,0 +1,77 @@
+<nav th:fragment="navbar" class="navbar sticky-top navbar-expand-lg border-bottom bg-body-tertiary"
+     id="navbar"
+     xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+     data-tooltip-class="bg-body text-body"
+>
+    <div class="container-fluid">
+        <button sec:authorize="isAuthenticated()" class="btn btn-outline-secondary btn-lg d-none d-lg-block"
+                type="button" data-bs-toggle="collapse"
+                aria-controls="navbarSupportedContent" aria-expanded="true"
+                style="margin-right: 10px; padding: 0px 5px 0px 5px;" id="sidebartoggle" onclick="changeclass()"
+                data-tooltip-class="bg-body text-body"
+        >
+            <i class="bi bi-arrows-expand-vertical"></i>
+        </button>
+        <button sec:authorize="isAuthenticated()" class="btn btn-outline-secondary btn-lg d-block d-lg-none"
+                type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasExample" aria-controls="offcanvasExample"
+                style="margin-right: 10px; padding: 2px 6px 2px 6px;" id="sidebarshow"
+                data-tooltip-class="bg-body text-body"
+        >
+            <i class="bi bi-arrow-bar-right"></i>
+        </button>
+        <a class="navbar-brand fs-4" th:href="@{/}">Rice Sales Management System</a>
+        <div class="dropdown-center" style="padding-left: 10px;" id="bd-theme-toggle">
+            <button class="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center navbar-toggler"
+                    id="bd-theme"
+                    type="button"
+                    aria-expanded="false" data-bs-toggle="dropdown" aria-label="Toggle theme (auto)">
+                <svg class="bi my-1 theme-icon-active" width="1em" height="1em">
+                    <use href="#circle-half"></use>
+                </svg>
+                <span class="visually-hidden" id="bd-theme-text">Toggle theme</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center"
+                            data-bs-theme-value="light"
+                            aria-pressed="false">
+                        <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em">
+                            <use href="#sun-fill"></use>
+                        </svg>
+                        Light
+                        <svg class="bi ms-auto d-none" width="1em" height="1em">
+                            <use href="#check2"></use>
+                        </svg>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark"
+                            aria-pressed="false">
+                        <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em">
+                            <use href="#moon-stars-fill"></use>
+                        </svg>
+                        Dark
+                        <svg class="bi ms-auto d-none" width="1em" height="1em">
+                            <use href="#check2"></use>
+                        </svg>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center active"
+                            data-bs-theme-value="auto"
+                            aria-pressed="true">
+                        <svg class="bi me-2 opacity-50 theme-icon" width="1em" height="1em">
+                            <use href="#circle-half"></use>
+                        </svg>
+                        Auto
+                        <svg class="bi ms-auto d-none" width="1em" height="1em">
+                            <use href="#check2"></use>
+                        </svg>
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+</nav>

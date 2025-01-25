@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<body>
+
+<div class="input-group has-validation" th:fragment="customTextarea(name, icon, label)">
+  <div class="input-group-text p-3">
+    <i th:class="'bi ' + ${icon}"></i>
+  </div>
+  <div class="form-floating"
+       th:classappend="${#fields.hasErrors('__${name}__')} ? 'is-invalid' : ''"
+  >
+    <p class="border ps-2 pt-1 pb-1 m-0" th:text="${label}"></p>
+    <div id="editor" class="form-control p-0" required
+         th:classappend="${#fields.hasErrors('__${name}__')} ? 'is-invalid' : ''"
+         style="min-height: 200px"
+         ></div>
+  </div>
+  <div class="invalid-feedback"
+       th:if="${#fields.hasErrors('__${name}__')}"
+       th:errors="*{__${name}__}">
+  </div>
+  <textarea th:field="*{__${name}__}"  class="d-none"></textarea>
+  <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+  <script>
+    const toolbarOptions = [
+      ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+      ['blockquote', 'code-block'],
+      ['link', 'image', 'video', 'formula'],
+
+      [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'list': 'check' }],
+      [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+      [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+      [{ 'direction': 'rtl' }],                         // text direction
+
+      [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+
+      [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
+      [{ 'font': [] }],
+      [{ 'align': [] }],
+
+      ['clean']                                         // remove formatting button
+    ];
+
+
+    let quill = new Quill('#editor', {
+      theme: 'snow',
+      modules: {
+        toolbar: toolbarOptions
+      }
+    });
+
+    let timeout;
+    quill.on('text-change', function() {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            document.getElementById('[[${name}]]').value = quill.root.innerHTML;
+            console.log(document.getElementById('[[${name}]]').value);
+        }, 300);
+    });
+
+    window.onload = function () {
+      let content = document.getElementById('[[${name}]]').value;
+      if (content) {
+        quill.root.innerHTML = content;
+      }
+    }
+  </script>
+</div>
+
+</body>
+</html>

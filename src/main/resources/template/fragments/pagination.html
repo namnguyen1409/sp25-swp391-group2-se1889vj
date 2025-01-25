@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<body>
+<!--/*@thymesVar id="page" type="org.springframework.data.domain.Page"*/-->
+<div th:fragment="pagination(page)">
+    <div class="d-flex justify-content-center mt-5">
+        <nav aria-label="Page navigation example">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${page.first} ? 'disabled' : ''">
+                    <button class="page-link" onclick="goToPage(1)" aria-label="Trang đầu">
+                        <span aria-hidden="true">&laquo;</span>
+                    </button>
+                </li>
+
+                <li class="page-item" th:classappend="${page.first} ? 'disabled' : ''">
+                    <button class="page-link"
+                            th:onclick="goToPage(${page.number} - 1)"
+                            aria-label="Trang trước">
+                        <span aria-hidden="true">&lsaquo;</span>
+                    </button>
+                </li>
+                <!--/*@thymesVar id="page" type="org.springframework.data.domain.Page"*/-->
+                <th:block th:if="${page.totalPages <= 5}">
+                    <!-- Xử lý trường hợp tổng số trang nhỏ hơn hoặc bằng 5 -->
+                    <th:block th:each="i : ${#numbers.sequence(1, page.totalPages)}">
+                        <li class="page-item" th:classappend="${i == page.number + 1} ? 'active' : ''">
+                            <button class="page-link" th:onclick="'goToPage(' + ${i} + ')'" th:text="${i}"></button>
+                        </li>
+                    </th:block>
+                </th:block>
+                <th:block th:if="${page.totalPages > 5}">
+                    <!-- Xử lý trường hợp tổng số trang lớn hơn 5 -->
+                    <th:block th:if="${page.number > 3}">
+                        <li class="page-item">
+                            <button class="page-link" th:onclick="goToPage(1)">1</button>
+                        </li>
+                        <li class="page-item disabled">
+                            <button class="page-link">...</button>
+                        </li>
+                    </th:block>
+                    <th:block th:each="i : ${#numbers.sequence(page.number, page.number + 2)}">
+                        <li class="page-item" th:classappend="${i == page.number + 1} ? 'active' : ''" th:if="${i!=0 && i != page.totalPages+1}">
+                            <button class="page-link" th:onclick="'goToPage(' + ${i} + ')'" th:text="${i}"></button>
+                        </li>
+                    </th:block>
+                    <th:block th:if="${page.number < page.totalPages - 2}">
+                        <li class="page-item disabled">
+                            <button class="page-link">...</button>
+                        </li>
+                        <li class="page-item">
+                            <button class="page-link" th:onclick="'goToPage('+${page.totalPages}+')'" th:text="${page.totalPages}"></button>
+                        </li>
+                    </th:block>
+                </th:block>
+
+                <li class="page-item" th:classappend="${page.last} ? 'disabled' : ''">
+                    <button class="page-link"
+                            th:onclick="'goToPage(' + ${page.number + 1} + ')'"
+                            aria-label="Trang sau">
+                        <span aria-hidden="true">&rsaquo;</span>
+                    </button>
+                </li>
+                <li class="page-item" th:classappend="${page.last} ? 'disabled' : ''">
+                    <button class="page-link"
+                            th:onclick="'goToPage('+${page.totalPages}+')'"
+                            aria-label="Trang cuối">
+                        <span aria-hidden="true">&raquo;</span>
+                    </button>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+
+</body>
+</html>
