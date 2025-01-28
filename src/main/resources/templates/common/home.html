@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en" layout:decorate="template">
+<body>
+<section layout:fragment="content" class="m-auto h-100 ">
+    <div class="h-100 ">
+        <div class="d-flex align-items-center justify-content-center h-100 px-2">
+            <div class="text-center">
+                <h3 class="display-3 fw-bold">
+                    Chào mừng <span th:text="${user.firstName} + ' ' + ${user.lastName}"></span>
+                </h3>
+                <p class="fs-4 fw-medium mt-4">
+                    Bạn đã đăng nhập vào hệ thống quản lý bán gạo (RSMS)
+                    <br>
+                    Hãy chọn một chức năng ở thanh sidebar bên trái để bắt đầu sử dụng
+                </p>
+
+                <button id="startTour" class="btn btn-secondary fw-semibold rounded-pill px-4 py-2 custom-btn">
+                    Hướng dẫn sử dụng
+                </button>
+
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
