@@ -54,7 +54,7 @@
 
 <div class="flex-grow-1 d-flex">
     <aside sec:authorize="isAuthenticated()" th:replace="~{fragments/sidebar :: sidebar}"></aside>
-    <main class="col-12 col-lg-9 bg-body-tertiary align-self-auto d-flex flex-column">
+    <main class="col-12 col-lg-9 bg-body-tertiary align-self-auto d-flex flex-column" id="main">
         <!--Navbar fragment-->
         <nav th:replace="~{fragments/navbar :: navbar}"></nav>
 
@@ -64,7 +64,7 @@
                 <span th:text="${flashMessage}"></span>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            <section id="main" layout:fragment="content"></section>
+            <section  layout:fragment="content"></section>
         </div>
 
     </main>
