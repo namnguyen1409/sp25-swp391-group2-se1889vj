@@ -4,11 +4,13 @@ import com.group2.sp25swp391group2se1889vj.auth.dto.LoginDTO;
 import com.group2.sp25swp391group2se1889vj.auth.dto.RegisterDTO;
 import com.group2.sp25swp391group2se1889vj.auth.exception.InvalidRegistrationTokenException;
 import com.group2.sp25swp391group2se1889vj.auth.security.CustomUserDetails;
+import com.group2.sp25swp391group2se1889vj.auth.security.JwtTokenProvider;
 import com.group2.sp25swp391group2se1889vj.auth.security.RefreshTokenProvider;
 import com.group2.sp25swp391group2se1889vj.auth.service.RecaptchaService;
 import com.group2.sp25swp391group2se1889vj.common.service.StorageService;
 import com.group2.sp25swp391group2se1889vj.common.util.CookieUtil;
 import com.group2.sp25swp391group2se1889vj.common.util.EncryptionUtil;
+import com.group2.sp25swp391group2se1889vj.user.entity.RefreshToken;
 import com.group2.sp25swp391group2se1889vj.user.entity.User;
 import com.group2.sp25swp391group2se1889vj.user.repository.RefreshTokenRepository;
 import com.group2.sp25swp391group2se1889vj.user.repository.RegistrationTokenRepository;
@@ -33,29 +35,29 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Controller
 @Data
 @Transactional
 public class AuthController {
 
-    //private final JwtTokenProvider jwtTokenProvider;
-    //private final RefreshTokenProvider refreshTokenProvider;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenProvider refreshTokenProvider;
     private final RecaptchaService recaptchaService;
     private final UserRepository userRepository;
-    //private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
     private final RegistrationTokenRepository registrationTokenRepository;
     private final EncryptionUtil encryptionUtil;
     private final CookieUtil cookieUtil;
     private final StorageService storageService;
-    private final RefreshTokenProvider refreshTokenProvider;
 
     @Value("${refresh.token.expiration}")
     private String refreshTokenExpiration;
 
-//    @Value("${jwt.expiration}")
-//    private String jwtTokenExpiration;
+    @Value("${jwt.expiration}")
+    private String jwtTokenExpiration;
 
     private User getUser() {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
@@ -67,7 +69,7 @@ public class AuthController {
     public String login(Model model) {
         model.addAttribute("title", "Login");
         model.addAttribute("loginDTO", new LoginDTO());
-        //System.out.println(cookieUtil.getCookie());
+
         return "auth/login";
     }
 
@@ -86,9 +88,23 @@ public class AuthController {
         }
 
         Optional<User> userOptional = userRepository.findByUsername(loginDTO.getUsername());
-        if (userOptional.isEmpty() /*|| !passwordEncoder.matches(loginDTO.getPassword(), userOptional.get().getPass())*/) {
+        if (userOptional.isEmpty() || !passwordEncoder.matches(loginDTO.getPassword(), userOptional.get().getPass())) {
             bindingResult.rejectValue("password", "error.login", "Mật khẩu không đúng");
             return "auth/login";
+        }
+        var user = userOptional.get();
+        var jwt = jwtTokenProvider.generateToken(new CustomUserDetails(user));
+        if (loginDTO.getRemember()) {
+            var refreshToken = refreshTokenProvider.generateRefreshToken(UUID.randomUUID().toString());
+            RefreshToken refreshTokenEntity = new RefreshToken();
+            refreshTokenEntity.setToken(refreshTokenProvider.getKeyFromRefreshToken(refreshToken));
+            refreshTokenEntity.setUser(user);
+            refreshTokenEntity.setExpiryDate(LocalDateTime.now().plusSeconds(Long.parseLong(refreshTokenExpiration)));
+            refreshTokenRepository.save(refreshTokenEntity);
+            cookieUtil.addCookie("jwtToken", jwt, Integer.parseInt(Long.parseLong(jwtTokenExpiration) / 1000L + ""), "/", true, false);
+            cookieUtil.addCookie("refreshToken", refreshToken, Integer.parseInt(Long.parseLong(refreshTokenExpiration) / 1000L + ""), "/", true, false);
+        } else {
+            cookieUtil.addCookie("jwtToken", jwt, Integer.parseInt(Long.parseLong(jwtTokenExpiration) / 1000L + ""), "/", true, false);
         }
 
         return "redirect:/";
@@ -138,7 +154,7 @@ public class AuthController {
 
         User user = new User();
         user.setUsername(registerDTO.getUsername());
-        //user.setPass(passwordEncoder.encode(registerDTO.getPass()));
+        user.setPass(passwordEncoder.encode(registerDTO.getPass()));
         user.setPass(registerDTO.getPass());
         user.setFirstName(registerDTO.getFirstName());
         user.setLastName(registerDTO.getLastName());
