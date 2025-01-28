@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en" layout:decorate="template">
+<body>
+<section layout:fragment="content" class="container h-100">
+    <!--/*@thymesVar id="currentUser" type="com.hsf302.trialproject.user.entity.User"*/-->
+    <div class="row mt-5">
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-body text-center" id="dragZone">
+                    <img th:src="@{__${currentUser.avatar != null ? currentUser.avatar : (currentUser.gender == true ? '\images\avatar\male.png' : '\images\avatar\female.png')}__}"
+                         alt="avatar"
+                         class="avatar rounded-circle img-fluid"
+                         width="150" height="150"
+                         id="avatarImg"
+                         th:href="@{__${currentUser.avatar != null ? currentUser.avatar : (currentUser.gender == true ? '\images\avatar\male.png' : '\images\avatar\female.png')}__}"
+                    >
+                    <input type="file" id="avatarFile" class="d-none">
+                    <h5 class="my-3" th:text="${currentUser.username}"></h5>
+                    <p class="text-muted mb-1">
+                        Click hoặc kéo thả ảnh vào đây để thay đổi avatar
+                    </p>
+                    <form id="updateAvatarForm" th:action="@{/profile}" method="post" class="d-none w-100">
+                        <input type="hidden" name="avatar" id="avatar" value="">
+                        <div th:replace="fragments/recapcha :: recapcha"></div>
+                    </form>
+                    <button type="submit" class="btn btn-primary d-none" id="btnChangeAvatar">Thay đổi</button>
+                    <button type="reset" class="btn btn-secondary d-none" id="btnCancelChangeAvatar">Hủy</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Họ và tên</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0" th:text="${currentUser.firstName + ' ' + currentUser.lastName}"></p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Email</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0" th:text="${currentUser.email}"></p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Số điện thoại</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0 phone" th:text="${currentUser.phone}"></p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Ngày sinh</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0 date" th:text="${currentUser.birthday}"></p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Địa chỉ</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0" th:text="${currentUser.address}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uploadUrl = '/upload/avatar';
+        const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+        const maxSize = 2 * 1024 * 1024; // 2MB
+
+        // Helper functions
+
+        const validateFile = (file) => {
+            if (!file) {
+                showModal('Modal', 'DANGER', 'Không tìm thấy file ảnh', 'Vui lòng thử lại');
+                return false;
+            }
+            if (!allowedTypes.includes(file.type)) {
+                showModal('Modal', 'DANGER', 'File không hợp lệ', 'Chỉ chấp nhận file ảnh có định dạng png, jpg, jpeg');
+                return false;
+            }
+            if (file.size > maxSize) {
+                showModal('Modal', 'DANGER', 'File quá lớn', 'Chỉ chấp nhận file ảnh có kích thước nhỏ hơn 2MB');
+                return false;
+            }
+            return true;
+        };
+
+        const previewAvatar = () => {
+            const fileInput = document.getElementById('avatarFile');
+            const file = fileInput.files[0];
+
+            if (!validateFile(file)) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('avatarImg').setAttribute('src', e.target.result);
+                document.getElementById('btnChangeAvatar').classList.remove('d-none');
+                document.getElementById('btnCancelChangeAvatar').classList.remove('d-none');
+                const form = document.getElementById('updateAvatarForm');
+                form.classList.remove('d-none');
+                form.classList.add('d-flex', 'justify-content-center', 'align-items-center');
+            };
+            reader.readAsDataURL(file);
+        };
+
+        const uploadAvatar = async () => {
+            const fileInput = document.getElementById('avatarFile');
+            const file = fileInput.files[0];
+
+            if (!validateFile(file)) return false;
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content');
+
+            try {
+                const response = await fetch(uploadUrl, {
+                    method: 'POST',
+                    headers: { [csrfHeader]: csrfToken },
+                    body: formData,
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    document.getElementById('avatar').value = data.url;
+                    return true;
+                } else {
+                    showModal('Modal', 'DANGER', 'Upload ảnh thất bại', data.message);
+                    return false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showModal('Modal', 'DANGER', 'Upload ảnh thất bại', 'Vui lòng thử lại');
+                return false;
+            }
+        };
+
+        // Event Listeners
+        document.getElementById('avatarImg').addEventListener('click', () => {
+            document.getElementById('avatarFile').click();
+        });
+
+        const dragZone = document.getElementById('dragZone');
+        dragZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dragZone.classList.add('border', 'border-primary', 'border-3');
+            e.dataTransfer.dropEffect = 'copy';
+        });
+
+        dragZone.addEventListener('dragleave', () => {
+            dragZone.classList.remove('border', 'border-primary', 'border-3');
+        });
+
+        dragZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dragZone.classList.remove('border', 'border-primary', 'border-3');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('avatarFile').files = files;
+                previewAvatar();
+            } else {
+                showModal('Modal', 'DANGER', 'Không tìm thấy file ảnh', 'Vui lòng thử lại');
+            }
+        });
+
+        document.getElementById('avatarFile').addEventListener('change', previewAvatar);
+
+        document.getElementById('btnChangeAvatar').addEventListener('click', async () => {
+            const success = await uploadAvatar();
+            if (success) {
+                document.getElementById('updateAvatarForm').submit();
+            }
+        });
+
+        document.getElementById('btnCancelChangeAvatar').addEventListener('click', () => {
+            document.getElementById('avatarImg').setAttribute('src', document.getElementById('avatarImg').getAttribute('href'));
+            document.getElementById('btnChangeAvatar').classList.add('d-none');
+            document.getElementById('btnCancelChangeAvatar').classList.add('d-none');
+            const form = document.getElementById('updateAvatarForm');
+            form.classList.add('d-none');
+            form.classList.remove('d-flex', 'justify-content-center', 'align-items-center');
+        });
+    </script>
+
+
+
+</section>
+</body>
+</html>

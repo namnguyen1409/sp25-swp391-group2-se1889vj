@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en" layout:decorate="template">
+<body>
+<section layout:fragment="content" class="container h-100">
+    <div class="row justify-content-center h-100">
+        <div class="col-md-8 col-lg-6 d-flex flex-column nowrap justify-content-center">
+            <div class="card mt-4 mb-4">
+                <div class="card-header">
+                    <h4 class="card-title">Đăng nhập</h4>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/login}" th:object="${loginDTO}" method="post" class="p-md-4">
+                        <div class="input-group mb-3">
+                            <div th:replace="fragments/input :: customInput('username', 'text', 'bi-person', 'Tên đăng nhập')"></div>
+                        </div>
+                        <div class="input-group mb-3">
+                            <div th:replace="fragments/input :: customInput('password', 'password', 'bi-key', 'Mật khẩu')"></div>
+                        </div>
+                        <div class="form-check mb-4">
+                            <input th:field="*{remember}" class="form-check-input" type="checkbox" id="remember1">
+                            <label class="form-check-label" for="remember1">
+                                Ghi nhớ đăng nhập
+                            </label>
+                        </div>
+                        <div th:replace="fragments/recapcha :: recapcha"></div>
+                        <span class="text-danger" th:if="${#fields.hasErrors('recaptchaResponse')}" th:errors="*{recaptchaResponse}"></span>
+                        <p th:text="${error}" class="text-danger mb-3"></p>
+                        <button type="submit" class="btn btn-primary">Đăng nhập</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
