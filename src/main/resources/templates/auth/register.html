@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en" layout:decorate="template">
+<body>
+<section layout:fragment="content" class="h-100">
+    <div class="row justify-content-center h-100">
+        <div class="col-md-10 col-lg-8 d-flex flex-column nowrap justify-content-center">
+            <div class="card mt-4 mb-4">
+                <div class="card-header">
+                    <h4 class="card-title">Đăng ký tài khoản mới</h4>
+                </div>
+                <div class="card-body bd-sidebar">
+                    <form th:action="@{/register}" th:object="${registerDTO}" method="post" class="p-md-4 bd-links">
+                        <input type="hidden" th:field="*{token}">
+                        <div class="mb-3">
+                            <div th:replace="fragments/input :: customInput('username', 'text', 'bi-person', 'Tên đăng nhập')"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/input :: customInput('password', 'password', 'bi-key', 'Mật khẩu')"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/input :: customInput('confirmPassword', 'password', 'bi-key', 'Nhập lại mật khẩu')"></div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <div th:replace="fragments/input :: customInput('firstName', 'text', 'bi-person', 'Họ')"></div>
+                            </div>
+                            <div class="col-6">
+                                <div th:replace="fragments/input :: customInput('lastName', 'text', 'bi-person', 'Tên')"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div th:replace="fragments/input :: customInput('birthday', 'date', 'bi-calendar', 'Ngày sinh')"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="input-group">
+                                    <div class="input-group-text p-3">
+                                        <i class="bi bi-person"></i>
+                                    </div>
+                                    <div class="form-floating">
+                                        <select th:field="*{gender}" class="form-select" required placeholder="">
+                                            <option value="true">Nam</option>
+                                            <option value="false">Nữ</option>
+                                        </select>
+                                        <label th:for="*{gender}" class="form-label ">Giới tính</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 col-lg-6 mb-3">
+                                <div th:replace="fragments/input :: customInput('address', 'text', 'bi-geo-alt', 'Địa chỉ')"></div>
+                            </div>
+                            <div class="col-12 col-lg-6 mb-3">
+                                <div th:replace="fragments/input :: customInput('phone', 'text', 'bi-telephone', 'Số điện thoại')"></div>
+                            </div>
+                        </div>
+                        <div th:replace="fragments/recapcha :: recapcha"></div>
+                        <p th:text="${error}" class="text-danger mb-3"></p>
+                        <button type="submit" class="btn btn-primary">Đăng ký</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
