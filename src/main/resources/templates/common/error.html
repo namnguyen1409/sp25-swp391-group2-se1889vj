@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en" layout:decorate="template">
+<body>
+<section layout:fragment="content" class="m-auto h-100 ">
+  <div class="h-100 ">
+    <div class="d-flex align-items-center justify-content-center h-100 px-2">
+      <div class="text-center">
+        <h1 class="display-1 fw-bold">404</h1>
+        <p class="fs-2 fw-medium mt-4" th:text="${errorTitle}"></p>
+        <p class="mt-4 mb-5" th:text="${errorDescription}"></p>
+        <a href="/" class="btn btn-secondary fw-semibold rounded-pill px-4 py-2 custom-btn">
+          Trở về trang chủ
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+</body>
+</html>
