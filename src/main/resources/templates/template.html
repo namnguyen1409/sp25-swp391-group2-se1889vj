@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en"
+      data-bs-theme="auto"
+      class="h-100"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title th:text="${title}"></title>
+<!--    icon config-->
+    <link rel="icon" th:href="@{/images/logo.png}" type="image/x-icon"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <link th:if="${title == 'Home'}" rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intro.js/minified/introjs.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+</head>
+<body class="bg-body-tertiary d-flex flex-column h-100">
+
+<svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+    <symbol id="check2" viewBox="0 0 16 16">
+        <path
+                d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+    </symbol>
+    <symbol id="circle-half" viewBox="0 0 16 16">
+        <path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
+    </symbol>
+    <symbol id="moon-stars-fill" viewBox="0 0 16 16">
+        <path
+                d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+        <path
+                d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
+    </symbol>
+    <symbol id="sun-fill" viewBox="0 0 16 16">
+        <path
+                d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+    </symbol>
+</svg>
+
+<svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+    <symbol id="bootstrap" viewBox="0 0 118 94">
+        <title>Bootstrap</title>
+        <path fill-rule="evenodd" clip-rule="evenodd"
+              d="M24.509 0c-6.733 0-11.715 5.893-11.492 12.284.214 6.14-.064 14.092-2.066 20.577C8.943 39.365 5.547 43.485 0 44.014v5.972c5.547.529 8.943 4.649 10.951 11.153 2.002 6.485 2.28 14.437 2.066 20.577C12.794 88.106 17.776 94 24.51 94H93.5c6.733 0 11.714-5.893 11.491-12.284-.214-6.14.064-14.092 2.066-20.577 2.009-6.504 5.396-10.624 10.943-11.153v-5.972c-5.547-.529-8.934-4.649-10.943-11.153-2.002-6.484-2.28-14.437-2.066-20.577C105.214 5.894 100.233 0 93.5 0H24.508zM80 57.863C80 66.663 73.436 72 62.543 72H44a2 2 0 01-2-2V24a2 2 0 012-2h18.437c9.083 0 15.044 4.92 15.044 12.474 0 5.302-4.01 10.049-9.119 10.88v.277C75.317 46.394 80 51.21 80 57.863zM60.521 28.34H49.948v14.934h8.905c6.884 0 10.68-2.772 10.68-7.727 0-4.643-3.264-7.207-9.012-7.207zM49.948 49.2v16.458H60.91c7.167 0 10.964-2.876 10.964-8.281 0-5.406-3.903-8.178-11.425-8.178H49.948z">
+        </path>
+    </symbol>
+</svg>
+
+<div class="flex-grow-1 d-flex">
+    <aside sec:authorize="isAuthenticated()" th:replace="~{fragments/sidebar :: sidebar}"></aside>
+    <main class="col-12 col-lg-9 bg-body-tertiary align-self-auto d-flex flex-column"  id="main">
+        <!--Navbar fragment-->
+        <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+
+        <div class="container-fluid flex-grow-1">
+            <div th:if="${flashMessage}" class="alert alert-dismissible fade show mt-3"
+                 th:classappend="'alert-' + ${flashMessageType}" role="alert">
+                <span th:text="${flashMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            <section layout:fragment="content"></section>
+        </div>
+
+    </main>
+</div>
+<div th:replace="~{fragments/footer :: footer}"></div>
+<div class="position-fixed bottom-0 end-0 p-3 mb-5">
+    <p sec:authorize="hasRole('ADMIN')">
+        Bạn đang đăng nhập với quyền <span class="badge bg-success">ADMIN</span>
+    </p>
+    <p sec:authorize="hasRole('OWNER')">
+        Bạn đang đăng nhập với quyền <span class="badge bg-success">OWNER</span>
+    </p>
+    <p sec:authorize="hasRole('STAFF')">
+        Bạn đang đăng nhập với quyền <span class="badge bg-success">STAFF</span>
+    </p>
+</div>
+
+<div th:replace="~{fragments/modal :: modal}"></div>
+
+
+
+<div sec:authorize="isAuthenticated()" class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvasExample"
+     aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasExampleLabel">
+            Danh mục
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <a href="/"
+           class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+            <img th:src="@{/images/logo.png}" class="img-thumbnail rounded-circle me-2 bg-light" alt="logo" width="50" height="50">
+            <span class="d-print-block fw-bold fs-3">RSMS</span>
+        </a>
+        <hr>
+
+        <ul th:replace="~{fragments/featureList :: featureList('list-unstyled ps-0', 'list-feature')}"></ul>
+
+        <hr>
+    </div>
+</div>
+
+
+
+</body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.2/dist/chart.umd.js"
+        integrity="sha384-eI7PSr3L1XLISH8JdDII5YN/njoSsxfbrkCTnJrzXt+ENP5MOVBxD+l6sEG4zoLp"
+        crossorigin="anonymous"></script>
+<script async defer src="https://buttons.github.io/buttons.js"></script>
+<script th:src="@{/js/color-modes.js}"></script>
+<script th:src="@{/js/formatter.js}"></script>
+<script th:src="@{/js/modal.js}"></script>
+<script th:src="@{/js/main.js}"></script>
+<script sec:authorize="!isAuthenticated()">
+    $("#main").toggleClass('col-lg-9 col-lg-12');
+</script>
+
+
+<script sec:authorize="isAuthenticated()">
+    function changeclass() {
+        $("#main").toggleClass('col-lg-9 col-lg-12');
+        $("#collapseWidthExample").toggleClass('d-lg-block');
+    }
+</script>
+
+<script>
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+    });
+</script>
+
+
+
+
+<script th:if="${title == 'Home'}" src="https://cdn.jsdelivr.net/npm/intro.js/minified/intro.min.js"></script>
+<script th:if="${title == 'Home'}">
+    var intro = introJs();
+
+    if (window.innerWidth >= 1200) {
+        intro.setOptions({
+            nextLabel: 'Tiếp theo',
+            prevLabel: 'Quay lại',
+            doneLabel: 'Hoàn thành',
+            steps: [
+                {
+                    title: 'Xin chào!',
+                    intro: 'Đây là hướng dẫn nhanh về cách sử dụng hệ thống quản lý bán gạo (RSMS).',
+                    tooltipClass: 'bg-light text-dark'
+                },
+                {
+                    element: document.querySelector('#navbar'),
+                    intro: 'Đây là thanh tiêu đề của hệ thống, bao gồm tiêu đề, nút hiển thị sidebar và chức năng chuyển đổi chủ đề.',
+                    position: 'right',
+                    tooltipClass: 'bg-light text-dark'
+                },
+                {
+                    element: document.querySelector('#bd-theme-toggle'),
+                    intro: 'Bạn có thể bấm vào nút này để thay đổi chủ đề hệ thống.',
+                    position: 'left',
+                    tooltipClass: 'bg-light text-dark'
+                },
+                {
+                    element: document.querySelector('#sidebartoggle'),
+                    intro: 'Bấm vào nút này để ẩn và hiện sidebar.',
+                    position: 'right',
+                    tooltipClass: 'bg-light text-dark'
+                },
+                {
+                    element: document.querySelector('#collapseWidthExample'),
+                    intro: 'Danh sách các chức năng của hệ thống được hiển thị ở đây.',
+                    position: 'right',
+                    tooltipClass: 'bg-light text-dark'
+                },
+                {
+                    element: document.querySelector('#list-feature-pc'),
+                    intro: 'Bạn có thể bấm vào các chức năng để sử dụng.',
+                    position: 'right',
+                    tooltipClass: 'bg-light text-dark'
+                },
+                {
+                    title: 'Bạn đã sẵn sàng!',
+                    intro: 'Chúc bạn có trải nghiệm tốt khi sử dụng hệ thống!',
+                    tooltipClass: 'bg-light text-dark'
+                }
+            ]
+        })
+    } else {
+        intro.setOptions({
+            nextLabel: 'Tiếp theo',
+            prevLabel: 'Quay lại',
+            doneLabel: 'Hoàn thành',
+            steps: [
+                {
+                    title: 'Xin chào!',
+                    intro: 'Đây là hướng dẫn nhanh về cách sử dụng hệ thống quản lý bán gạo (RSMS).',
+                    tooltipClass: 'bg-light text-dark'
+                },
+                {
+                    element: document.querySelector('#navbar'),
+                    intro: 'Đây là thanh tiêu đề của hệ thống, bao gồm tiêu đề, nút hiển thị sidebar và chức năng chuyển đổi chủ đề.',
+                    position: 'right',
+                    tooltipClass: 'bg-light text-dark'
+                },
+                {
+                    element: document.querySelector('#bd-theme-toggle'),
+                    intro: 'Bạn có thể bấm vào nút này để thay đổi chủ đề hệ thống.',
+                    position: 'left',
+                    tooltipClass: 'bg-light text-dark'
+                },
+                {
+                    element: document.querySelector('#sidebarshow'),
+                    intro: 'Bấm vào nút này để hiển thị sidebar.',
+                    position: 'right',
+                    tooltipClass: 'bg-light text-dark'
+                },
+                {
+                    element: document.querySelector('#offcanvasExample'),
+                    intro: 'Danh sách các chức năng của hệ thống được hiển thị ở đây.',
+                    position: 'right',
+                    tooltipClass: 'bg-light text-dark'
+                },
+                {
+                    element: document.querySelector('#list-feature'),
+                    intro: 'Bạn có thể bấm vào các chức năng để sử dụng.',
+                    position: 'right',
+                    tooltipClass: 'bg-light text-dark'
+                },
+                {
+                    title: 'Bạn đã sẵn sàng!',
+                    intro: 'Chúc bạn có trải nghiệm tốt khi sử dụng hệ thống!',
+                    tooltipClass: 'bg-light text-dark'
+                }
+            ]
+        }).onchange(function (targetElement) {
+            if (targetElement.id === 'sidebarshow') {
+                setTimeout(() => {
+                    document.querySelector('#sidebarshow').click();
+                }, 1000);
+            }
+        });
+    }
+
+
+
+    $('#startTour').click(() => {
+            intro.start();
+            console.log('start tour')
+        }
+    )
+
+</script>
+<script>
+
+    // $('a').on('click', function (e) {
+    //     e.preventDefault();
+    //     let url = $(this).attr('href');
+    //
+    //     $.get(url, function (data) {
+    //         $('#main').html(
+    //             $(data).find('#main').html()
+    //         );
+    //         $(data).find('#main').find('script').each(function () {
+    //             eval($(this).text());
+    //         });
+    //     });
+    //
+    // });
+
+
+</script>
+
+
+</html>
