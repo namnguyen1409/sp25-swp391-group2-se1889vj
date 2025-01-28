@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en" layout:decorate="template"
+
+>
+<body>
+<section layout:fragment="content" class="container h-100">
+    <div class="row justify-content-center h-100">
+        <div class="col-md-10 col-lg-8 d-flex flex-column nowrap justify-content-center">
+            <div class="card mt-4 mb-4">
+                <div class="card-header">
+                    <h4 class="card-title">Thêm mới
+                        <span sec:authorize="hasRole('ADMIN')">
+              chủ cửa hàng
+            </span>
+                        <span sec:authorize="hasRole('OWNER')">
+              nhân viên
+            </span>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/users/add}" method="post" class="p-md-4">
+
+                        <div class=" input-group mb-4" data-bs-toggle="tooltip" data-bs-placement="top"
+                             title="Một email với đường dẫn xác nhận sẽ được gửi đến địa chỉ email này.">
+                            <div class="input-group-text p-3">
+                                <i class="bi bi-envelope-at-fill"></i>
+                            </div>
+                            <div class="form-floating">
+                                <input type="email" class="form-control" id="email" name="email" placeholder="Email" required>
+                                <label for="email">Email</label>
+                            </div>
+                        </div>
+
+                        <div th:replace="fragments/recapcha :: recapcha"></div>
+                        <p th:text="${error}" class="text-danger mb-3"></p>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-person-plus-fill"></i>
+                            Thêm mới
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
