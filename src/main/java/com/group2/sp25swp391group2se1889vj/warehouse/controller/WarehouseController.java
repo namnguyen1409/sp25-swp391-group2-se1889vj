@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor
-
 @Controller
 @RequestMapping("/warehouse")
 public class WarehouseController {
@@ -151,6 +150,37 @@ public class WarehouseController {
         return "warehouse/list";
     }
 
+    @GetMapping("/edit/{id}")
+    public String editWarehouse(
+            Model model,
+            @PathVariable Long id
+    ) {
+        WarehouseDTO warehouseDTO = warehouseService.findWarehouseById(id);
+        model.addAttribute("warehouse", warehouseDTO);
+        return "warehouse/edit";
+    }
+
+    @PostMapping("/edit/{id}")
+    public String editWarehouse(
+            @ModelAttribute("warehouse") @Validated WarehouseDTO warehouseDTO,
+            BindingResult bindingResult
+    ) {
+        // Kiểm tra xem kho hàng đã tồn tại chưa
+        if (warehouseService.isExistWarehouseByOwnerIdAndName(getUser().getId(), warehouseDTO.getName())) {
+            // Nếu kho hàng đã tồn tại, thêm lỗi vào bindingResult
+            bindingResult.rejectValue("name", "error.warehouse", "Tên kho đã tồn tại");
+        }
+        // Nếu có lỗi, trả về trang thêm kho hàng
+        if (bindingResult.hasErrors()) {
+            return "warehouse/edit";
+        }
+
+        warehouseDTO.setLocation(xssProtectedUtil.encodeAllHTMLElement(warehouseDTO.getLocation()));
+        warehouseDTO.setDescription(xssProtectedUtil.sanitize(warehouseDTO.getDescription()));
+        warehouseDTO.setUpdatedAt(LocalDateTime.now());
+        warehouseService.saveWarehouse(warehouseDTO);
+        return "redirect:/warehouse";
+    }
 
 
 
