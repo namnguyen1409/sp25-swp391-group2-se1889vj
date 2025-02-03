@@ -8,25 +8,26 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "warehouses")
+
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 
+@Entity
+@Table(name = "warehouses")
 public class Warehouse {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, columnDefinition = "VARCHAR(50)")
+    @Column(name = "name", nullable = false, columnDefinition = "NVARCHAR(50)")
     private String name;
 
-    @Column(name = "location", nullable = false, columnDefinition = "VARCHAR(100)")
+    @Column(name = "location", nullable = false, columnDefinition = "NVARCHAR(100)")
     private String location;
 
-    @Column(name = "description", nullable = false, columnDefinition = "VARCHAR(max)")
+    @Column(name = "description", nullable = false, columnDefinition = "NVARCHAR(max)")
     private String description;
 
     @Column(name = "createdAt", nullable = false)

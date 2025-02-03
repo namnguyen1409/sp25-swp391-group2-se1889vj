@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WarehouseDTO {
+    private Long id;
     @NotBlank(message = "Tên kho không được để trống")
     @Size(min = 6, max = 50, message = "Tên kho phải có từ 6 đến 50 ký tự")
     @Pattern(regexp = "^[^!@#$%^&*()_+=\\[\\]{}|,;:'\"<>?/\\\\~`]*$", message = "Tên kho không được chứa ký tự đặc biệt")

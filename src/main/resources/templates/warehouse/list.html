@@ -1,46 +1,3 @@
-<!--<!DOCTYPE html>-->
-<!--<html xmlns:th="http://www.thymeleaf.org"-->
-<!--      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"-->
-<!--      lang="en" layout:decorate="template"-->
-<!--    -->
-<!--&gt;-->
-<!--<body>-->
-<!--<div layout:fragment="content" class="container">-->
-<!--    <div class="row">-->
-<!--        <div class="col-md-12">-->
-<!--            <h1>Warehouses</h1>-->
-<!--            <table class="table table-striped">-->
-<!--&lt;!&ndash;                <thead>&ndash;&gt;-->
-<!--                <tr>-->
-<!--                    <th>Id</th>-->
-<!--                    <th>Name</th>-->
-<!--                    <th>Address</th>-->
-<!--                    <th>City</th>-->
-<!--                    <th>Country</th>-->
-<!--                    <th>Postal Code</th>-->
-<!--                    <th>Actions</th>-->
-<!--                </tr>-->
-<!--                </thead>-->
-<!--                <tbody>-->
-<!--                <tr th:each="warehouse : ${warehouses}">-->
-<!--                    <td th:text="${warehouse.id}"></td>-->
-<!--                    <td th:text="${warehouse.name}"></td>-->
-<!--                    <td th:text="${warehouse.address}"></td>-->
-<!--                    <td th:text="${warehouse.city}"></td>-->
-<!--                    <td th:text="${warehouse.country}"></td>-->
-<!--                    <td th:text="${warehouse.postalCode}"></td>-->
-<!--                    <td>-->
-<!--                        <a th:href="@{/warehouse/edit/{id}(id=${warehouse.id})}" class="btn btn-info">Edit</a>-->
-<!--                        <a th:href="@{/warehouse/delete/{id}(id=${warehouse.id})}" class="btn btn-danger">Delete</a>-->
-<!--                    </td>-->
-<!--                </tr>-->
-<!--                </tbody>-->
-<!--            </table>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</body>-->
-<!--</html>-->
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
@@ -80,7 +37,7 @@
                 </div>
             </div>
 
-            <input type="hidden" name="page" th:value="${inventories.number + 1}">
+            <input type="hidden" name="page" th:value="${warehouses.number + 1}">
             <input type="hidden" name="orderBy" th:value="${orderBy}">
             <input type="hidden" name="direction" th:value="${direction}">
 
@@ -103,18 +60,18 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="item : ${inventories}">
+                <tr th:each="item : ${warehouses}">
                     <td th:each="field : ${fields}" th:text="${item[field]}" th:classappend="${fieldClasses[__${field}__]}">
                         Giá trị
                     </td>
                     <td class="text-center">
-                        <a th:href="@{'/inventory/detail/' + ${item.id}}" class="btn btn-info">
+                        <a th:href="@{'/warehouse/detail/' + ${item.id}}" class="btn btn-info">
                             <i class="bi bi-eye-fill"></i>
                         </a>
-                        <a th:href="@{'/inventory/edit/' + ${item.id}}" class="btn btn-warning">
+                        <a th:href="@{'/warehouse/edit/' + ${item.id}}" class="btn btn-warning">
                             <i class="bi bi-pencil-fill"></i>
                         </a>
-                        <a th:href="@{'/inventory/delete/' + ${item.id}}" class="btn btn-danger">
+                        <a th:href="@{'/warehouse/delete/' + ${item.id}}" class="btn btn-danger">
                             <i class="bi bi-trash-fill"></i>
                         </a>
                     </td>
@@ -122,7 +79,7 @@
                 </tbody>
             </table>
         </div>
-        <div th:replace="fragments/pagination :: pagination(${inventories})"></div>
+        <div th:replace="fragments/pagination :: pagination(${warehouses})"></div>
     </div>
 
     <script>
