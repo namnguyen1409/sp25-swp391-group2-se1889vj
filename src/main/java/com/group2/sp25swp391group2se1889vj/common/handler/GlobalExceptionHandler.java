@@ -61,6 +61,8 @@ public class GlobalExceptionHandler {
                         "Lỗi hệ thống",
                         "Xin lỗi, đã xảy ra lỗi hệ thống. Vui lòng thử lại sau."));
         System.out.println(exception.getMessage());
+        // in ra class name của exception
+        System.out.println(exception.getClass().getName());
         return "common/error";
     }
 

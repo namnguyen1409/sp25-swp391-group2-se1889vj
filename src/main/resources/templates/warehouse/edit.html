@@ -14,7 +14,8 @@
           <h4 class="card-title"> Thêm mới kho hàng</h4>
         </div>
         <div class="card-body">
-          <form th:action="@{/warehouse/add}" method="post" class="p-md-4" th:object="${warehouse}">
+          <form th:action="@{/warehouse/edit}" method="post" class="p-md-4" th:object="${warehouse}">
+            <input type="hidden" th:field="*{id}">
             <div class="mb-3">
               <div th:replace="fragments/input :: customInput('name', 'text', 'bi-hash', 'Tên kho hàng')"></div>
             </div>

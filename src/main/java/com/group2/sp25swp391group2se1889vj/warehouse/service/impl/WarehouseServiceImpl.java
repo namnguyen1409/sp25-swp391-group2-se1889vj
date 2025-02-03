@@ -58,6 +58,18 @@ public class WarehouseServiceImpl implements WarehouseService {
     }
 
     @Override
+    public void updateWarehouse(WarehouseDTO warehouseDTO) {
+        Warehouse warehouse = warehouseRepository.findById(warehouseDTO.getId()).orElse(null);
+        if(warehouse != null){
+            warehouse.setName(warehouseDTO.getName());
+            warehouse.setLocation(warehouseDTO.getLocation());
+            warehouse.setDescription(warehouseDTO.getDescription());
+            warehouseRepository.save(warehouse);
+        }
+    }
+
+
+    @Override
     public void deleteWarehouseById(Long id) {
         warehouseRepository.deleteById(id);
     }
@@ -76,4 +88,6 @@ public class WarehouseServiceImpl implements WarehouseService {
     public Page<WarehouseDTO> findPaginatedWarehousesByOwnerIdAndLocationContaining(Long ownerId, String location, Pageable pageable) {
         return warehouseRepository.findByOwnerIdAndLocationContaining(ownerId, location, pageable).map(warehouseMapper::mapToWarehouseDTO);
     }
+
+
 }

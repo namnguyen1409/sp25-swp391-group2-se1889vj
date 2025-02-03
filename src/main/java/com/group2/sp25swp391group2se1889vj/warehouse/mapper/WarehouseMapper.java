@@ -3,6 +3,7 @@ package com.group2.sp25swp391group2se1889vj.warehouse.mapper;
 import com.group2.sp25swp391group2se1889vj.user.repository.UserRepository;
 import com.group2.sp25swp391group2se1889vj.warehouse.dto.WarehouseDTO;
 import com.group2.sp25swp391group2se1889vj.warehouse.entity.Warehouse;
+import com.group2.sp25swp391group2se1889vj.warehouse.repository.WarehouseRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
@@ -16,12 +17,15 @@ import org.springframework.stereotype.Component;
 public class WarehouseMapper {
     // Khai báo một tham chiếu đến một đối tượng UserRepository để thực hiện việc tìm kiếm User và thiết lập cho Inventory hoặc InventoryDTO
     private final UserRepository userRepository;
+
+    private final WarehouseRepository warehouseRepository;
     // Khai báo một tham chiếu đến một đối tượng ModelMapper để thực hiện việc chuyển đổi dữ liệu giữa Warehouse và WarehouseDTO
     ModelMapper modelMapper = new ModelMapper();
 
     // Constructor
-    public WarehouseMapper(UserRepository userRepository) {
+    public WarehouseMapper(UserRepository userRepository, WarehouseRepository warehouseRepository) {
         this.userRepository = userRepository;
+        this.warehouseRepository = warehouseRepository;
     }
 
     /**
@@ -56,6 +60,5 @@ public class WarehouseMapper {
         warehouse.setOwner(userRepository.findById(warehouseDTO.getOwnerId()).orElse(null));
         return warehouse;
     }
-
 
 }

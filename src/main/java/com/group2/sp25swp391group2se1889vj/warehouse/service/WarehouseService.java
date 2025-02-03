@@ -10,8 +10,10 @@ public interface WarehouseService {
     Page<WarehouseDTO> findPaginatedWarehousesByOwnerIdAndNameContaining(Long ownerId, String name, int pageNumber, int pageSize);
     WarehouseDTO findWarehouseById(Long id);
     void saveWarehouse(WarehouseDTO WarehouseDTO);
+    void updateWarehouse(WarehouseDTO warehouseDTO);
     void deleteWarehouseById(Long id);
     boolean isExistWarehouseByOwnerIdAndName(Long ownerId, String name);
     Page<WarehouseDTO> findPaginatedWarehousesByOwnerIdAndNameContaining(Long ownerId, String name, Pageable pageable);
     Page<WarehouseDTO> findPaginatedWarehousesByOwnerIdAndLocationContaining(Long ownerId, String location, Pageable pageable);
+
 }

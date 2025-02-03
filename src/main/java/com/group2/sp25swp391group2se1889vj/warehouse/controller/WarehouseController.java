@@ -160,11 +160,12 @@ public class WarehouseController {
         return "warehouse/edit";
     }
 
-    @PostMapping("/edit/{id}")
+    @PostMapping("/edit")
     public String editWarehouse(
             @ModelAttribute("warehouse") @Validated WarehouseDTO warehouseDTO,
             BindingResult bindingResult
     ) {
+        System.out.println(warehouseDTO);
         // Kiểm tra xem kho hàng đã tồn tại chưa
         if (warehouseService.isExistWarehouseByOwnerIdAndName(getUser().getId(), warehouseDTO.getName())) {
             // Nếu kho hàng đã tồn tại, thêm lỗi vào bindingResult
@@ -174,11 +175,9 @@ public class WarehouseController {
         if (bindingResult.hasErrors()) {
             return "warehouse/edit";
         }
-
         warehouseDTO.setLocation(xssProtectedUtil.encodeAllHTMLElement(warehouseDTO.getLocation()));
         warehouseDTO.setDescription(xssProtectedUtil.sanitize(warehouseDTO.getDescription()));
-        warehouseDTO.setUpdatedAt(LocalDateTime.now());
-        warehouseService.saveWarehouse(warehouseDTO);
+        warehouseService.updateWarehouse(warehouseDTO);
         return "redirect:/warehouse";
     }
 

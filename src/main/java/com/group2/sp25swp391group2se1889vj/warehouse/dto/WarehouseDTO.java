@@ -26,5 +26,4 @@ public class WarehouseDTO {
     private boolean isDeleted;
     private LocalDateTime createdAt;
     private Long ownerId;
-
 }
