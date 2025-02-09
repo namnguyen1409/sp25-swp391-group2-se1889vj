@@ -11,7 +11,7 @@
     <div class="col-md-10 col-lg-8 d-flex flex-column nowrap justify-content-center">
       <div class="card mt-4 mb-4">
         <div class="card-header">
-          <h4 class="card-title"> Thêm mới kho hàng</h4>
+          <h4 class="card-title"> Chỉnh sửa kho hàng</h4>
         </div>
         <div class="card-body">
           <form th:action="@{/warehouse/edit}" method="post" class="p-md-4" th:object="${warehouse}">
@@ -28,8 +28,8 @@
             <div th:replace="fragments/recapcha :: recapcha"></div>
             <p th:text="${error}" class="text-danger mb-3"></p>
             <button type="submit" class="btn btn-primary">
-              <i class="bi bi-person-plus-fill"></i>
-              Thêm mới
+              <i class="bi bi-pencil-square"></i>
+              Chỉnh sửa
             </button>
           </form>
         </div>
