@@ -67,6 +67,12 @@ public class AuthController {
 
     @GetMapping("/login")
     public String login(Model model) {
+
+        if (SecurityContextHolder.getContext().getAuthentication().isAuthenticated()) {
+            return "redirect:/";
+        }
+
+
         model.addAttribute("title", "Login");
         model.addAttribute("loginDTO", new LoginDTO());
 
@@ -160,7 +166,7 @@ public class AuthController {
         user.setLastName(registerDTO.getLastName());
         user.setPhone(registerDTO.getPhone());
         user.setGender(registerDTO.isGender());
-        user.setDob(LocalDate.parse(registerDTO.getDob()));
+        user.setBirthday(LocalDate.parse(registerDTO.getDob()));
         user.setAddress(registerDTO.getAddress());
         user.setEmail(registrationToken.getEmail());
         user.setRole(registrationToken.getRole());
