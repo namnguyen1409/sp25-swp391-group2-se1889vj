@@ -54,7 +54,7 @@
 
 <div class="flex-grow-1 d-flex">
     <aside sec:authorize="isAuthenticated()" th:replace="~{fragments/sidebar :: sidebar}"></aside>
-    <main class="col-12 col-lg-9 bg-body-tertiary align-self-auto d-flex flex-column" id="main">
+    <main class="col-12 col-lg-10 bg-body-tertiary align-self-auto d-flex flex-column" id="main">
         <!--Navbar fragment-->
         <nav th:replace="~{fragments/navbar :: navbar}"></nav>
 
@@ -131,13 +131,13 @@
 <script th:src="@{/js/modal.js}"></script>
 <script th:src="@{/js/main.js}"></script>
 <script sec:authorize="!isAuthenticated()">
-    $("#main").toggleClass('col-lg-9 col-lg-12');
+    $("#main").toggleClass('col-lg-10 col-lg-12');
 </script>
 
 
 <script sec:authorize="isAuthenticated()">
     function changeclass() {
-        $("#main").toggleClass('col-lg-9 col-lg-12');
+        $("#main").toggleClass('col-lg-10 col-lg-12');
         $("#collapseWidthExample").toggleClass('d-lg-block');
     }
 </script>
