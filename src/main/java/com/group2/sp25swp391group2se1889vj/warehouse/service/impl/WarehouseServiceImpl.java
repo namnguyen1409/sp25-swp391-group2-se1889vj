@@ -89,5 +89,11 @@ public class WarehouseServiceImpl implements WarehouseService {
         return warehouseRepository.findByOwnerIdAndLocationContaining(ownerId, location, pageable).map(warehouseMapper::mapToWarehouseDTO);
     }
 
+    @Override
+    public Warehouse searchWarehouseByOwnerIdAndName(Long ownerId, String name) {
+        Warehouse warehouse = warehouseRepository.findByOwnerIdAndName(ownerId, name);
+        return warehouse;
+    }
+
 
 }
