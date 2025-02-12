@@ -165,7 +165,17 @@ public class WarehouseController {
             @ModelAttribute("warehouse") @Validated WarehouseDTO warehouseDTO,
             BindingResult bindingResult
     ) {
-        warehouseDTO.setName(xssProtectedUtil.encodeAllHTMLElement(warehouseDTO.getName()));
+        WarehouseDTO oldWarehouse = warehouseService.findWarehouseById(warehouseDTO.getId());
+        String newName = xssProtectedUtil.encodeAllHTMLElement(warehouseDTO.getName());
+        // Kiểm tra xem kho hàng đã tồn tại chưa (trừ chính nó)
+        if(!oldWarehouse.getName().equals(newName) && warehouseService.searchWarehouseByOwnerIdAndName(getUser().getId(), newName) != null) {
+            // Nếu kho hàng đã tồn tại, thêm lỗi vào bindingResult
+            bindingResult.rejectValue("name", "error.warehouse", "Tên kho đã tồn tại");
+            return "warehouse/edit";
+        }
+        else{
+            warehouseDTO.setName(newName);
+        }
         warehouseDTO.setLocation(xssProtectedUtil.encodeAllHTMLElement(warehouseDTO.getLocation()));
         warehouseDTO.setDescription(xssProtectedUtil.sanitize(warehouseDTO.getDescription()));
         warehouseService.updateWarehouse(warehouseDTO);

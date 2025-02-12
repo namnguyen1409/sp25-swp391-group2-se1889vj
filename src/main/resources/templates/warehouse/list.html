@@ -36,7 +36,9 @@
                     <label class="input-group-text" for="size">kết quả/trang</label>
                 </div>
             </div>
-
+            <div class="text-end">
+                <a th:href="@{'/warehouse/add'}" class="btn btn-secondary"><i class="bi bi-plus-circle"></i> Thêm kho mới</a>
+            </div>
             <input type="hidden" name="page" th:value="${warehouses.number + 1}">
             <input type="hidden" name="orderBy" th:value="${orderBy}">
             <input type="hidden" name="direction" th:value="${direction}">
@@ -78,9 +80,6 @@
                 </tr>
                 </tbody>
             </table>
-            <div class="text-center">
-                <a th:href="@{'/warehouse/add'}" class="btn btn-success"><i class="bi bi-plus-circle"></i> Thêm kho mới</a>
-            </div>
         </div>
         <div th:replace="fragments/pagination :: pagination(${warehouses})"></div>
     </div>

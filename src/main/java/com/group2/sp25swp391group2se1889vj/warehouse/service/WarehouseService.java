@@ -1,6 +1,7 @@
 package com.group2.sp25swp391group2se1889vj.warehouse.service;
 
 import com.group2.sp25swp391group2se1889vj.warehouse.dto.WarehouseDTO;
+import com.group2.sp25swp391group2se1889vj.warehouse.entity.Warehouse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -15,5 +16,5 @@ public interface WarehouseService {
     boolean isExistWarehouseByOwnerIdAndName(Long ownerId, String name);
     Page<WarehouseDTO> findPaginatedWarehousesByOwnerIdAndNameContaining(Long ownerId, String name, Pageable pageable);
     Page<WarehouseDTO> findPaginatedWarehousesByOwnerIdAndLocationContaining(Long ownerId, String location, Pageable pageable);
-
+    Warehouse searchWarehouseByOwnerIdAndName(Long ownerId, String name);
 }
