@@ -165,20 +165,21 @@ public class WarehouseController {
             @ModelAttribute("warehouse") @Validated WarehouseDTO warehouseDTO,
             BindingResult bindingResult
     ) {
-        System.out.println(warehouseDTO);
-        // Kiểm tra xem kho hàng đã tồn tại chưa
-        if (warehouseService.isExistWarehouseByOwnerIdAndName(getUser().getId(), warehouseDTO.getName())) {
-            // Nếu kho hàng đã tồn tại, thêm lỗi vào bindingResult
-            bindingResult.rejectValue("name", "error.warehouse", "Tên kho đã tồn tại");
-        }
-        // Nếu có lỗi, trả về trang thêm kho hàng
-        if (bindingResult.hasErrors()) {
-            return "warehouse/edit";
-        }
+        warehouseDTO.setName(xssProtectedUtil.encodeAllHTMLElement(warehouseDTO.getName()));
         warehouseDTO.setLocation(xssProtectedUtil.encodeAllHTMLElement(warehouseDTO.getLocation()));
         warehouseDTO.setDescription(xssProtectedUtil.sanitize(warehouseDTO.getDescription()));
         warehouseService.updateWarehouse(warehouseDTO);
         return "redirect:/warehouse";
+    }
+
+    @GetMapping("/detail/{id}")
+    public String detailWarehouse(
+            Model model,
+            @PathVariable Long id
+    ) {
+        WarehouseDTO warehouseDTO = warehouseService.findWarehouseById(id);
+        model.addAttribute("warehouse", warehouseDTO);
+        return "warehouse/detail";
     }
 
 
