@@ -60,7 +60,7 @@ public class DataInitializer {
             admin.setEmail(adminEmail);
             admin.setPhone(adminPhone);
             admin.setGender(adminGender);
-            admin.setDob(LocalDate.parse(adminBirthday));
+            admin.setBirthday(LocalDate.parse(adminBirthday));
             admin.setAddress(adminAddress);
             userRepository.save(admin);
             System.out.println("Admin created");

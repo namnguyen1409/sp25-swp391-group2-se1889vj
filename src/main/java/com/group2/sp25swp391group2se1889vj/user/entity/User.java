@@ -44,7 +44,7 @@ public class User {
     private Boolean gender;
 
     @Column(name = "birthday", nullable = false)
-    private LocalDate dob;
+    private LocalDate birthday;
 
     @Column(name = "address", nullable = false, columnDefinition = "nvarchar(255)")
     private String address;
