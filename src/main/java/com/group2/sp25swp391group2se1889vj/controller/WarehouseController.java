@@ -1,5 +1,6 @@
 package com.group2.sp25swp391group2se1889vj.controller;
 
+import com.group2.sp25swp391group2se1889vj.exception.Http404;
 import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
 import com.group2.sp25swp391group2se1889vj.util.XSSProtectedUtil;
 import com.group2.sp25swp391group2se1889vj.entity.User;
@@ -45,15 +46,9 @@ public class WarehouseController {
         return pairs;
     }
 
-//    @GetMapping
-//    public String getList() {
-//        return "warehouse/list";
-//    }
 
     @GetMapping("/add")
-    public String addWarehouse(
-            Model model
-    ) {
+    public String addWarehouse(Model model) {
         model.addAttribute("warehouse", new WarehouseDTO());
         return "warehouse/add";
     }
@@ -63,18 +58,15 @@ public class WarehouseController {
             @ModelAttribute("warehouse")  @Validated WarehouseDTO warehouseDTO,
             BindingResult bindingResult
     ) {
-        // Kiểm tra xem kho hàng đã tồn tại chưa
         if (warehouseService.isExistWarehouseByOwnerIdAndName(getUser().getId(), warehouseDTO.getName())) {
-            // Nếu kho hàng đã tồn tại, thêm lỗi vào bindingResult
             bindingResult.rejectValue("name", "error.warehouse", "Tên kho đã tồn tại");
         }
-        // Nếu có lỗi, trả về trang thêm kho hàng
         if (bindingResult.hasErrors()) {
             return "warehouse/add";
         }
-
         warehouseDTO.setLocation(xssProtectedUtil.encodeAllHTMLElement(warehouseDTO.getLocation()));
         warehouseDTO.setDescription(xssProtectedUtil.sanitize(warehouseDTO.getDescription()));
+        warehouseDTO.setCreatedAt(LocalDateTime.now());
         warehouseService.saveWarehouse(warehouseDTO);
         return "redirect:/warehouse";
     }
@@ -89,20 +81,17 @@ public class WarehouseController {
             @RequestParam(value = "orderBy", required = false, defaultValue = "createdAt") String orderBy,
             @RequestParam(value = "direction", required = false, defaultValue = "desc") String direction
     ) {
-        // Cấu hình các trường hiển thị
+
         List<String> fields = Arrays.asList("name", "location", "createdAt");
-        // Kiểm tra xem searchBy có tồn tại trong fields không, nếu không thì gán searchBy = "name"
         if (!fields.contains(searchBy)) {
             searchBy = "name";
         }
-        // Kiểm tra xem orderBy có tồn tại trong fields không, nếu không thì gán orderBy = "createdAt"
         if (!fields.contains(orderBy)) {
             orderBy = "createdAt";
         }
-        // Tạo các cặp fieldTitles và fieldClasses
+
         Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên kho", "Địa chỉ", "Ngày tạo"));
         Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "", "dateTime"));
-        // Các trường có thể tìm kiếm được
         List<String> searchAbleFields = Arrays.asList("name", "location");
 
 
@@ -111,30 +100,24 @@ public class WarehouseController {
         model.addAttribute("fieldClasses", fieldClasses);
         model.addAttribute("searchAbleFields", searchAbleFields);
 
-        // Tạo đối tượng Pageable để phân trang và sắp xếp
         Sort sortDirection = "asc".equalsIgnoreCase(direction)
                 ? Sort.by(orderBy).ascending()
                 : Sort.by(orderBy).descending();
         Pageable pageable = PageRequest.of(page - 1, size, sortDirection);
 
-        // Lấy danh sách kho hàng theo ownerId
         Page<WarehouseDTO> warehouses;
         if (search != null && !search.isEmpty()) {
             warehouses = switch (searchBy) {
-                // Tìm kiếm theo tên
                 case "name" -> warehouseService.findPaginatedWarehousesByOwnerIdAndNameContaining(
                         getUser().getId(), search, pageable);
-                // Tìm kiếm theo địa chỉ
                 case "location" -> warehouseService.findPaginatedWarehousesByOwnerIdAndLocationContaining(
                         getUser().getId(), search, pageable);
-                // Mặc định
                 default -> warehouseService.findPaginatedWarehousesByOwnerId(getUser().getId(), pageable);
             };
         } else {
             warehouses = warehouseService.findPaginatedWarehousesByOwnerId(getUser().getId(), pageable);
         }
 
-        // Add additional attributes to the model
         model.addAttribute("warehouses", warehouses);
         model.addAttribute("page", page);
         model.addAttribute("size", size);
@@ -149,9 +132,18 @@ public class WarehouseController {
     @GetMapping("/edit/{id}")
     public String editWarehouse(
             Model model,
-            @PathVariable Long id
+            @PathVariable("id") Long id
     ) {
-        WarehouseDTO warehouseDTO = warehouseService.findWarehouseById(id);
+        WarehouseDTO warehouseDTO  = warehouseService.findWarehouseById(id);
+
+        if (warehouseDTO == null) {
+            throw new Http404("Không tìm thấy kho hàng mà bạn yêu cầu");
+        }
+
+        if (!warehouseDTO.getCreatedBy().equals(getUser().getId())) {
+            throw new Http404("Bạn không có quyền truy cập kho hàng này");
+        }
+
         model.addAttribute("warehouse", warehouseDTO);
         return "warehouse/edit";
     }
@@ -163,9 +155,8 @@ public class WarehouseController {
     ) {
         WarehouseDTO oldWarehouse = warehouseService.findWarehouseById(warehouseDTO.getId());
         String newName = xssProtectedUtil.encodeAllHTMLElement(warehouseDTO.getName());
-        // Kiểm tra xem kho hàng đã tồn tại chưa (trừ chính nó)
+
         if(!oldWarehouse.getName().equals(newName) && warehouseService.searchWarehouseByOwnerIdAndName(getUser().getId(), newName) != null) {
-            // Nếu kho hàng đã tồn tại, thêm lỗi vào bindingResult
             bindingResult.rejectValue("name", "error.warehouse", "Tên kho đã tồn tại");
             return "warehouse/edit";
         }

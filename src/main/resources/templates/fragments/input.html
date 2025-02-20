@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <body>
 
-<div class="input-group has-validation" th:fragment="customInput(name, type, icon, label)">
+<div class="input-group has-validation" th:fragment="customInput(name, type, icon, label, require)">
 
     <div class="input-group">
         <span class="input-group-text p-3">
@@ -11,7 +11,8 @@
         <div class="form-floating"
              th:classappend="${#fields.hasErrors('__${name}__')} ? 'is-invalid' : ''"
         >
-            <input class="form-control" required
+            <input class="form-control"
+                   th:required="${required}"
                    th:classappend="${#fields.hasErrors('__${name}__')} ? 'is-invalid' : ''"
                    th:field="*{__${name}__}"
                    th:id="*{__${name}__}" th:placeholder="${label}" th:type="${type}">
