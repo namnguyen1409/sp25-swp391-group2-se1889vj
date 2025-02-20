@@ -20,5 +20,6 @@ public class CustomerDTO extends BaseDTO {
     private String phone;
     private String email;
     private String address;
+    private Long ownerId;
     private BigDecimal balance = BigDecimal.ZERO;
 }

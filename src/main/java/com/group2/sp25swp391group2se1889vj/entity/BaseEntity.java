@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.SQLUpdate;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -17,6 +18,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 @Data
@@ -33,11 +35,11 @@ public abstract class BaseEntity {
     private Long id;
 
     @CreatedDate
-    @Column(updatable = false)
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @CreatedBy
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", updatable = false)
     private User createdBy;
 
@@ -51,7 +53,7 @@ public abstract class BaseEntity {
     private boolean isDeleted = false;
 
     @LastModifiedBy
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "updated_by")
     private User updatedBy;
 }

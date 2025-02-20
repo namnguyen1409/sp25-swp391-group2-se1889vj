@@ -18,6 +18,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Page<Customer> findByCreatedByIdAndAddressContaining(Long createdById, String address, Pageable pageable);
     Boolean existsByPhone(String phone);
     Boolean existsByEmail(String email);
+    Boolean existsByPhoneAndIdNot(String phone, Long id);
+    Boolean existsByEmailAndIdNot(String email, Long id);
 
     Optional<Customer> findByPhone(String phone);
 }

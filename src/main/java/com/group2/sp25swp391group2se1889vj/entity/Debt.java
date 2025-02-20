@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -29,7 +30,11 @@ public class Debt extends BaseEntity {
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
 
+    @Column(name = "debt_at", nullable = false)
+    private LocalDateTime debtAt;
 
+    @Column(name = "image", columnDefinition = "nvarchar(255)")
+    private String image;
 
     @ManyToOne
     @JoinColumn(name="customer_id", nullable = false)

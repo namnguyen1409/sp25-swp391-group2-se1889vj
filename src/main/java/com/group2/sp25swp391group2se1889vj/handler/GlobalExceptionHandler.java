@@ -60,6 +60,7 @@ public class GlobalExceptionHandler {
                 new Error("500",
                         "Lỗi hệ thống",
                         "Xin lỗi, đã xảy ra lỗi hệ thống. Vui lòng thử lại sau."));
+        exception.printStackTrace();
         System.out.println(exception.getMessage());
         // in ra class name của exception
         System.out.println(exception.getClass().getName());
