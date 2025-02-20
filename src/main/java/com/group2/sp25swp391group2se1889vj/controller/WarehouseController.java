@@ -75,8 +75,6 @@ public class WarehouseController {
 
         warehouseDTO.setLocation(xssProtectedUtil.encodeAllHTMLElement(warehouseDTO.getLocation()));
         warehouseDTO.setDescription(xssProtectedUtil.sanitize(warehouseDTO.getDescription()));
-        warehouseDTO.setCreatedAt(LocalDateTime.now());
-        warehouseDTO.setOwnerId(getUser().getId());
         warehouseService.saveWarehouse(warehouseDTO);
         return "redirect:/warehouse";
     }
