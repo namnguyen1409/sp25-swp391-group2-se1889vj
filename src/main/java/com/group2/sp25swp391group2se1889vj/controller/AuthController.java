@@ -1,5 +1,11 @@
 package com.group2.sp25swp391group2se1889vj.controller;
 
+import com.group2.sp25swp391group2se1889vj.dto.ChangePasswordDTO;
+import com.group2.sp25swp391group2se1889vj.entity.RegistrationToken;
+import com.group2.sp25swp391group2se1889vj.enums.MessageKeyEnum;
+import com.group2.sp25swp391group2se1889vj.enums.MessageTypeEnum;
+import com.group2.sp25swp391group2se1889vj.exception.Http400;
+import com.group2.sp25swp391group2se1889vj.exception.Http404;
 import com.group2.sp25swp391group2se1889vj.security.RecaptchaService;
 import com.group2.sp25swp391group2se1889vj.dto.LoginDTO;
 import com.group2.sp25swp391group2se1889vj.dto.RegisterDTO;
@@ -7,6 +13,7 @@ import com.group2.sp25swp391group2se1889vj.exception.InvalidRegistrationTokenExc
 import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
 import com.group2.sp25swp391group2se1889vj.security.JwtTokenProvider;
 import com.group2.sp25swp391group2se1889vj.security.RefreshTokenProvider;
+import com.group2.sp25swp391group2se1889vj.service.MessageService;
 import com.group2.sp25swp391group2se1889vj.service.StorageService;
 import com.group2.sp25swp391group2se1889vj.util.CookieUtil;
 import com.group2.sp25swp391group2se1889vj.util.EncryptionUtil;
@@ -50,6 +57,8 @@ public class AuthController {
     private final EncryptionUtil encryptionUtil;
     private final CookieUtil cookieUtil;
     private final StorageService storageService;
+    private final MessageService messageService;
+
 
     @Value("${refresh.token.expiration}")
     private String refreshTokenExpiration;
@@ -61,6 +70,30 @@ public class AuthController {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         return userDetails.getUser();
+    }
+
+    private void addFlashMessage(RedirectAttributes redirectAttributes, MessageKeyEnum messageKey, MessageTypeEnum messageType) {
+        redirectAttributes.addFlashAttribute("flashMessage", messageService.getMessage(messageKey.getKey()));
+        redirectAttributes.addFlashAttribute("flashMessageType", messageType.getType());
+    }
+
+    private boolean notValidateRecaptcha(String recaptchaResponse, BindingResult bindingResult) {
+        if (recaptchaService.notVerifyRecaptcha(recaptchaResponse)) {
+            bindingResult.rejectValue("recaptchaResponse", MessageKeyEnum.ERROR_RECAPTCHA.getKey());
+            return true;
+        }
+        return false;
+    }
+
+    private RegistrationToken validateRegistrationToken(String token) throws Exception {
+        var registrationToken = registrationTokenRepository.findByToken(encryptionUtil.encrypt(token));
+        if (registrationToken == null) {
+            throw new Http404(messageService.getMessage(MessageKeyEnum.ERROR_REGISTER_TOKEN_INVALID.getKey()));
+        }
+        if (registrationToken.getUpdatedAt().plusDays(1).isBefore(LocalDateTime.now())) {
+            throw new Http400(messageService.getMessage(MessageKeyEnum.ERROR_REGISTER_TOKEN_EXPIRED.getKey()));
+        }
+        return registrationToken;
     }
 
     @GetMapping("/login")
@@ -82,7 +115,7 @@ public class AuthController {
             BindingResult bindingResult,
             @RequestParam("g-recaptcha-response") String recaptchaResponse
     ) {
-        if (!recaptchaService.verifyRecaptcha(recaptchaResponse)) {
+        if (recaptchaService.notVerifyRecaptcha(recaptchaResponse)) {
             bindingResult.rejectValue("recaptchaResponse", "error.recaptcha", "Vui lòng xác minh bạn không phải là robot");
         }
 
@@ -118,20 +151,10 @@ public class AuthController {
             @RequestParam("token") String token,
             Model model
     ) throws Exception {
-
-
-        var registrationToken = registrationTokenRepository.findByToken(encryptionUtil.encrypt(token));
-        if (registrationToken == null) {
-            throw new InvalidRegistrationTokenException("Token không hợp lệ, liên hệ với quản trị viên để được hỗ trợ");
-        }
-        if (registrationToken.getUpdatedAt().plusDays(1).isBefore(LocalDateTime.now())) {
-            throw new InvalidRegistrationTokenException("Token đã hết hạn, liên hệ với quản trị viên để được hỗ trợ");
-        }
-
+        validateRegistrationToken(token);
         RegisterDTO registerDTO = new RegisterDTO();
         registerDTO.setToken(token);
         model.addAttribute("registerDTO", registerDTO);
-        model.addAttribute("title", "register");
         return "auth/register";
     }
 
@@ -141,7 +164,7 @@ public class AuthController {
             BindingResult bindingResult,
             @RequestParam("g-recaptcha-response") String recaptchaResponse
     ) throws Exception {
-        if (!recaptchaService.verifyRecaptcha(recaptchaResponse)) {
+        if (recaptchaService.notVerifyRecaptcha(recaptchaResponse)) {
             bindingResult.rejectValue("recaptchaResponse", "error.recaptcha", "Vui lòng xác minh bạn không phải là robot");
         }
         if (bindingResult.hasErrors()) {
@@ -194,7 +217,7 @@ public class AuthController {
                           RedirectAttributes redirectAttributes
     ) {
         System.out.println(avatar);
-        if (!recaptchaService.verifyRecaptcha(recaptchaResponse)) {
+        if (recaptchaService.notVerifyRecaptcha(recaptchaResponse)) {
             redirectAttributes.addFlashAttribute("flashMessage", "Vui lòng xác minh bạn không phải là robot");
             redirectAttributes.addFlashAttribute("flashMessageType", "danger");
         } else {
@@ -211,5 +234,34 @@ public class AuthController {
         return "redirect:/profile";
     }
 
+    @GetMapping("change-password")
+    public String changePassword(Model model) {
+        model.addAttribute("changePasswordDTO", new ChangePasswordDTO());
+        return "auth/change-password";
+    }
 
+    @PostMapping("change-password")
+    public String changePassword(
+            @Validated @ModelAttribute("changePasswordDTO") ChangePasswordDTO changePasswordDTO,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (bindingResult.hasErrors()) {
+            return "auth/change-password";
+        }
+        User user = getUser();
+        if (!passwordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPassword())) {
+            bindingResult.rejectValue("oldPassword", MessageKeyEnum.ERROR_CHANGE_PASSWORD_OLD.getKey());
+            return "auth/change-password";
+        }
+        user.setPassword(passwordEncoder.encode(changePasswordDTO.getPassword()));
+        userRepository.save(user);
+        addFlashMessage(redirectAttributes, MessageKeyEnum.SUCCESS_CHANGE_PASSWORD, MessageTypeEnum.SUCCESS);
+        return "redirect:/change-password";
+    }
+
+    /**
+     * Enumaration class of the different types of messages
+     * the same final
+     */
 }

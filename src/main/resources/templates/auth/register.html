@@ -14,25 +14,25 @@
                     <form th:action="@{/register}" th:object="${registerDTO}" method="post" class="p-md-4 bd-links">
                         <input type="hidden" th:field="*{token}">
                         <div class="mb-3">
-                            <div th:replace="fragments/input :: customInput('username', 'text', 'bi-person', 'Tên đăng nhập')"></div>
+                            <div th:replace="fragments/input :: customInput('username', 'text', 'bi-person', 'Tên đăng nhập', true)"></div>
                         </div>
                         <div class="mb-3">
-                            <div th:replace="fragments/input :: customInput('password', 'password', 'bi-key', 'Mật khẩu')"></div>
+                            <div th:replace="fragments/input :: customInput('password', 'password', 'bi-key', 'Mật khẩu', true)"></div>
                         </div>
                         <div class="mb-3">
-                            <div th:replace="fragments/input :: customInput('confirmPassword', 'password', 'bi-key', 'Nhập lại mật khẩu')"></div>
+                            <div th:replace="fragments/input :: customInput('confirmPassword', 'password', 'bi-key', 'Nhập lại mật khẩu', true)"></div>
                         </div>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <div th:replace="fragments/input :: customInput('firstName', 'text', 'bi-person', 'Họ')"></div>
+                                <div th:replace="fragments/input :: customInput('firstName', 'text', 'bi-person', 'Họ', true)"></div>
                             </div>
                             <div class="col-6">
-                                <div th:replace="fragments/input :: customInput('lastName', 'text', 'bi-person', 'Tên')"></div>
+                                <div th:replace="fragments/input :: customInput('lastName', 'text', 'bi-person', 'Tên', true)"></div>
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <div th:replace="fragments/input :: customInput('birthday', 'date', 'bi-calendar', 'Ngày sinh')"></div>
+                                <div th:replace="fragments/input :: customInput('birthday', 'date', 'bi-calendar', 'Ngày sinh', true)"></div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <div class="input-group">
@@ -51,10 +51,10 @@
                         </div>
                         <div class="row">
                             <div class="col-12 col-lg-6 mb-3">
-                                <div th:replace="fragments/input :: customInput('address', 'text', 'bi-geo-alt', 'Địa chỉ')"></div>
+                                <div th:replace="fragments/input :: customInput('address', 'text', 'bi-geo-alt', 'Địa chỉ', true)"></div>
                             </div>
                             <div class="col-12 col-lg-6 mb-3">
-                                <div th:replace="fragments/input :: customInput('phone', 'text', 'bi-telephone', 'Số điện thoại')"></div>
+                                <div th:replace="fragments/input :: customInput('phone', 'text', 'bi-telephone', 'Số điện thoại', true)"></div>
                             </div>
                         </div>
                         <div th:replace="fragments/recapcha :: recapcha"></div>
