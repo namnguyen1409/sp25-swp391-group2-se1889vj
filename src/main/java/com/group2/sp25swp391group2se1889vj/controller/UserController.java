@@ -1,11 +1,23 @@
 package com.group2.sp25swp391group2se1889vj.controller;
 
+import com.group2.sp25swp391group2se1889vj.dto.UserDTO;
+import com.group2.sp25swp391group2se1889vj.entity.User;
+import com.group2.sp25swp391group2se1889vj.enums.RoleType;
+import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
+import com.group2.sp25swp391group2se1889vj.security.RecaptchaService;
+import com.group2.sp25swp391group2se1889vj.service.UserService;
 import com.group2.sp25swp391group2se1889vj.service.impl.EmailServiceImpl;
 import com.group2.sp25swp391group2se1889vj.util.EncryptionUtil;
 import com.group2.sp25swp391group2se1889vj.entity.RegistrationToken;
 import com.group2.sp25swp391group2se1889vj.repository.RegistrationTokenRepository;
 import com.group2.sp25swp391group2se1889vj.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +25,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import java.util.UUID;
+
+import java.util.*;
 
 @Controller
 @RequestMapping("/users")
@@ -21,17 +34,75 @@ import java.util.UUID;
 public class UserController {
 
         private final RegistrationTokenRepository registrationTokenRepository;
-        //private final RecaptchaService recaptchaService;
-        //private final PasswordEncoder passwordEncoder;
+        private final RecaptchaService recaptchaService;
+        private final PasswordEncoder passwordEncoder;
         private final EmailServiceImpl emailService;
         private final UserRepository userRepository;
         private final EncryptionUtil encryptionUtil;
+    private final UserService userService;
 
-        @GetMapping({"", "/", "/list"})
-        public String listUsers(Model model) {
-            model.addAttribute("users", registrationTokenRepository.findAll());
-            return "user/list";
+    private User getUser() {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        return userDetails.getUser();
+    }
+
+
+    private Map<String, String> createPairs(List<String> fields, List<String> fieldTitles) {
+        Map<String, String> pairs = new HashMap<>();
+        for (int i = 0; i < fields.size(); i++) {
+            pairs.put(fields.get(i), fieldTitles.get(i));
         }
+        return pairs;
+    }
+
+    @GetMapping({"", "/", "/list"})
+    public String listUsers(
+            Model model,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "searchBy", required = false, defaultValue = "name") String searchBy,
+            @RequestParam(value = "orderBy", required = false, defaultValue = "createdAt") String orderBy,
+            @RequestParam(value = "direction", required = false, defaultValue = "desc") String direction
+    ) {
+        List<String> fields = Arrays.asList("username", "firstName","lastName", "email", "phone", "address", "role");
+        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên đăng nhập",  "Họ", "Tên", "Email", "Số điện thoại", "Địa chỉ", "Vai trò"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("text","text", "text", "email", "text", "text", "select"));
+        List<String> searchAbleFields = Arrays.asList("username", "firstName", "lastName", "email", "phone", "address");
+        model.addAttribute("fields", fields);
+        model.addAttribute("fieldTitles", fieldTitles);
+        model.addAttribute("fieldClasses", fieldClasses);
+        model.addAttribute("searchAbleFields", searchAbleFields);
+        if (!fields.contains(searchBy)) {
+            searchBy = "username";
+        }
+        if (!fields.contains(orderBy)) {
+            orderBy = "id";
+        }
+        Sort sortDirection = "asc".equalsIgnoreCase(direction)
+                ? Sort.by(orderBy).ascending()
+                : Sort.by(orderBy).descending();
+        Pageable pageable = PageRequest.of(page - 1, size, sortDirection);
+
+        Page<UserDTO> users;
+        if (search != null && !search.isEmpty()) {
+            users = switch (searchBy) {
+                case "username" -> userService.findPaginatedUsersByUserName(search, pageable);
+                default -> userService.findPaginatedUsers(pageable);
+            };
+        } else {
+            users = userService.findPaginatedUsers(pageable);
+        }
+        model.addAttribute("users", users);
+        model.addAttribute("page", page);
+        model.addAttribute("size", size);
+        model.addAttribute("search", search);
+        model.addAttribute("orderBy", orderBy);
+        model.addAttribute("searchBy", searchBy);
+        model.addAttribute("direction", direction);
+        return "user/list";
+    }
 
         @GetMapping("/add")
         public String addUser(Model model) {
@@ -58,21 +129,18 @@ public class UserController {
 
     @PostMapping("/add")
     public String addUser(
-            @RequestParam String email,
-            //@RequestParam String recaptchaResponse,
+            @RequestParam("email") String email,
+            @RequestParam("g-recaptcha-response") String recaptchaResponse,
             Model model,
-            RedirectAttributes  redirectAttributes
+            RedirectAttributes redirectAttributes
     ) throws Exception {
-//        if (!recaptchaService.verifyRecaptcha(recaptchaResponse)) {
-//            model.addAttribute("error", "Invalid reCAPTCHA");
-//            return "user/add";
-//        }
-        if (userRepository.findByEmail(email).isPresent()) {
-            model.addAttribute("error", "Email already exists");
+        if (recaptchaService.notVerifyRecaptcha(recaptchaResponse)) {
+            model.addAttribute("error", "reCAPTCHA không hợp lệ. Vui lòng thử lại.");
             return "user/add";
         }
+
         if (userRepository.findByEmail(email).isPresent()) {
-            model.addAttribute("error", "Email already invited");
+            model.addAttribute("error", "Người dùng đã tồn tại.");
             return "user/add";
         }
 
@@ -81,9 +149,18 @@ public class UserController {
             model.addAttribute("error", "User already exists.");
             return "user/add";
         }
+
         RegistrationToken newRegistrationToken = new RegistrationToken();
         newRegistrationToken.setEmail(email);
         var token = UUID.randomUUID().toString();
+        newRegistrationToken.setToken(encryptionUtil.encrypt(token));
+        if (getUser().getRole().equals(RoleType.ADMIN)) {
+            newRegistrationToken.setRole(RoleType.OWNER);
+        } else {
+            newRegistrationToken.setRole(RoleType.STAFF);
+        }
+        newRegistrationToken.setCreatedBy(getUser());
+
         var check = emailService.sendHTMLMail(
                 email,
                 "Thông báo kích hoạt tài khoản RSMS của bạn",
@@ -113,13 +190,15 @@ public class UserController {
                       </div>
                       """.formatted(token)
         );
-        if(!check){
-            registrationTokenRepository.save(newRegistrationToken);
-            redirectAttributes.addFlashAttribute("success", "User added successfully");
-        }else{
-            redirectAttributes.addFlashAttribute("error", "Failed to send email. Please try again or contact admin for support");
-        }
 
+
+        if (check) {
+            registrationTokenRepository.save(newRegistrationToken);
+            redirectAttributes.addFlashAttribute("success", "Đã gửi thư mời thành công.");
+        }
+        else {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi gửi email, hãy thử lại hoặc liên hệ quản trị viên.");
+        }
         return "redirect:/users";
     }
 }

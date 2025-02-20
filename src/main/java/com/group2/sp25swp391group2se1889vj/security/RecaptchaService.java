@@ -14,10 +14,10 @@ public class RecaptchaService {
     @Value("${google.recaptcha.url}")
     private String recaptchaUrl;
 
-    public boolean verifyRecaptcha(String recaptchaResponse) {
+    public boolean notVerifyRecaptcha(String recaptchaResponse) {
         RestTemplate restTemplate = new RestTemplate();
         String url = recaptchaUrl + "?secret=" + recaptchaSecretKey + "&response=" + recaptchaResponse;
         Map<String, Object> response = restTemplate.postForObject(url, null, Map.class);
-        return response != null && Boolean.TRUE.equals(response.get("success"));
+        return response == null || !Boolean.TRUE.equals(response.get("success"));
     }
 }
