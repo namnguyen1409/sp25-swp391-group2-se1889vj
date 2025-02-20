@@ -1,6 +1,6 @@
 package com.group2.sp25swp391group2se1889vj;
 
-import com.group2.sp25swp391group2se1889vj.common.service.StorageService;
+import com.group2.sp25swp391group2se1889vj.service.StorageService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
