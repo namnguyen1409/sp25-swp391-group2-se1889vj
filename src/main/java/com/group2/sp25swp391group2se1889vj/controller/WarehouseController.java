@@ -2,7 +2,6 @@ package com.group2.sp25swp391group2se1889vj.controller;
 
 import com.group2.sp25swp391group2se1889vj.exception.Http404;
 import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
-import com.group2.sp25swp391group2se1889vj.service.ZoneService;
 import com.group2.sp25swp391group2se1889vj.util.XSSProtectedUtil;
 import com.group2.sp25swp391group2se1889vj.entity.User;
 import com.group2.sp25swp391group2se1889vj.dto.WarehouseDTO;
@@ -30,7 +29,6 @@ import java.util.Map;
 @RequestMapping("/warehouse")
 public class WarehouseController {
     private final WarehouseService warehouseService;
-    private final ZoneService zoneService;
     private final XSSProtectedUtil xssProtectedUtil;
 
     private User getUser() {
@@ -91,6 +89,7 @@ public class WarehouseController {
         if (!fields.contains(orderBy)) {
             orderBy = "createdAt";
         }
+
         Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên kho", "Địa chỉ", "Ngày tạo"));
         Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "", "dateTime"));
         List<String> searchAbleFields = Arrays.asList("name", "location");
@@ -119,7 +118,6 @@ public class WarehouseController {
             warehouses = warehouseService.findPaginatedWarehousesByOwnerId(getUser().getId(), pageable);
         }
 
-        // Add additional attributes to the model
         model.addAttribute("warehouses", warehouses);
         model.addAttribute("page", page);
         model.addAttribute("size", size);
