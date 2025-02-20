@@ -2,9 +2,12 @@ package com.group2.sp25swp391group2se1889vj.controller;
 
 
 import com.group2.sp25swp391group2se1889vj.dto.CustomerDTO;
+import com.group2.sp25swp391group2se1889vj.dto.DebtDTO;
 import com.group2.sp25swp391group2se1889vj.entity.User;
+import com.group2.sp25swp391group2se1889vj.messaging.DebtProducer;
 import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
 import com.group2.sp25swp391group2se1889vj.service.CustomerService;
+import com.group2.sp25swp391group2se1889vj.service.DebtService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -29,6 +33,8 @@ import java.util.Map;
 public class CustomerController {
 
     private final CustomerService customerService;
+    private final DebtService debtService;
+    private final DebtProducer debtProducer;
 
     private User getUser() {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
@@ -56,7 +62,7 @@ public class CustomerController {
     ) {
         List<String> fields = Arrays.asList("fullName", "phone", "email", "address", "balance");
         Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Họ và tên", "Số điện thoại", "Email", "Địa chỉ", "số dư"));
-        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "phone", "", "", ""));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "phone", "", "", "price"));
         List<String> searchAbleFields = Arrays.asList("fullName", "phone", "email", "address");
         model.addAttribute("fields", fields);
         model.addAttribute("fieldTitles", fieldTitles);
@@ -112,10 +118,10 @@ public class CustomerController {
             BindingResult bindingResult
     ) {
 
-        if(customerService.existByPhone(customerDTO.getPhone())) {
+        if(Boolean.TRUE.equals(customerService.existByPhone(customerDTO.getPhone()))) {
             bindingResult.rejectValue("phone", "error.phone", "Số điện thoại đã tồn tại");
         }
-        if(customerService.existByEmail(customerDTO.getEmail())) {
+        if(Boolean.TRUE.equals(customerService.existByEmail(customerDTO.getEmail()))) {
             bindingResult.rejectValue("email", "error.email", "Email đã tồn tại");
         }
         if (bindingResult.hasErrors()) {
@@ -123,6 +129,108 @@ public class CustomerController {
         }
         customerService.saveCustomer(customerDTO);
         return "redirect:/customer/list";
+    }
+
+    @GetMapping("/edit/{id}")
+    public String edit(@PathVariable Long id, Model model) {
+        CustomerDTO customerDTO = customerService.findCustomerById(id);
+        model.addAttribute("customer", customerDTO);
+        return "customer/edit";
+    }
+
+    @PostMapping("/edit")
+    public String edit(
+            @Validated @ModelAttribute("customer") CustomerDTO customerDTO,
+            BindingResult bindingResult
+    ) {
+        if(Boolean.TRUE.equals(customerService.existByPhoneAndIdNot(customerDTO.getPhone(), customerDTO.getId()))) {
+            bindingResult.rejectValue("phone", "error.phone", "Số điện thoại đã tồn tại");
+        }
+        if(Boolean.TRUE.equals(customerService.existByEmailAndIdNot(customerDTO.getEmail(), customerDTO.getId()))) {
+            bindingResult.rejectValue("email", "error.email", "Email đã tồn tại");
+        }
+        if (bindingResult.hasErrors()) {
+            return "customer/edit";
+        }
+        customerService.updateCustomer(customerDTO);
+        return "redirect:/customer/list";
+    }
+
+    @GetMapping("{id}/debt")
+    public String debt(@PathVariable Long id,
+                       Model model,
+                       @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+                       @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+                       @RequestParam(value = "search", required = false) String search,
+                       @RequestParam(value = "searchBy", required = false, defaultValue = "name") String searchBy,
+                       @RequestParam(value = "orderBy", required = false, defaultValue = "createdAt") String orderBy,
+                       @RequestParam(value = "direction", required = false, defaultValue = "desc") String direction
+    ) {
+        CustomerDTO customer = customerService.findCustomerById(id);
+
+        List<String> fields = Arrays.asList("type", "description", "amount", "debtAt", "createdAt");
+        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Loại", "Mô tả", "Số tiền", "Ngày nợ", "Ngày tạo"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "", "price", "", ""));
+        List<String> searchAbleFields = Arrays.asList("description");
+        model.addAttribute("fields", fields);
+        model.addAttribute("fieldTitles", fieldTitles);
+        model.addAttribute("fieldClasses", fieldClasses);
+        model.addAttribute("searchAbleFields", searchAbleFields);
+        if (!fields.contains(searchBy)) {
+            searchBy = "description";
+        }
+        if (!fields.contains(orderBy)) {
+            orderBy = "createdAt";
+        }
+        Sort sortDirection = "asc".equalsIgnoreCase(direction)
+                ? Sort.by(orderBy).ascending()
+                : Sort.by(orderBy).descending();
+        Pageable pageable = PageRequest.of(page - 1, size, sortDirection);
+        Page<DebtDTO> debts;
+        if (search != null && !search.isEmpty()) {
+            debts = switch (searchBy) {
+                case "description" ->
+                        debtService.findPaginatedDebtsByCustomerIdAndDescriptionContainingIgnoreCase(id, search, pageable);
+                default -> debtService.findPaginatedDebtsByCustomerId(id, pageable);
+            };
+        } else {
+            debts = debtService.findPaginatedDebtsByCustomerId(id, pageable);
+        }
+
+        model.addAttribute("customer", customer);
+        model.addAttribute("debts", debts);
+        model.addAttribute("page", page);
+        model.addAttribute("size", size);
+        model.addAttribute("search", search);
+        model.addAttribute("orderBy", orderBy);
+        model.addAttribute("searchBy", searchBy);
+        model.addAttribute("direction", direction);
+        return "customer/debt/list";
+    }
+
+    @GetMapping("/{id}/debt/add")
+    public String addDebt(@PathVariable Long id, Model model) {
+        CustomerDTO customer = customerService.findCustomerById(id);
+        model.addAttribute("customer", customer);
+        model.addAttribute("debt", new DebtDTO());
+        return "customer/debt/add";
+    }
+
+    @PostMapping("/{id}/debt/add")
+    public String addDebt(
+            @PathVariable Long id,
+            Model model,
+            @Validated @ModelAttribute("debt") DebtDTO debtDTO,
+            BindingResult bindingResult
+    ) {
+        if (bindingResult.hasErrors()) {
+            CustomerDTO customer = customerService.findCustomerById(id);
+            model.addAttribute("customer", customer);
+            return "customer/debt/add";
+        }
+        debtDTO.setCustomerId(id);
+        debtProducer.addDebtToQueue(debtDTO);
+        return "redirect:/customer/" + id + "/debt";
     }
 
 

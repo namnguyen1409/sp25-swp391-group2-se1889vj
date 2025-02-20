@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -59,7 +58,7 @@ public class User extends BaseEntity{
     @Column(name = "avatar", columnDefinition = "nvarchar(255)")
     private String avatar;
 
-    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "owner", fetch = FetchType.EAGER)
     private Set<User> subordinates = new HashSet<>();
 
     @ManyToOne
@@ -70,19 +69,19 @@ public class User extends BaseEntity{
     @Column(name = "role", nullable = false, columnDefinition = "nvarchar(20)")
     private RoleType role;
 
-    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "createdBy", fetch = FetchType.EAGER)
     private Set<Warehouse> warehouses = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "warehouse_id")
     private Warehouse assignedWarehouse;
 
-    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "createdBy", fetch = FetchType.EAGER)
     private Set<Product> products = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private Set<RefreshToken> refreshTokens = new HashSet<>();
 
-    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "createdBy", fetch = FetchType.EAGER)
     private Set<RegistrationToken> registrationTokens = new HashSet<>();
 }

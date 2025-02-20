@@ -30,3 +30,14 @@ formatDateTime = (dateTime) => {
 $('.dateTime').each(function() {
     $(this).text(formatDateTime($(this).text()));
 });
+
+formatCurrency = (currency) => {
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+    }).format(currency);
+}
+
+$('.currency').each(function() {
+    $(this).text(formatCurrency($(this).text()));
+});
