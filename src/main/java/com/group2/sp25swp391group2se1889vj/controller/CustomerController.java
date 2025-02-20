@@ -36,9 +36,6 @@ public class CustomerController {
         return userDetails.getUser();
     }
 
-
-
-
     private Map<String, String> createPairs(List<String> fields, List<String> fieldTitles) {
         Map<String, String> pairs = new HashMap<>();
         for (int i = 0; i < fields.size(); i++) {
@@ -47,7 +44,7 @@ public class CustomerController {
         return pairs;
     }
 
-    @GetMapping("/list")
+    @GetMapping({"/list", "", "/"})
     public String list(
             Model model,
             @RequestParam(value = "page", required = false, defaultValue = "1") int page,
@@ -88,10 +85,10 @@ public class CustomerController {
                         customerService.findPaginatedCustomersByCreatedByIdAndAddressContaining(getUser().getId(), search, pageable);
                 default -> customerService.findPaginatedCustomersByCreatedById(getUser().getId(), pageable);
             };
-            ;
         } else {
             customers = customerService.findPaginatedCustomersByCreatedById(getUser().getId(), pageable);
         }
+
         model.addAttribute("customers", customers);
         model.addAttribute("page", page);
         model.addAttribute("size", size);
