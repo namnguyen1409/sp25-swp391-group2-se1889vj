@@ -132,7 +132,7 @@ public class WarehouseController {
     @GetMapping("/edit/{id}")
     public String editWarehouse(
             Model model,
-            @PathVariable("id") Long id
+            @PathVariable Long id
     ) {
         WarehouseDTO warehouseDTO  = warehouseService.findWarehouseById(id);
 
