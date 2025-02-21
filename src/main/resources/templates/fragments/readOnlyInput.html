@@ -2,7 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="vi">
 <body>
 
-<div class="input-group has-validation" th:fragment="customInput(name, type, icon, label, require)">
+<div class="input-group has-validation" th:fragment="customReadonlyInput(name, type, icon, label, require)">
+
     <div class="input-group">
         <span class="input-group-text p-3">
             <i th:class="'bi ' + ${icon}"></i>
@@ -12,16 +13,12 @@
         >
             <input class="form-control"
                    th:required="${required}"
+                   readonly
                    th:classappend="${#fields.hasErrors('__${name}__')} ? 'is-invalid' : ''"
                    th:field="*{__${name}__}"
                    th:id="*{__${name}__}" th:placeholder="${label}" th:type="${type}">
-          <label th:for="*{__${name}__}" class="form-label" th:text="${label}"></label>
+            <label th:for="*{__${name}__}" class="form-label" th:text="${label}"></label>
         </div>
-    </div>
-    <div class="invalid-feedback"
-         th:classappend="${#fields.hasErrors('__${name}__')} ? 'd-block' : ''"
-    >
-        <th:block th:errors="*{__${name}__}"></th:block>
     </div>
 </div>
 </body>
