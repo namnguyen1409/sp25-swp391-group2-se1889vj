@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -45,14 +46,11 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerDTO findCustomerById(Long id) {
-        try {
-            Optional<Customer> customerOptional = customerRepository.findById(id);
-            return customerOptional.map(customer -> customerMapper.mapToCustomerDTO(customer)).orElse(null);
-        } catch (NoSuchElementException exception) {
-            String message = messageService.getMessage("entity.notfound", id);
-            throw new CustomerNoSuchElementException(message, id);
-        }
+        return customerRepository.findById(id)
+                .map(customerMapper::mapToCustomerDTO)
+                .orElseThrow(() -> new CustomerNoSuchElementException(messageService.getMessage("entity.notfound", id), id));
     }
+
 
     @Override
     public CustomerDTO findCustomerByPhone(String phone) {
@@ -67,6 +65,23 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    @Transactional
+    public void updateCustomer(CustomerDTO customerDTO) {
+        Optional<Customer> customerOptional = customerRepository.findById(customerDTO.getId());
+        if (customerOptional.isPresent()) {
+            Customer customer = customerOptional.get();
+            customer.setFullName(customerDTO.getFullName());
+            customer.setPhone(customerDTO.getPhone());
+            customer.setEmail(customerDTO.getEmail());
+            customer.setAddress(customerDTO.getAddress());
+            customerRepository.save(customer);
+        } else {
+            String message = messageService.getMessage("entity.notfound", customerDTO.getId());
+            throw new CustomerNoSuchElementException(message, customerDTO.getId());
+        }
+    }
+
+    @Override
     public Boolean existByPhone(String phone) {
         return customerRepository.existsByPhone(phone);
     }
@@ -74,6 +89,16 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Boolean existByEmail(String email) {
         return customerRepository.existsByEmail(email);
+    }
+
+    @Override
+    public Boolean existByPhoneAndIdNot(String phone, Long id) {
+        return customerRepository.existsByPhoneAndIdNot(phone, id);
+    }
+
+    @Override
+    public Boolean existByEmailAndIdNot(String email, Long id) {
+        return customerRepository.existsByEmailAndIdNot(email, id);
     }
 
     @Override

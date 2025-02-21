@@ -2,6 +2,8 @@ package com.group2.sp25swp391group2se1889vj.security;
 
 import com.group2.sp25swp391group2se1889vj.entity.User;
 import com.group2.sp25swp391group2se1889vj.repository.UserRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,13 +18,17 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<User> user = userRepository.findByUsername(username);
         if (user.isEmpty()) {
             throw new UsernameNotFoundException("User not found");
         }
-        return new CustomUserDetails(user.get());
+        User managedUser = entityManager.find(User.class, user.get().getId());
+        return new CustomUserDetails(managedUser);
     }
 
     public UserDetails loadUserById(Long id) {
@@ -30,7 +36,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user.isEmpty()) {
             throw new UsernameNotFoundException("User not found");
         }
-        return new CustomUserDetails(user.get());
+        User managedUser = entityManager.find(User.class, user.get().getId());
+        return new CustomUserDetails(managedUser);
     }
 
     public void saveUser(User user) {
@@ -42,7 +49,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user.isEmpty()) {
             throw new UsernameNotFoundException("User not found");
         }
-        return new CustomUserDetails(user.get());
+        User managedUser = entityManager.find(User.class, user.get().getId());
+        return new CustomUserDetails(managedUser);
     }
 
 

@@ -34,11 +34,14 @@ public class Customer extends BaseEntity {
     @Column(name = "balance", nullable = false)
     private BigDecimal balance = BigDecimal.ZERO;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    @OneToMany(mappedBy = "customer")
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
     private Set<Invoice> invoices = new HashSet<>();
+
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
+    private Set<Debt> debts = new HashSet<>();
 
 }

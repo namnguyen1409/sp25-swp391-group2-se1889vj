@@ -53,6 +53,35 @@ public class FileUploadController {
     @ResponseBody
     public ResponseEntity<?> uploadProductImage(@RequestParam("file") MultipartFile file) {
         Map<String, String> response = new HashMap<>();
+        int maxProductSize = 5 * 1024 * 1024;
+        if (!storageService.isValidSize(file, maxProductSize)) {
+            response.put("status", "error");
+            response.put("message", "File size exceeds the limit of 5MB.");
+            return ResponseEntity.badRequest().body(response);
+        }
+        if (!storageService.isImage(file)) {
+            response.put("status", "error");
+            response.put("message", "File is not an image.");
+            return ResponseEntity.badRequest().body(response);
+        } else {
+            var url = storageService.saveToTemp(file);
+            response.put("status", "success");
+            response.put("message", "File uploaded successfully");
+            response.put("url", url);
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @PostMapping("/debt")
+    @ResponseBody
+    public ResponseEntity<?> uploadDebtImage(@RequestParam("file") MultipartFile file) {
+        Map<String, String> response = new HashMap<>();
+        int maxDebtSize = 5 * 1024 * 1024;
+        if (!storageService.isValidSize(file, maxDebtSize)) {
+            response.put("status", "error");
+            response.put("message", "File size exceeds the limit of 5MB.");
+            return ResponseEntity.badRequest().body(response);
+        }
         if (!storageService.isImage(file)) {
             response.put("status", "error");
             response.put("message", "File is not an image.");

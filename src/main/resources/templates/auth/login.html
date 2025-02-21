@@ -13,10 +13,10 @@
                 <div class="card-body">
                     <form th:action="@{/login}" th:object="${loginDTO}" method="post" class="p-md-4">
                         <div class="input-group mb-3">
-                            <div th:replace="fragments/input :: customInput('username', 'text', 'bi-person', 'Tên đăng nhập')"></div>
+                            <div th:replace="fragments/input :: customInput('username', 'text', 'bi-person', 'Tên đăng nhập', true)"></div>
                         </div>
                         <div class="input-group mb-3">
-                            <div th:replace="fragments/input :: customInput('password', 'password', 'bi-key', 'Mật khẩu')"></div>
+                            <div th:replace="fragments/input :: customInput('password', 'password', 'bi-key', 'Mật khẩu', true)"></div>
                         </div>
                         <div class="form-check mb-4">
                             <input th:field="*{remember}" class="form-check-input" type="checkbox" id="remember1">
