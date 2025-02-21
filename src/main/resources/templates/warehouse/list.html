@@ -69,6 +69,11 @@
                         <a th:href="@{'/warehouse/detail/' + ${item.id}}" class="btn btn-info">
                             <i class="bi bi-eye-fill"></i>
                         </a>
+
+                        <a th:href="@{${item.id} + '/zone'}" class="btn btn-success">
+                            <i class="bi bi-bounding-box"></i>
+                        </a>
+
                         <a th:href="@{'/warehouse/edit/' + ${item.id}}" class="btn btn-warning">
                             <i class="bi bi-pencil-fill"></i>
                         </a>
