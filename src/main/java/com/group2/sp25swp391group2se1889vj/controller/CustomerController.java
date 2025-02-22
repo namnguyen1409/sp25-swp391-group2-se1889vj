@@ -156,6 +156,14 @@ public class CustomerController {
         return "redirect:/customer/list";
     }
 
+
+    @GetMapping("/detail/{id}")
+    public String detail(@PathVariable Long id, Model model) {
+        CustomerDTO customerDTO = customerService.findCustomerById(id);
+        model.addAttribute("customer", customerDTO);
+        return "customer/detail";
+    }
+
     @GetMapping("{id}/debt")
     public String debt(@PathVariable Long id,
                        Model model,

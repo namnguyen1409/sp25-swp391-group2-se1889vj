@@ -40,6 +40,146 @@
       </div>
     </div>
   </div>
+
+
+
+  <script>
+    const showErrorInputFeedback = (elementId, message) => {
+      let inputElement = document.getElementById(elementId);
+      if (!inputElement) return;
+
+      let error = inputElement.closest(".input-group.has-validation")?.querySelector(".invalid-feedback");
+      if (error) {
+        error.classList.add('d-block');
+        error.innerText = message;
+        inputElement.classList.add('is-invalid');
+        inputElement.classList.remove('is-valid');
+      }
+    };
+
+    const hideErrorInputFeedback = (elementId) => {
+      let inputElement = document.getElementById(elementId);
+      if (!inputElement) return;
+
+      let error = inputElement.closest(".input-group.has-validation")?.querySelector(".invalid-feedback");
+      if (error) {
+        error.classList.remove('d-block');
+        error.innerText = '';
+        inputElement.classList.remove('is-invalid');
+        inputElement.classList.add('is-valid');
+      }
+    };
+
+    const validateFullName = () => {
+      let fullNameInput = document.getElementById('fullName');
+      if (!fullNameInput) return;
+
+      let fullName = fullNameInput.value.trim();
+      let fullNamePattern = /^[a-zA-ZÀ-ỹ\s]{6,50}$/; // Hỗ trợ dấu tiếng Việt và dấu cách
+
+      if (!fullNamePattern.test(fullName)) {
+        showErrorInputFeedback('fullName', 'Tên không hợp lệ (chỉ chứa chữ cái, dấu cách, từ 6-50 ký tự).');
+        return false;
+      } else {
+        hideErrorInputFeedback('fullName');
+        return true;
+      }
+    };
+
+    const validatePhone = () => {
+        let phoneInput = document.getElementById('phone');
+        if (!phoneInput) return;
+
+        let phone = phoneInput.value.trim();
+        let phonePattern = /^(\\+84|84|0)(3|5|7|8|9|1[2|6|8|9])[0-9]{8}$/;
+
+        if (!phonePattern.test(phone)) {
+            showErrorInputFeedback('phone', 'Số điện thoại không hợp lệ.');
+            return false;
+        } else {
+            hideErrorInputFeedback('phone');
+            return true;
+        }
+    };
+
+    const validateEmail = () => {
+        let emailInput = document.getElementById('email');
+        if (!emailInput) return;
+
+        let email = emailInput.value.trim();
+        let emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        if (!emailPattern.test(email) && email.length > 0) {
+            showErrorInputFeedback('email', 'Email không hợp lệ.');
+            return false;
+        } else {
+            hideErrorInputFeedback('email');
+            return true;
+        }
+    };
+
+    const validateAddress = () => {
+        let addressInput = document.getElementById('address');
+        if (!addressInput) return;
+
+        let address = addressInput.value.trim();
+        let addressPattern = /^[a-zA-Z0-9\s]{6,100}$/;
+
+        if (!addressPattern.test(address) && address.length > 0) {
+            showErrorInputFeedback('address', 'Địa chỉ không hợp lệ (chỉ chứa chữ cái, số, dấu cách, từ 6-100 ký tự).');
+            return false;
+        } else {
+            hideErrorInputFeedback('address');
+            return true;
+        }
+    };
+
+
+    // Gán sự kiện input để kiểm tra khi nhập
+    document.addEventListener("DOMContentLoaded", function () {
+      let fullNameInput = document.getElementById('fullName');
+      if (fullNameInput) {
+        fullNameInput.addEventListener('input', validateFullName);
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      let phoneInput = document.getElementById('phone');
+      if (phoneInput) {
+        phoneInput.addEventListener('input', validatePhone);
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      let emailInput = document.getElementById('email');
+      if (emailInput) {
+        emailInput.addEventListener('input', validateEmail);
+      }
+    });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      let addressInput = document.getElementById('address');
+      if (addressInput) {
+        addressInput.addEventListener('input', validateAddress);
+      }
+    });
+
+    // Validate data before submit
+    document.addEventListener("DOMContentLoaded", function () {
+      let form = document.querySelector('form');
+      if (form) {
+        form.addEventListener('submit', function (event) {
+          if (!validateFullName() || !validatePhone() || !validateEmail() || !validateAddress()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        });
+      }
+    });
+
+
+
+  </script>
 </section>
 </body>
 </html>
