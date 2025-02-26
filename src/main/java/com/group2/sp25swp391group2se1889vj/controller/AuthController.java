@@ -1,5 +1,6 @@
 package com.group2.sp25swp391group2se1889vj.controller;
 
+import com.group2.sp25swp391group2se1889vj.dto.ChangePasswordDTO;
 import com.group2.sp25swp391group2se1889vj.security.RecaptchaService;
 import com.group2.sp25swp391group2se1889vj.dto.LoginDTO;
 import com.group2.sp25swp391group2se1889vj.dto.RegisterDTO;
@@ -15,6 +16,7 @@ import com.group2.sp25swp391group2se1889vj.entity.User;
 import com.group2.sp25swp391group2se1889vj.repository.RefreshTokenRepository;
 import com.group2.sp25swp391group2se1889vj.repository.RegistrationTokenRepository;
 import com.group2.sp25swp391group2se1889vj.repository.UserRepository;
+import com.group2.sp25swp391group2se1889vj.validation.annotation.RecaptchaRequired;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -68,8 +70,6 @@ public class AuthController {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof CustomUserDetails) {
             return "redirect:/";
         }
-
-
         model.addAttribute("title", "Login");
         model.addAttribute("loginDTO", new LoginDTO());
 
@@ -77,15 +77,11 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @RecaptchaRequired
     public String login(
             @ModelAttribute("loginDTO") @Validated LoginDTO loginDTO,
-            BindingResult bindingResult,
-            @RequestParam("g-recaptcha-response") String recaptchaResponse
+            BindingResult bindingResult
     ) {
-        if (!recaptchaService.verifyRecaptcha(recaptchaResponse)) {
-            bindingResult.rejectValue("recaptchaResponse", "error.recaptcha", "Vui lòng xác minh bạn không phải là robot");
-        }
-
         if (bindingResult.hasErrors()) {
             return "auth/login";
         }
@@ -193,13 +189,12 @@ public class AuthController {
                           @RequestParam("g-recaptcha-response") String recaptchaResponse,
                           RedirectAttributes redirectAttributes
     ) {
-        System.out.println(avatar);
         if (!recaptchaService.verifyRecaptcha(recaptchaResponse)) {
             redirectAttributes.addFlashAttribute("flashMessage", "Vui lòng xác minh bạn không phải là robot");
             redirectAttributes.addFlashAttribute("flashMessageType", "danger");
         } else {
             User user = getUser();
-            if (user.getAvatar() != null) {
+            if (user.getAvatar()!= null &&!user.getAvatar().isEmpty()) {
                 storageService.deleteFile(user.getAvatar());
             }
             user.setAvatar(avatar);
@@ -210,6 +205,33 @@ public class AuthController {
 
         return "redirect:/profile";
     }
+
+    @GetMapping("change-password")
+    public String changePassword(Model model) {
+        model.addAttribute("changePasswordDTO", new ChangePasswordDTO());
+        return "auth/change-password";
+    }
+
+    @PostMapping("change-password")
+    public String changePassword(
+            @Validated @ModelAttribute("changePasswordDTO") ChangePasswordDTO changePasswordDTO,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (bindingResult.hasErrors()) {
+            return "auth/change-password";
+        }
+        User user = getUser();
+        if (!passwordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPassword())) {
+            bindingResult.rejectValue("oldPassword", "error.changePassword", "Mật khẩu cũ không đúng");
+            return "auth/change-password";
+        }
+        user.setPassword(passwordEncoder.encode(changePasswordDTO.getPassword()));
+        userRepository.save(user);
+        return "redirect:/change-password";
+    }
+
+
 
 
 }

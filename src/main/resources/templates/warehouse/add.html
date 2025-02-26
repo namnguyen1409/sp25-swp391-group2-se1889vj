@@ -16,10 +16,10 @@
                 <div class="card-body">
                     <form th:action="@{/warehouse/add}" method="post" class="p-md-4" th:object="${warehouse}">
                         <div class="mb-3">
-                            <div th:replace="fragments/input :: customInput('name', 'text', 'bi-hash', 'Tên kho hàng')"></div>
+                            <div th:replace="fragments/input :: customInput('name', 'text', 'bi-hash', 'Tên kho hàng', true)"></div>
                         </div>
                         <div class="mb-3">
-                            <div th:replace="fragments/input :: customInput('location', 'text', 'bi-geo-alt-fill', 'Vị trí')"></div>
+                            <div th:replace="fragments/input :: customInput('location', 'text', 'bi-geo-alt-fill', 'Vị trí', true)"></div>
                         </div>
                         <div class="mb-3">
                             <div th:replace="fragments/textarea :: customTextarea('description', 'bi-justify', 'Mô tả')"></div>

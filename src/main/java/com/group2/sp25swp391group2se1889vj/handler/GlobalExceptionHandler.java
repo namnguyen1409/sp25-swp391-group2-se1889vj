@@ -1,6 +1,7 @@
 package com.group2.sp25swp391group2se1889vj.handler;
 
 import com.group2.sp25swp391group2se1889vj.entity.User;
+import com.group2.sp25swp391group2se1889vj.exception.Http400;
 import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -48,6 +49,18 @@ public class GlobalExceptionHandler {
                 new Error("404",
                         "Ôi không tìm thấy trang này",
                         "Xin lỗi, trang bạn đang tìm kiếm không tồn tại hoặc đã bị xóa."));
+        return "common/error";
+    }
+
+    @ExceptionHandler({Http400.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleHttp400(Http400 exception,
+                                Model model) {
+        model.addAttribute("currentUser", getCurrentUser());
+        model.addAttribute("error",
+                new Error("400",
+                        "Lỗi yêu cầu",
+                        exception.getMessage()));
         return "common/error";
     }
 

@@ -10,7 +10,6 @@ import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
 @SuperBuilder(toBuilder = true)

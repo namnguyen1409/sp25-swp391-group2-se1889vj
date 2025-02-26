@@ -13,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
 
-@EqualsAndHashCode(callSuper = true)
+
 @Entity
 @Data
 @SuperBuilder(toBuilder = true)
