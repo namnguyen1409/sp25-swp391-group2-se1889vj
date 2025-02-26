@@ -1,21 +1,21 @@
 package com.group2.sp25swp391group2se1889vj.controller;
 
 import com.group2.sp25swp391group2se1889vj.dto.ChangePasswordDTO;
-import com.group2.sp25swp391group2se1889vj.security.RecaptchaService;
 import com.group2.sp25swp391group2se1889vj.dto.LoginDTO;
 import com.group2.sp25swp391group2se1889vj.dto.RegisterDTO;
+import com.group2.sp25swp391group2se1889vj.entity.RefreshToken;
+import com.group2.sp25swp391group2se1889vj.entity.User;
 import com.group2.sp25swp391group2se1889vj.exception.InvalidRegistrationTokenException;
+import com.group2.sp25swp391group2se1889vj.repository.RefreshTokenRepository;
+import com.group2.sp25swp391group2se1889vj.repository.RegistrationTokenRepository;
+import com.group2.sp25swp391group2se1889vj.repository.UserRepository;
 import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
 import com.group2.sp25swp391group2se1889vj.security.JwtTokenProvider;
+import com.group2.sp25swp391group2se1889vj.security.RecaptchaService;
 import com.group2.sp25swp391group2se1889vj.security.RefreshTokenProvider;
 import com.group2.sp25swp391group2se1889vj.service.StorageService;
 import com.group2.sp25swp391group2se1889vj.util.CookieUtil;
 import com.group2.sp25swp391group2se1889vj.util.EncryptionUtil;
-import com.group2.sp25swp391group2se1889vj.entity.RefreshToken;
-import com.group2.sp25swp391group2se1889vj.entity.User;
-import com.group2.sp25swp391group2se1889vj.repository.RefreshTokenRepository;
-import com.group2.sp25swp391group2se1889vj.repository.RegistrationTokenRepository;
-import com.group2.sp25swp391group2se1889vj.repository.UserRepository;
 import com.group2.sp25swp391group2se1889vj.validation.annotation.RecaptchaRequired;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
@@ -132,14 +132,11 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @RecaptchaRequired
     public String register(
             @Validated @ModelAttribute("registerDTO") RegisterDTO registerDTO,
-            BindingResult bindingResult,
-            @RequestParam("g-recaptcha-response") String recaptchaResponse
+            BindingResult bindingResult
     ) throws Exception {
-        if (!recaptchaService.verifyRecaptcha(recaptchaResponse)) {
-            bindingResult.rejectValue("recaptchaResponse", "error.recaptcha", "Vui lòng xác minh bạn không phải là robot");
-        }
         if (bindingResult.hasErrors()) {
             return "auth/register";
         }
@@ -185,23 +182,20 @@ public class AuthController {
     }
 
     @PostMapping("profile")
+    @RecaptchaRequired
     public String profile(@RequestParam("avatar") String avatar,
-                          @RequestParam("g-recaptcha-response") String recaptchaResponse,
                           RedirectAttributes redirectAttributes
     ) {
-        if (!recaptchaService.verifyRecaptcha(recaptchaResponse)) {
-            redirectAttributes.addFlashAttribute("flashMessage", "Vui lòng xác minh bạn không phải là robot");
-            redirectAttributes.addFlashAttribute("flashMessageType", "danger");
-        } else {
-            User user = getUser();
-            if (user.getAvatar()!= null &&!user.getAvatar().isEmpty()) {
-                storageService.deleteFile(user.getAvatar());
-            }
-            user.setAvatar(avatar);
-            userRepository.save(user);
-            redirectAttributes.addFlashAttribute("flashMessage", "Cập nhật ảnh đại diện thành công");
-            redirectAttributes.addFlashAttribute("flashMessageType", "success");
+
+        User user = getUser();
+        if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
+            storageService.deleteFile(user.getAvatar());
         }
+        user.setAvatar(avatar);
+        userRepository.save(user);
+        redirectAttributes.addFlashAttribute("flashMessage", "Cập nhật ảnh đại diện thành công");
+        redirectAttributes.addFlashAttribute("flashMessageType", "success");
+
 
         return "redirect:/profile";
     }
@@ -230,8 +224,6 @@ public class AuthController {
         userRepository.save(user);
         return "redirect:/change-password";
     }
-
-
 
 
 }
