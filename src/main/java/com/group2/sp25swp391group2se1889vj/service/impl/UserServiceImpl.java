@@ -23,17 +23,15 @@ public class UserServiceImpl implements UserService {
     private MessageSource messageSource;
 
     @Override
-    public Page<UserDTO> findPaginatedUsers(int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
+    public Page<UserDTO> findPaginatedUsers(Pageable pageable) {
         Page<User> page = userRepository.findAll(pageable);
         return page.map(userMapper::mapToUserDTO);
     }
 
     @Override
-    public Page<UserDTO> findPaginatedUsersByUserName(String username, int pageNo, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNo - 1, pageSize);
+    public Page<UserDTO> findPaginatedUsersByUserName(String username, Pageable pageable) {
         Page<User> page = userRepository.findByUsernameContaining(username, pageable);
-        return null;
+        return page.map(userMapper::mapToUserDTO);
     }
 
     /*

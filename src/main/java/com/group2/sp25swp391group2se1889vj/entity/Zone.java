@@ -1,20 +1,16 @@
 package com.group2.sp25swp391group2se1889vj.entity;
 
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.time.LocalDateTime;
 
 @Entity
 @Data
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "zones")
 public class Zone extends BaseEntity{
     @Column(name = "name", nullable = false, columnDefinition = "nvarchar(50)")
