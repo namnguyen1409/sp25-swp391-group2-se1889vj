@@ -179,7 +179,22 @@ public class WarehouseController {
         return "warehouse/detail";
     }
 
+    @GetMapping("/delete/{id}")
+    public String deleteWarehouse(
+            @PathVariable Long id
+    ) {
+        WarehouseDTO warehouseDTO = warehouseService.findWarehouseById(id);
+        if (warehouseDTO == null) {
+            throw new Http404("Không tìm thấy kho hàng mà bạn yêu cầu");
+        }
 
+        if (!warehouseDTO.getCreatedBy().equals(getUser().getId())) {
+            throw new Http404("Bạn không có quyền truy cập kho hàng này");
+        }
+
+        warehouseService.deleteWarehouseById(id);
+        return "redirect:/warehouse";
+    }
 
 
 
