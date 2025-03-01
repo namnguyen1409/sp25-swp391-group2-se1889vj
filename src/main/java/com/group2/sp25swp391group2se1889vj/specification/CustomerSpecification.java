@@ -13,7 +13,6 @@ public class CustomerSpecification {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(criteriaBuilder.equal(root.get("owner").get("id"), ownerId));
-
             if (customerFilterDTO.getFullName() != null) {
                 predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("fullName")), "%" + customerFilterDTO.getFullName().toLowerCase() + "%"));
             }

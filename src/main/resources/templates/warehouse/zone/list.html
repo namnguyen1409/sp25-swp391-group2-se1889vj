@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en" layout:decorate="template"
+
+>
+<body>
+<section layout:fragment="content" class="container h-100">
+    <div class="mt-5">
+
+        <form method="get" class="row g-3" id="searchForm">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Tìm kiếm" name="search" th:value="${search}">
+                    <select class="form-select" name="searchBy">
+                        <option th:each="field : ${searchAbleFields}" th:value="${field}"
+                                th:text="${fieldTitles[__${field}__]}" th:selected="${field} == ${searchBy}">Tiêu đề
+                        </option>
+                    </select>
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="input-group">
+                    <label class="input-group-text" for="size">Hiển thị</label>
+                    <input class="form-control" id="size" name="size" list="size-options" th:value="${size}">
+                    <datalist id="size-options">
+                        <option value="5"></option>
+                        <option value="10"></option>
+                        <option value="20"></option>
+                        <option value="50"></option>
+                    </datalist>
+                    <label class="input-group-text" for="size">kết quả/trang</label>
+                </div>
+            </div>
+
+            <input type="hidden" name="page" th:value="${zones.number + 1}">
+            <input type="hidden" name="orderBy" th:value="${orderBy}">
+            <input type="hidden" name="direction" th:value="${direction}">
+
+        </form>
+
+<!--        add zone btn-->
+        <div class="text-end mt-3">
+            <a th:href="@{'zone/add'}" class="btn btn-secondary"><i class="bi bi-plus-circle"></i> Thêm kho mới</a>
+        </div>
+
+
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mt-3">
+                <thead>
+                <tr>
+                    <th th:each="field : ${fields}"
+                        th:data="${field}"
+                        style="cursor: pointer;">
+                        <span>
+                            <span th:text="${fieldTitles[__${field}__]}"></span>
+                            <i th:if="${orderBy} == ${field}"
+                               th:class="${direction == 'ASC' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i>
+                        </span>
+                    </th>
+                    <th class="text-center">Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${zones}">
+                    <td th:each="field : ${fields}" th:text="${item[field]}" th:classappend="${fieldClasses[__${field}__]}">
+                    </td>
+                    <td class="text-center">
+                        <a th:href="@{'/inventory/detail/' + ${item.id}}" class="btn btn-info">
+                            <i class="bi bi-eye-fill"></i>
+                        </a>
+
+                        <a th:href="@{${item.id} + '/zone'}" class="btn btn-success">
+                            <i class="bi bi-bounding-box"></i>
+                        </a>
+                        <a th:href="@{'/inventory/edit/' + ${item.id}}" class="btn btn-warning">
+                            <i class="bi bi-pencil-fill"></i>
+                        </a>
+                        <a th:href="@{'/inventory/delete/' + ${item.id}}" class="btn btn-danger">
+                            <i class="bi bi-trash-fill"></i>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:replace="fragments/pagination :: pagination(${zones})"></div>
+    </div>
+
+    <script>
+        function goToPage(page) {
+            document.getElementById('searchForm').elements['page'].value = page;
+            document.getElementById('searchForm').submit();
+        }
+
+        document.querySelectorAll('th').forEach(th => {
+            if (!th.getAttribute('data')) return;
+            th.addEventListener('click', () => {
+                updateOrder(th.getAttribute('data'));
+            });
+        });
+
+        function updateOrder(field) {
+            let form = document.getElementById('searchForm');
+            let orderBy = form.elements['orderBy'].value;
+            let direction = form.elements['direction'].value;
+            if (orderBy === field) {
+                form.elements['direction'].value = direction === 'ASC' ? 'DESC' : 'ASC';
+            } else {
+                form.elements['orderBy'].value = field;
+                form.elements['direction'].value = 'ASC';
+            }
+            form.submit();
+        }
+    </script>
+</section>
+</body>
+</html>

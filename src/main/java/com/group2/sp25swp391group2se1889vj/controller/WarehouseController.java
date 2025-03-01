@@ -1,5 +1,6 @@
 package com.group2.sp25swp391group2se1889vj.controller;
 
+import com.group2.sp25swp391group2se1889vj.dto.ZoneDTO;
 import com.group2.sp25swp391group2se1889vj.exception.Http404;
 import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
 import com.group2.sp25swp391group2se1889vj.util.XSSProtectedUtil;
@@ -178,9 +179,111 @@ public class WarehouseController {
         model.addAttribute("warehouse", warehouseDTO);
         return "warehouse/detail";
     }
-
-
-
+//
+//    @GetMapping("/{id}/zone")
+//    public String listZoneByInventoryId(
+//            @PathVariable("id") Long id,
+//            Model model,
+//            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+//            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+//            @RequestParam(value = "search", required = false) String search,
+//            @RequestParam(value = "searchBy", required = false, defaultValue = "name") String searchBy,
+//            @RequestParam(value = "orderBy", required = false, defaultValue = "createdAt") String orderBy,
+//            @RequestParam(value = "direction", required = false, defaultValue = "desc") String direction
+//    ) {
+//        WarehouseDTO inventory = warehouseService.findWarehouseById(id);
+//
+//        if (inventory == null) {
+//            throw new Http404("Không tìm thấy kho hàng mà bạn yêu cầu");
+//        }
+//
+//        if (!inventory.getCreatedBy().equals(getUser().getId())) {
+//            throw new Http404("Bạn không có quyền truy cập kho hàng này");
+//        }
+//
+//        List<String> fields = Arrays.asList("name", "productName", "productImage", "quantity", "createdAt");
+//        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên khu vực", "Tên sản phẩm", "Hình ảnh", "Tồn kho", "Ngày tạo"));
+//        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "", "image", "", "dateTime"));
+//        List<String> searchAbleFields = Arrays.asList("name", "productName");
+//        model.addAttribute("fields", fields);
+//        model.addAttribute("fieldTitles", fieldTitles);
+//        model.addAttribute("fieldClasses", fieldClasses);
+//        model.addAttribute("searchAbleFields", searchAbleFields);
+//        Sort sortDirection = "asc".equalsIgnoreCase(direction)
+//                ? Sort.by(orderBy).ascending()
+//                : Sort.by(orderBy).descending();
+//        Pageable pageable = PageRequest.of(page - 1, size, sortDirection);
+//        Page<ZoneDTO> zones;
+//        if (search != null && !search.isEmpty()) {
+//            zones = switch (searchBy) {
+//                case "name" -> zoneService.findPaginatedZonesByInventoryIdAndNameContaining(
+//                        id, search, pageable);
+//                case "productName" -> zoneService.findPaginatedZonesByInventoryIdAndProductNameContaining(
+//                        id, search, pageable);
+//                default -> zoneService.findPaginatedZonesByInventoryId(id, pageable);
+//            };
+//        } else {
+//            zones = zoneService.findPaginatedZonesByInventoryId(id, pageable);
+//        }
+//        model.addAttribute("zones", zones);
+//        model.addAttribute("inventory", inventory);
+//        model.addAttribute("page", page);
+//        model.addAttribute("size", size);
+//        model.addAttribute("search", search);
+//        model.addAttribute("orderBy", orderBy);
+//        model.addAttribute("searchBy", searchBy);
+//        model.addAttribute("direction", direction);
+//        return "inventory/zone/list";
+//    }
+//
+//    @GetMapping("/{id}/zone/add")
+//    public String addZone(@PathVariable("id") Long id, Model model) {
+//        WarehouseDTO warehouse = warehouseService.findWarehouseById(id);
+//
+//        if (warehouse == null) {
+//            throw new Http404("Không tìm thấy kho hàng mà bạn yêu cầu");
+//        }
+//
+//        if (!warehouse.getCreatedBy().equals(getUser().getId())) {
+//            throw new Http404("Bạn không có quyền truy cập kho hàng này");
+//        }
+//
+//        ZoneDTO zone = new ZoneDTO();
+//        zone.setWarehouseId(id);
+//        model.addAttribute("zone", zone);
+//        return "warehouse/zone/add";
+//    }
+//
+//    @PostMapping("/{id}/zone/add")
+//    public String addZone(
+//            @PathVariable("id") Long id,
+//            @ModelAttribute("zone") @Validated ZoneDTO zoneDTO,
+//            BindingResult bindingResult
+//    ) {
+//        InventoryDTO inventory = inventoryService.findInventoryById(id);
+//
+//        if (inventory == null) {
+//            throw new Http404("Không tìm thấy kho hàng mà bạn yêu cầu");
+//        }
+//
+//        if (!inventory.getCreatedBy().equals(getUser().getId())) {
+//            throw new Http404("Bạn không có quyền truy cập kho hàng này");
+//        }
+//
+//        if (Boolean.TRUE.equals(zoneService.isExistZoneByInventoryIdAndName(id, zoneDTO.getName()))) {
+//            bindingResult.rejectValue("name", "error.zone", "Tên khu vực đã tồn tại");
+//        }
+//
+//        if (bindingResult.hasErrors()) {
+//            return "inventory/zone/add";
+//        }
+//        zoneDTO.setId(null);
+//        zoneDTO.setInventoryId(id);
+//        zoneService.saveZone(zoneDTO);
+//        return "redirect:/inventory/" + id + "/zone";
+//    }
+//
+//
 
 
 

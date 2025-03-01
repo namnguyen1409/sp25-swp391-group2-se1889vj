@@ -21,7 +21,7 @@ public class RecaptchaInterceptor implements HandlerInterceptor {
             var recaptchaRequired = handlerMethod.getMethod().getAnnotation(RecaptchaRequired.class);
             if (recaptchaRequired != null) {
                 var recaptchaResponse = request.getParameter("g-recaptcha-response");
-                if (recaptchaResponse == null || !recaptchaService.verifyRecaptcha(recaptchaResponse)) {
+                if (recaptchaResponse == null || recaptchaService.notVerifyRecaptcha(recaptchaResponse)) {
                     throw new Http400("Vui lòng xác minh bạn không phải là robot");
                 }
             }

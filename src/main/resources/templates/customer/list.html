@@ -7,6 +7,30 @@
 <body>
 <section layout:fragment="content" class="container-fluid h-100">
 
+    <style>
+        .table-container {
+            overflow-x: auto; /* Kích hoạt cuộn ngang nếu cần */
+            max-width: 100%; /* Giới hạn chiều rộng */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            white-space: nowrap; /* Tránh xuống dòng */
+        }
+
+        th:last-child, td:last-child {
+            position: sticky;
+            right: 0;
+            background-color: white; /* Giữ màu nền để không bị đè bởi nội dung khác */
+            z-index: 2; /* Giữ nó trên các phần tử khác */
+            box-shadow: -1px 0 2px rgba(0, 0, 0, 0.1); /* Hiệu ứng bóng để tách biệt */
+        }
+    </style>
+
     <h2 class="text-center mt-3">Danh sách khách hàng</h2>
 
     <div class="mt-3">

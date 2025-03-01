@@ -50,6 +50,9 @@ public abstract class BaseEntity {
     @Column(name = "is_deleted")
     private boolean isDeleted = false;
 
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
     @EqualsAndHashCode.Exclude
     @LastModifiedBy
     @ManyToOne(fetch = FetchType.LAZY)

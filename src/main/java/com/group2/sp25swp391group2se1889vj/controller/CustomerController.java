@@ -24,6 +24,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -54,10 +55,12 @@ public class CustomerController {
 
     @GetMapping({"/list", "", "/"})
     public String list(
-            Model model
+            Model model,
+            @ModelAttribute(value = "customerFilterDTO", binding = false) CustomerFilterDTO customerFilterDTO
     ) {
-
-        CustomerFilterDTO customerFilterDTO = new CustomerFilterDTO();
+        if (customerFilterDTO == null) {
+            customerFilterDTO = new CustomerFilterDTO();
+        }
         Sort sortDirection = "asc".equalsIgnoreCase(customerFilterDTO.getDirection())
                 ? Sort.by(customerFilterDTO.getOrderBy()).ascending()
                 : Sort.by(customerFilterDTO.getOrderBy()).descending();
@@ -87,31 +90,33 @@ public class CustomerController {
     public String list(
             Model model,
             @ModelAttribute("customerFilterDTO") CustomerFilterDTO customerFilterDTO,
-            BindingResult bindingResult
+            RedirectAttributes redirectAttributes
     ) {
-        Sort sortDirection = "asc".equalsIgnoreCase(customerFilterDTO.getDirection())
-                ? Sort.by(customerFilterDTO.getOrderBy()).ascending()
-                : Sort.by(customerFilterDTO.getOrderBy()).descending();
-
-        List<String> fields = Arrays.asList("fullName", "phone", "email", "address", "balance", "createdAt");
-        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Họ và tên", "Số điện thoại", "Email", "Địa chỉ", "số dư", "Ngày tạo"));
-        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "phone", "", "", "price", "dateTime"));
-        model.addAttribute("fields", fields);
-        model.addAttribute("fieldTitles", fieldTitles);
-        model.addAttribute("fieldClasses", fieldClasses);
-
-        Pageable pageable = PageRequest.of(customerFilterDTO.getPage() - 1, customerFilterDTO.getSize(), sortDirection);
-
-        Long ownerId = getUser().getId();
-        if (getUser().getRole().equals(RoleType.STAFF)) {
-            ownerId = getUser().getOwner().getId();
-        }
-
-        Page<CustomerDTO> customers = customerService.searchCustomers(ownerId, customerFilterDTO, pageable);
-
-        model.addAttribute("customers", customers);
-        model.addAttribute("customerFilterDTO", customerFilterDTO);
-        return "customer/list";
+        redirectAttributes.addFlashAttribute("customerFilterDTO", customerFilterDTO);
+        return "redirect:/customer/list";
+//        Sort sortDirection = "asc".equalsIgnoreCase(customerFilterDTO.getDirection())
+//                ? Sort.by(customerFilterDTO.getOrderBy()).ascending()
+//                : Sort.by(customerFilterDTO.getOrderBy()).descending();
+//
+//        List<String> fields = Arrays.asList("fullName", "phone", "email", "address", "balance", "createdAt");
+//        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Họ và tên", "Số điện thoại", "Email", "Địa chỉ", "số dư", "Ngày tạo"));
+//        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "phone", "", "", "price", "dateTime"));
+//        model.addAttribute("fields", fields);
+//        model.addAttribute("fieldTitles", fieldTitles);
+//        model.addAttribute("fieldClasses", fieldClasses);
+//
+//        Pageable pageable = PageRequest.of(customerFilterDTO.getPage() - 1, customerFilterDTO.getSize(), sortDirection);
+//
+//        Long ownerId = getUser().getId();
+//        if (getUser().getRole().equals(RoleType.STAFF)) {
+//            ownerId = getUser().getOwner().getId();
+//        }
+//
+//        Page<CustomerDTO> customers = customerService.searchCustomers(ownerId, customerFilterDTO, pageable);
+//
+//        model.addAttribute("customers", customers);
+//        model.addAttribute("customerFilterDTO", customerFilterDTO);
+//        return "customer/list";
     }
 
 
