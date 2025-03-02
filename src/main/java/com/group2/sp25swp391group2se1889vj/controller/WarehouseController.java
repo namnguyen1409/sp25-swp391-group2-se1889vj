@@ -1,7 +1,9 @@
 package com.group2.sp25swp391group2se1889vj.controller;
 
+import com.group2.sp25swp391group2se1889vj.dto.ZoneDTO;
 import com.group2.sp25swp391group2se1889vj.exception.Http404;
 import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
+import com.group2.sp25swp391group2se1889vj.service.ZoneService;
 import com.group2.sp25swp391group2se1889vj.util.XSSProtectedUtil;
 import com.group2.sp25swp391group2se1889vj.entity.User;
 import com.group2.sp25swp391group2se1889vj.dto.WarehouseDTO;
@@ -29,6 +31,7 @@ import java.util.Map;
 @RequestMapping("/warehouse")
 public class WarehouseController {
     private final WarehouseService warehouseService;
+    private final ZoneService zoneService;
     private final XSSProtectedUtil xssProtectedUtil;
 
     private User getUser() {
@@ -55,7 +58,7 @@ public class WarehouseController {
 
     @PostMapping("/add")
     public String addWarehouse(
-            @ModelAttribute("warehouse")  @Validated WarehouseDTO warehouseDTO,
+            @ModelAttribute("warehouse") @Validated WarehouseDTO warehouseDTO,
             BindingResult bindingResult
     ) {
         if (warehouseService.isExistWarehouseByOwnerIdAndName(getUser().getId(), warehouseDTO.getName())) {
@@ -134,7 +137,7 @@ public class WarehouseController {
             Model model,
             @PathVariable Long id
     ) {
-        WarehouseDTO warehouseDTO  = warehouseService.findWarehouseById(id);
+        WarehouseDTO warehouseDTO = warehouseService.findWarehouseById(id);
 
         if (warehouseDTO == null) {
             throw new Http404("Không tìm thấy kho hàng mà bạn yêu cầu");
@@ -156,11 +159,10 @@ public class WarehouseController {
         WarehouseDTO oldWarehouse = warehouseService.findWarehouseById(warehouseDTO.getId());
         String newName = xssProtectedUtil.encodeAllHTMLElement(warehouseDTO.getName());
 
-        if(!oldWarehouse.getName().equals(newName) && warehouseService.searchWarehouseByOwnerIdAndName(getUser().getId(), newName) != null) {
+        if (!oldWarehouse.getName().equals(newName) && warehouseService.searchWarehouseByOwnerIdAndName(getUser().getId(), newName) != null) {
             bindingResult.rejectValue("name", "error.warehouse", "Tên kho đã tồn tại");
             return "warehouse/edit";
-        }
-        else{
+        } else {
             warehouseDTO.setName(newName);
         }
         warehouseDTO.setLocation(xssProtectedUtil.encodeAllHTMLElement(warehouseDTO.getLocation()));
@@ -196,8 +198,101 @@ public class WarehouseController {
         return "redirect:/warehouse";
     }
 
+    @GetMapping("{id}/zone")
+    public String listZone(
+            Model model,
+            @PathVariable Long id,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "searchBy", required = false, defaultValue = "name") String searchBy,
+            @RequestParam(value = "orderBy", required = false, defaultValue = "createdAt") String orderBy,
+            @RequestParam(value = "direction", required = false, defaultValue = "desc") String direction
+    ) {
+        WarehouseDTO warehouseDTO = warehouseService.findWarehouseById(id);
+        if (warehouseDTO == null) {
+            throw new Http404("Không tìm thấy kho hàng mà bạn yêu cầu");
+        }
+        if (!warehouseDTO.getCreatedBy().equals(getUser().getId())) {
+            throw new Http404("Bạn không có quyền truy cập kho hàng này");
+        }
 
+        List<String> fields = Arrays.asList("name", "productName", "productImage", "quantity", "createdAt");
+        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên khu vực", "Tên sản phẩm", "Hình ảnh", "Tồn kho", "Ngày tạo"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "", "image", "", "dateTime"));
+        List<String> searchAbleFields = Arrays.asList("name", "productName");
+        model.addAttribute("fields", fields);
+        model.addAttribute("fieldTitles", fieldTitles);
+        model.addAttribute("fieldClasses", fieldClasses);
+        model.addAttribute("searchAbleFields", searchAbleFields);
+        Sort sortDirection = "asc".equalsIgnoreCase(direction)
+                ? Sort.by(orderBy).ascending()
+                : Sort.by(orderBy).descending();
+        Pageable pageable = PageRequest.of(page - 1, size, sortDirection);
+        Page<ZoneDTO> zones;
+        if (search != null && !search.isEmpty()) {
+            zones = switch (searchBy) {
+                case "name" -> zoneService.findPaginatedZonesByWarehouseIdAndNameContaining(
+                        id, search, pageable);
+                case "productName" -> zoneService.findPaginatedZonesByWarehouseIdAndProductNameContaining(
+                        id, search, pageable);
+                default -> zoneService.findPaginatedZonesByWarehouseId(id, pageable);
+            };
+        } else {
+            zones = zoneService.findPaginatedZonesByWarehouseId(id, pageable);
+        }
+        model.addAttribute("zones", zones);
+        model.addAttribute("warehouse", warehouseDTO);
+        model.addAttribute("page", page);
+        model.addAttribute("size", size);
+        model.addAttribute("search", search);
+        model.addAttribute("orderBy", orderBy);
+        model.addAttribute("searchBy", searchBy);
+        model.addAttribute("direction", direction);
+        return "warehouse/zone/list";
+    }
 
+    @GetMapping("{id}/zone/add")
+    public String addZone(
+            Model model,
+            @PathVariable Long id
+    ) {
+        WarehouseDTO warehouseDTO = warehouseService.findWarehouseById(id);
+        if (warehouseDTO == null) {
+            throw new Http404("Không tìm thấy kho hàng mà bạn yêu cầu");
+        }
+        if (!warehouseDTO.getCreatedBy().equals(getUser().getId())) {
+            throw new Http404("Bạn không có quyền truy cập kho hàng này");
+        }
+        model.addAttribute("zone", new ZoneDTO());
+        model.addAttribute("warehouse", warehouseDTO);
+        return "warehouse/{"+ id +"}/zone/add";
+    }
 
+    @PostMapping("{id}/zone/add")
+    public String addZone(
+            @ModelAttribute("zone") @Validated ZoneDTO zoneDTO,
+            BindingResult bindingResult,
+            @PathVariable Long id
+    ) {
+        WarehouseDTO warehouseDTO = warehouseService.findWarehouseById(id);
+        if (warehouseDTO == null) {
+            throw new Http404("Không tìm thấy kho hàng mà bạn yêu cầu");
+        }
+        if (!warehouseDTO.getCreatedBy().equals(getUser().getId())) {
+            throw new Http404("Bạn không có quyền truy cập kho hàng này");
+        }
+        if (zoneService.isExistZoneByWarehouseIdAndName(id, zoneDTO.getName())) {
+            bindingResult.rejectValue("name", "error.zone", "Tên khu vực đã tồn tại");
+        }
+        if (bindingResult.hasErrors()) {
+            return "warehouse/{"+ id +"}/zone/add";
+        }
+        zoneDTO.setWarehouseId(id);
+        zoneDTO.setName(xssProtectedUtil.encodeAllHTMLElement(zoneDTO.getName()));
+        zoneDTO.setDescription(xssProtectedUtil.sanitize(zoneDTO.getDescription()));
+        zoneService.saveZone(zoneDTO);
+        return "redirect:/warehouse/" + id + "/zone";
+    }
 }
 
