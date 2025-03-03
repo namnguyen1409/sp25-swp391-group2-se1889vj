@@ -28,38 +28,12 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerMapper customerMapper;
     private MessageService messageService;
 
-    @Override
-    public Page<CustomerDTO> findPaginatedCustomers(int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
-        Page<Customer> page = customerRepository.findAll(pageable);
-        return page.map(customerMapper::mapToCustomerDTO);
-    }
-
-    @Override
-    public Page<CustomerDTO> findPaginatedCustomersByFullNameContaining(String fullName, int pageNumber, int pageSize) {
-        Pageable pageable = PageRequest.of(pageNumber - 1, pageSize);
-        Page<Customer> page = customerRepository.findByFullNameContaining(fullName, pageable);
-        return page.map(customerMapper::mapToCustomerDTO);
-    }
-
-    @Override
-    public Page<CustomerDTO> findPaginatedCustomersByCreatedById(Long createdById, Pageable pageable) {
-        Page<Customer> page = customerRepository.findByCreatedById(createdById, pageable);
-        return page.map(customerMapper::mapToCustomerDTO);
-    }
 
     @Override
     public CustomerDTO findCustomerById(Long id) {
         return customerRepository.findById(id)
                 .map(customerMapper::mapToCustomerDTO)
                 .orElseThrow(() -> new CustomerNoSuchElementException(messageService.getMessage("entity.notfound", id), id));
-    }
-
-
-    @Override
-    public CustomerDTO findCustomerByPhone(String phone) {
-        Optional<Customer> customerOptional = customerRepository.findByPhone(phone);
-        return customerOptional.map(customer -> customerMapper.mapToCustomerDTO(customer)).orElse(null);
     }
 
     @Override
@@ -103,30 +77,6 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Boolean existByEmailAndIdNot(String email, Long id) {
         return customerRepository.existsByEmailAndIdNot(email, id);
-    }
-
-    @Override
-    public Page<CustomerDTO> findPaginatedCustomersByCreatedByIdAndFullNameContaining(Long createdById, String fullName, Pageable pageable) {
-        Page<Customer> page = customerRepository.findByCreatedByIdAndFullNameContaining(createdById, fullName, pageable);
-        return page.map(customerMapper::mapToCustomerDTO);
-    }
-
-    @Override
-    public Page<CustomerDTO> findPaginatedCustomersByCreatedByIdAndPhoneContaining(Long createdById, String phone, Pageable pageable) {
-        Page<Customer> page = customerRepository.findByCreatedByIdAndPhoneContaining(createdById, phone, pageable);
-        return page.map(customerMapper::mapToCustomerDTO);
-    }
-
-    @Override
-    public Page<CustomerDTO> findPaginatedCustomersByCreatedByIdAndEmailContaining(Long createdById, String email, Pageable pageable) {
-        Page<Customer> page = customerRepository.findByCreatedByIdAndEmailContaining(createdById, email, pageable);
-        return page.map(customerMapper::mapToCustomerDTO);
-    }
-
-    @Override
-    public Page<CustomerDTO> findPaginatedCustomersByCreatedByIdAndAddressContaining(Long createdById, String address, Pageable pageable) {
-        Page<Customer> page = customerRepository.findByCreatedByIdAndAddressContaining(createdById, address, pageable);
-        return page.map(customerMapper::mapToCustomerDTO);
     }
 
     @Override

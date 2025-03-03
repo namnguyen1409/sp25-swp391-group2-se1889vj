@@ -25,20 +25,6 @@ public class DebtServiceImpl implements DebtService {
     private final CustomerRepository customerRepository;
     private final DebtMapper debtMapper;
 
-    @Override
-    public Page<DebtDTO> findPaginatedDebtsByDescriptionContainingIgnoreCase(String description, Pageable pageable) {
-        return debtRepository.findPaginatedDebtsByDescriptionContainingIgnoreCase(description, pageable).map(debtMapper::mapToDebtDTO);
-    }
-
-    @Override
-    public Page<DebtDTO> findPaginatedDebtsByCustomerIdAndDescriptionContainingIgnoreCase(Long customerId, String description, Pageable pageable) {
-        return debtRepository.findPaginatedDebtsByCustomerIdAndDescriptionContainingIgnoreCase(customerId, description, pageable).map(debtMapper::mapToDebtDTO);
-    }
-
-    @Override
-    public Page<DebtDTO> findPaginatedDebtsByCustomerId(Long customerId, Pageable pageable) {
-        return debtRepository.findPaginatedDebtsByCustomerId(customerId, pageable).map(debtMapper::mapToDebtDTO);
-    }
 
     public Page<DebtDTO> searchDebts(Long customerId, DebtFilterDTO debtFilterDTO, Pageable pageable) {
         Specification<Debt> spec = DebtSpecification.filterDebts(customerId, debtFilterDTO);
