@@ -78,8 +78,8 @@ public class User extends BaseEntity{
     @Column(name = "role", nullable = false, columnDefinition = "nvarchar(20)")
     private RoleType role;
 
-    @OneToMany(mappedBy = "createdBy")
-    private Set<Warehouse> warehouses = new HashSet<>();
+    @OneToOne(mappedBy = "owner")
+    private Warehouse warehouse;
 
     @ManyToOne
     @JoinColumn(name = "warehouse_id")

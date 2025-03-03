@@ -1,23 +1,35 @@
 package com.group2.sp25swp391group2se1889vj.service.impl;
 
+import com.group2.sp25swp391group2se1889vj.dto.RegisterDTO;
 import com.group2.sp25swp391group2se1889vj.dto.UserDTO;
 import com.group2.sp25swp391group2se1889vj.entity.User;
+import com.group2.sp25swp391group2se1889vj.entity.Warehouse;
+import com.group2.sp25swp391group2se1889vj.enums.RoleType;
+import com.group2.sp25swp391group2se1889vj.exception.InvalidRegistrationTokenException;
 import com.group2.sp25swp391group2se1889vj.mapper.UserMapper;
+import com.group2.sp25swp391group2se1889vj.repository.RegistrationTokenRepository;
 import com.group2.sp25swp391group2se1889vj.repository.UserRepository;
 import com.group2.sp25swp391group2se1889vj.service.UserService;
+import com.group2.sp25swp391group2se1889vj.util.EncryptionUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    private final RegistrationTokenRepository registrationTokenRepository;
+    private final EncryptionUtil encryptionUtil;
+    private final PasswordEncoder passwordEncoder;
     private UserRepository userRepository;
     private UserMapper userMapper;
     private MessageSource messageSource;
@@ -60,4 +72,48 @@ public class UserServiceImpl implements UserService {
     public User findUserByUsername(String username) {
         return userRepository.findByUsername(username).orElse(null);
     }
+
+
+    @Override
+    @Transactional
+    public void registerUser(RegisterDTO registerDTO) throws Exception {
+        // Kiểm tra token hợp lệ
+        var registrationToken = registrationTokenRepository.findByToken(encryptionUtil.encrypt(registerDTO.getToken()));
+        if (registrationToken == null) {
+            throw new InvalidRegistrationTokenException("Token không hợp lệ, liên hệ với quản trị viên để được hỗ trợ");
+        }
+        if (registrationToken.getUpdatedAt().plusDays(1).isBefore(LocalDateTime.now())) {
+            throw new InvalidRegistrationTokenException("Token đã hết hạn, liên hệ với quản trị viên để được hỗ trợ");
+        }
+
+        // Tạo user
+        User user = new User();
+        user.setUsername(registerDTO.getUsername());
+        user.setPassword(passwordEncoder.encode(registerDTO.getPass()));
+        user.setFirstName(registerDTO.getFirstName());
+        user.setLastName(registerDTO.getLastName());
+        user.setPhone(registerDTO.getPhone());
+        user.setGender(registerDTO.isGender());
+        user.setBirthday(LocalDate.parse(registerDTO.getDob()));
+        user.setAddress(registerDTO.getAddress());
+        user.setEmail(registrationToken.getEmail());
+        user.setRole(registrationToken.getRole());
+
+        if (registrationToken.getRole() == RoleType.OWNER) {
+            // Tạo kho cho chủ shop
+            Warehouse warehouse = new Warehouse();
+            warehouse.setName("Kho của " + user.getUsername());
+            warehouse.setLocation(user.getAddress());
+            warehouse.setOwner(user);
+            user.setWarehouse(warehouse);
+        } else {
+            // Gán vào kho của chủ shop
+            User owner = registrationToken.getCreatedBy();
+            user.setAssignedWarehouse(owner.getWarehouse());
+            user.setOwner(owner);
+        }
+
+        userRepository.save(user);
+    }
+
 }

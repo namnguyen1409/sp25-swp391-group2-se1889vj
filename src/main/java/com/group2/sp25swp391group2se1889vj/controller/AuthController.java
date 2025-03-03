@@ -5,6 +5,8 @@ import com.group2.sp25swp391group2se1889vj.dto.LoginDTO;
 import com.group2.sp25swp391group2se1889vj.dto.RegisterDTO;
 import com.group2.sp25swp391group2se1889vj.entity.RefreshToken;
 import com.group2.sp25swp391group2se1889vj.entity.User;
+import com.group2.sp25swp391group2se1889vj.entity.Warehouse;
+import com.group2.sp25swp391group2se1889vj.enums.RoleType;
 import com.group2.sp25swp391group2se1889vj.exception.InvalidRegistrationTokenException;
 import com.group2.sp25swp391group2se1889vj.repository.RefreshTokenRepository;
 import com.group2.sp25swp391group2se1889vj.repository.RegistrationTokenRepository;
@@ -14,6 +16,7 @@ import com.group2.sp25swp391group2se1889vj.security.JwtTokenProvider;
 import com.group2.sp25swp391group2se1889vj.security.RecaptchaService;
 import com.group2.sp25swp391group2se1889vj.security.RefreshTokenProvider;
 import com.group2.sp25swp391group2se1889vj.service.StorageService;
+import com.group2.sp25swp391group2se1889vj.service.UserService;
 import com.group2.sp25swp391group2se1889vj.util.CookieUtil;
 import com.group2.sp25swp391group2se1889vj.util.EncryptionUtil;
 import com.group2.sp25swp391group2se1889vj.validation.annotation.RecaptchaRequired;
@@ -52,6 +55,7 @@ public class AuthController {
     private final EncryptionUtil encryptionUtil;
     private final CookieUtil cookieUtil;
     private final StorageService storageService;
+    private final UserService userService;
 
     @Value("${refresh.token.expiration}")
     private String refreshTokenExpiration;
@@ -140,26 +144,7 @@ public class AuthController {
         if (bindingResult.hasErrors()) {
             return "auth/register";
         }
-        var registrationToken = registrationTokenRepository.findByToken(encryptionUtil.encrypt(registerDTO.getToken()));
-        if (registrationToken == null) {
-            throw new InvalidRegistrationTokenException("Token không hợp lệ, liên hệ với quản trị viên để được hỗ trợ");
-        }
-        if (registrationToken.getUpdatedAt().plusDays(1).isBefore(LocalDateTime.now())) {
-            throw new InvalidRegistrationTokenException("Token đã hết hạn, liên hệ với quản trị viên để được hỗ trợ");
-        }
-
-        User user = new User();
-        user.setUsername(registerDTO.getUsername());
-        user.setPassword(passwordEncoder.encode(registerDTO.getPass()));
-        user.setFirstName(registerDTO.getFirstName());
-        user.setLastName(registerDTO.getLastName());
-        user.setPhone(registerDTO.getPhone());
-        user.setGender(registerDTO.isGender());
-        user.setBirthday(LocalDate.parse(registerDTO.getDob()));
-        user.setAddress(registerDTO.getAddress());
-        user.setEmail(registrationToken.getEmail());
-        user.setRole(registrationToken.getRole());
-        userRepository.save(user);
+        userService.registerUser(registerDTO);
         return "redirect:/login";
     }
 
@@ -186,7 +171,6 @@ public class AuthController {
     public String profile(@RequestParam("avatar") String avatar,
                           RedirectAttributes redirectAttributes
     ) {
-
         User user = getUser();
         if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
             storageService.deleteFile(user.getAvatar());
@@ -195,8 +179,6 @@ public class AuthController {
         userRepository.save(user);
         redirectAttributes.addFlashAttribute("flashMessage", "Cập nhật ảnh đại diện thành công");
         redirectAttributes.addFlashAttribute("flashMessageType", "success");
-
-
         return "redirect:/profile";
     }
 
