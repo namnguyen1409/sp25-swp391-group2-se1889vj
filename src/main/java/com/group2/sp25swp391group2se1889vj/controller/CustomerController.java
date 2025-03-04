@@ -94,29 +94,6 @@ public class CustomerController {
     ) {
         redirectAttributes.addFlashAttribute("customerFilterDTO", customerFilterDTO);
         return "redirect:/customer/list";
-//        Sort sortDirection = "asc".equalsIgnoreCase(customerFilterDTO.getDirection())
-//                ? Sort.by(customerFilterDTO.getOrderBy()).ascending()
-//                : Sort.by(customerFilterDTO.getOrderBy()).descending();
-//
-//        List<String> fields = Arrays.asList("fullName", "phone", "email", "address", "balance", "createdAt");
-//        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Họ và tên", "Số điện thoại", "Email", "Địa chỉ", "số dư", "Ngày tạo"));
-//        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "phone", "", "", "price", "dateTime"));
-//        model.addAttribute("fields", fields);
-//        model.addAttribute("fieldTitles", fieldTitles);
-//        model.addAttribute("fieldClasses", fieldClasses);
-//
-//        Pageable pageable = PageRequest.of(customerFilterDTO.getPage() - 1, customerFilterDTO.getSize(), sortDirection);
-//
-//        Long ownerId = getUser().getId();
-//        if (getUser().getRole().equals(RoleType.STAFF)) {
-//            ownerId = getUser().getOwner().getId();
-//        }
-//
-//        Page<CustomerDTO> customers = customerService.searchCustomers(ownerId, customerFilterDTO, pageable);
-//
-//        model.addAttribute("customers", customers);
-//        model.addAttribute("customerFilterDTO", customerFilterDTO);
-//        return "customer/list";
     }
 
 
