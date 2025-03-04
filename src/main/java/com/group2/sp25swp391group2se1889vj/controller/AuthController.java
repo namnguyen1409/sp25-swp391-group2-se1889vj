@@ -118,8 +118,6 @@ public class AuthController {
             @RequestParam("token") String token,
             Model model
     ) throws Exception {
-
-
         var registrationToken = registrationTokenRepository.findByToken(encryptionUtil.encrypt(token));
         if (registrationToken == null) {
             throw new InvalidRegistrationTokenException("Token không hợp lệ, liên hệ với quản trị viên để được hỗ trợ");

@@ -127,7 +127,7 @@ main {
     height: 500px;
     background-repeat: no-repeat;
     background-position: 0 0;
-    background-image: conic-gradient(red, orange, yellow, rgba(0, 0, 0 ,0) 40%);
+    /*background-image: conic-gradient(red, orange, yellow, rgba(0, 0, 0 ,0) 40%);*/
     animation: rotate 4s linear infinite;
     filter: blur(10px);
 }
