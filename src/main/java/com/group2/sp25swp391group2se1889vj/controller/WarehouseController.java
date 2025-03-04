@@ -29,5 +29,34 @@ public class WarehouseController {
         return userDetails.getUser();
     }
 
+
+    @GetMapping({"/", ""})
+    public String detail(
+            Model model
+    ) {
+        WarehouseDTO warehouseDTO = warehouseService.findWarehouseByOwnerId(getUser().getId());
+        model.addAttribute("warehouse", warehouseDTO);
+        return "warehouse/detail";
+    }
+
+    @GetMapping("/edit")
+    public String edit(
+            Model model
+    ) {
+        WarehouseDTO warehouseDTO = warehouseService.findWarehouseByOwnerId(getUser().getId());
+        model.addAttribute("warehouse", warehouseDTO);
+        return "warehouse/edit";
+    }
+
+    @PostMapping("/edit")
+    public String edit(
+            @ModelAttribute WarehouseDTO warehouseDTO
+    ) {
+        warehouseDTO.setOwnerId(getUser().getId());
+        warehouseService.updateWarehouse(warehouseDTO);
+        return "redirect:/warehouse";
+    }
+
+
 }
 
