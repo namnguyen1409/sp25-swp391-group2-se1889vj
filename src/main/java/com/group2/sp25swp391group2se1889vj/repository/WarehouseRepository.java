@@ -6,10 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
-    Page<Warehouse> findByCreatedById(Long ownerId, Pageable pageable);
-    Page<Warehouse> findByCreatedByIdAndNameContaining(Long ownerId, String name, Pageable pageable);
-    Page<Warehouse> findByCreatedByIdAndLocationContaining(Long ownerId, String location, Pageable pageable);
-    Warehouse findByCreatedByIdAndName(Long ownerId, String name);
+    Optional<Warehouse> findByOwnerId(Long ownerId);
 }

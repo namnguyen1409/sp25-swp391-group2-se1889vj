@@ -11,14 +11,12 @@ import com.group2.sp25swp391group2se1889vj.service.MessageService;
 import com.group2.sp25swp391group2se1889vj.specification.CustomerSpecification;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -60,14 +58,15 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Boolean existByPhone(String phone) {
-        return customerRepository.existsByPhone(phone);
+    public Boolean existByPhoneAndOwnerId(String phone, Long ownerId) {
+        return customerRepository.existsByPhoneAndOwnerId(phone, ownerId);
     }
 
     @Override
-    public Boolean existByEmail(String email) {
-        return customerRepository.existsByEmail(email);
+    public Boolean existByEmailAndOwnerId(String email, Long ownerId) {
+        return customerRepository.existsByEmailAndOwnerId(email, ownerId);
     }
+
 
     @Override
     public Boolean existByPhoneAndIdNot(String phone, Long id) {

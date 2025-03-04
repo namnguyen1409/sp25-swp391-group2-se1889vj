@@ -8,18 +8,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@NoArgsConstructor
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Builder
 @Data
-@Getter
-@Setter
-public class DebtFilterDTO {
-    @Min(1)
-    private int page = 1;
-    @Min(1)
-    private int size = 10;
-    private String orderBy = "createdAt";
-    private String direction = "desc";
+@AllArgsConstructor
+@NoArgsConstructor
+public class DebtFilterDTO extends BaseFilterDTO{
     private DebtType type;
     private String description;
     private BigDecimal minAmount;
@@ -28,8 +22,4 @@ public class DebtFilterDTO {
     private LocalDateTime minDebtAt;
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime maxDebtAt;
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime minCreatedAt;
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime maxCreatedAt;
 }

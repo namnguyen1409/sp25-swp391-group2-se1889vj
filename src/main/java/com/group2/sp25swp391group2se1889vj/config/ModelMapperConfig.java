@@ -79,7 +79,6 @@ public class ModelMapperConfig {
             }
         });
 
-
         modelMapper.addMappings(new PropertyMap<Debt, DebtDTO>() {
             @Override
             protected void configure() {
@@ -91,6 +90,15 @@ public class ModelMapperConfig {
             }
         });
 
+        modelMapper.addMappings(new PropertyMap<ProductPackage, ProductPackageDTO>() {
+            @Override
+            protected void configure() {
+                map().setCreatedBy(source.getCreatedBy().getId());
+                map().setCreatedAt(source.getCreatedAt());
+                map().setUpdatedBy(source.getUpdatedBy().getId());
+                map().setUpdatedAt(source.getUpdatedAt());
+            }
+        });
 
         modelMapper.getConfiguration().setAmbiguityIgnored(true);
         return modelMapper;

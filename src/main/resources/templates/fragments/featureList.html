@@ -8,18 +8,30 @@
 <ul th:fragment="featureList(class, id)"
     th:id="${id}"
     th:class="${class}">
+
+    <li class="mb-1" sec:authorize="hasRole('OWNER')">
+        <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/product-package/list}">
+            <i class="bi bi-boxes me-2"></i> Quy cách đóng gói
+        </a>
+    </li>
+
     <li class="mb-1" sec:authorize="hasRole('OWNER')">
         <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/product/list}">
             <i class="bi bi-box-seam-fill me-2"></i> Quản lý gạo
         </a>
     </li>
     <li class="mb-1" sec:authorize="hasRole('OWNER')">
-        <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/warehouse/list}" >
-            <i class="bi bi-shop me-2"></i> Quản lý kho
+        <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/warehouse}">
+            <i class="bi bi-shop me-2"></i> Quản lý cửa hàng
         </a>
     </li>
-    <li class="mb-1" sec:authorize="hasRole('OWNER') or hasRole('STAFF')">
-        <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/invoice/list}" >
+    <li class="mb-1" sec:authorize="hasRole('OWNER')">
+        <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/zone/list}">
+            <i class="bi bi-bounding-box me-2"></i> Quản lý khu vực
+        </a>
+    </li>
+    <li class="mb-1">
+        <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/invoice/list}">
             <i class="bi bi-receipt me-2"></i> Quản lý hóa đơn
         </a>
     </li>
