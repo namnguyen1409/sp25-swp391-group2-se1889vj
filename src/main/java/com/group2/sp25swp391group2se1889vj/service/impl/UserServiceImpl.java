@@ -9,6 +9,7 @@ import com.group2.sp25swp391group2se1889vj.exception.InvalidRegistrationTokenExc
 import com.group2.sp25swp391group2se1889vj.mapper.UserMapper;
 import com.group2.sp25swp391group2se1889vj.repository.RegistrationTokenRepository;
 import com.group2.sp25swp391group2se1889vj.repository.UserRepository;
+import com.group2.sp25swp391group2se1889vj.repository.WarehouseRepository;
 import com.group2.sp25swp391group2se1889vj.service.UserService;
 import com.group2.sp25swp391group2se1889vj.util.EncryptionUtil;
 import lombok.AllArgsConstructor;
@@ -30,6 +31,7 @@ public class UserServiceImpl implements UserService {
     private final RegistrationTokenRepository registrationTokenRepository;
     private final EncryptionUtil encryptionUtil;
     private final PasswordEncoder passwordEncoder;
+    private final WarehouseRepository warehouseRepository;
     private UserRepository userRepository;
     private UserMapper userMapper;
     private MessageSource messageSource;
@@ -89,15 +91,17 @@ public class UserServiceImpl implements UserService {
         // Tạo user
         User user = new User();
         user.setUsername(registerDTO.getUsername());
-        user.setPassword(passwordEncoder.encode(registerDTO.getPass()));
+        user.setPassword(passwordEncoder.encode(registerDTO.getPassword()));
         user.setFirstName(registerDTO.getFirstName());
         user.setLastName(registerDTO.getLastName());
         user.setPhone(registerDTO.getPhone());
         user.setGender(registerDTO.isGender());
-        user.setBirthday(LocalDate.parse(registerDTO.getDob()));
+        user.setBirthday(registerDTO.getBirthday());
         user.setAddress(registerDTO.getAddress());
         user.setEmail(registrationToken.getEmail());
         user.setRole(registrationToken.getRole());
+
+        user = userRepository.save(user);
 
         if (registrationToken.getRole() == RoleType.OWNER) {
             // Tạo kho cho chủ shop
@@ -106,6 +110,9 @@ public class UserServiceImpl implements UserService {
             warehouse.setLocation(user.getAddress());
             warehouse.setOwner(user);
             user.setWarehouse(warehouse);
+
+            warehouse.setCreatedBy(user);
+            warehouseRepository.save(warehouse);
         } else {
             // Gán vào kho của chủ shop
             User owner = registrationToken.getCreatedBy();
