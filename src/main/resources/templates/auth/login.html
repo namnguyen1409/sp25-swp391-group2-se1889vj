@@ -33,6 +33,16 @@
             </div>
         </div>
     </div>
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", function(event) {
+            var recaptchaResponse = grecaptcha.getResponse(); // Lấy giá trị reCAPTCHA
+
+            if (!recaptchaResponse) {
+                event.preventDefault(); // Ngăn form gửi đi
+                document.getElementById("recaptchaError").style.display = "block";
+            }
+        });
+    </script>
 </section>
 </body>
 </html>

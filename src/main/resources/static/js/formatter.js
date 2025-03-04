@@ -38,6 +38,18 @@ formatCurrency = (currency) => {
     }).format(currency);
 }
 
+currencyToRaw = (currency) => {
+    return currency.replace(/\D/g, '');
+}
+
 $('.currency').each(function() {
     $(this).text(formatCurrency($(this).text()));
+});
+
+$('.price').each(function() {
+    $(this).text(formatCurrency($(this).text()));
+});
+
+$('.currencyInput').each(function() {
+    $(this).val(formatCurrency($(this).val()));
 });

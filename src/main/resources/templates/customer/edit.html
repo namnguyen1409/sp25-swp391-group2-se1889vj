@@ -121,7 +121,7 @@
             if (!addressInput) return;
 
             let address = addressInput.value.trim();
-            let addressPattern = /^[a-zA-Z0-9\s]{6,100}$/;
+            let addressPattern =  /^[a-zA-ZÀ-ỹ\s]{6,100}$/;
 
             if (!addressPattern.test(address) && address.length > 0) {
                 showErrorInputFeedback('address', 'Địa chỉ không hợp lệ (chỉ chứa chữ cái, số, dấu cách, từ 6-100 ký tự).');

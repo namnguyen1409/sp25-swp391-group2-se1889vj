@@ -14,7 +14,7 @@
 
                 <li class="page-item" th:classappend="${page.first} ? 'disabled' : ''">
                     <button class="page-link"
-                            th:onclick="goToPage(${page.number} - 1)"
+                            th:onclick="'goToPage('+${page.number} +')'"
                             aria-label="Trang trước">
                         <span aria-hidden="true">&lsaquo;</span>
                     </button>
@@ -55,7 +55,7 @@
 
                 <li class="page-item" th:classappend="${page.last} ? 'disabled' : ''">
                     <button class="page-link"
-                            th:onclick="'goToPage(' + ${page.number + 1} + ')'"
+                            th:onclick="'goToPage(' + ${page.number + 2} + ')'"
                             aria-label="Trang sau">
                         <span aria-hidden="true">&rsaquo;</span>
                     </button>
@@ -71,7 +71,5 @@
         </nav>
     </div>
 </div>
-
-
 </body>
 </html>

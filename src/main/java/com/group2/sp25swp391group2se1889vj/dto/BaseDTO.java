@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
@@ -13,10 +14,11 @@ import java.time.LocalDateTime;
 @SuperBuilder(toBuilder = true)
 public abstract class BaseDTO {
     private Long id;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
     private Long createdBy;
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime updatedAt;
     private Long updatedBy;
-    private LocalDateTime deletedAt;
     private boolean isDeleted;
 }

@@ -1,4 +1,4 @@
-<aside th:fragment="sidebar" class="col-sm-2 p-3 border-end bg-body-tertiary d-none d-lg-block h-100" id="collapseWidthExample">
+<aside th:fragment="sidebar" class="col-sm-2 p-3 border-end bg-body-tertiary d-none d-lg-block h-100" id="sidebar">
   <div class="animated-border-box-glow"></div>
   <a href="/" class="d-flex bg-body align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none rounded-2 p-2 animated-border-box">
       <img th:src="@{/images/logo.png}" class="img-thumbnail rounded-circle me-2 bg-light" alt="logo" width="50" height="50">
@@ -17,7 +17,7 @@
           let width = animatedBorderBox.offsetWidth;
           let height = animatedBorderBox.offsetHeight;
 
-          if (width > 0 && height > 0) { // Đảm bảo giá trị hợp lệ
+          if (width > 0 && height > 0) {
               animatedBorderBoxGlow.style.width = width + 'px';
               animatedBorderBoxGlow.style.height = height + 'px';
           }

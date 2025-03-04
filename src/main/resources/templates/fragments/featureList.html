@@ -6,80 +6,24 @@
     th:id="${id}"
     th:class="${class}">
     <li class="mb-1">
-        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-                data-bs-toggle="collapse" data-bs-target="#product-collapse" aria-expanded="false">
+        <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/product/list}">
             <i class="bi bi-box-seam-fill me-2"></i> Quản lý gạo
-        </button>
-        <div class="collapse" id="product-collapse">
-            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><a th:href="@{/product/list}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-list-ul me-2"></i>
-                    Danh sách gạo
-                </a></li>
-                <li><a th:href="@{/product/add}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-plus-circle me-2"></i>
-                    Thêm gạo mới
-                </a></li>
-            </ul>
-        </div>
+        </a>
     </li>
     <li class="mb-1">
-        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-                data-bs-toggle="collapse" data-bs-target="#inventory-collapse" aria-expanded="false">
+        <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/warehouse/list}">
             <i class="bi bi-shop me-2"></i> Quản lý kho
-        </button>
-        <div class="collapse" id="inventory-collapse">
-            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><a th:href="@{/warehouse/list}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-list-ul me-2"></i>
-                    Danh sách kho
-                </a></li>
-                <li><a th:href="@{/warehouse/add}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-plus-circle me-2"></i>
-                    Thêm kho mới
-                </a></li>
-            </ul>
-        </div>
+        </a>
     </li>
     <li class="mb-1">
-        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-                data-bs-toggle="collapse" data-bs-target="#invoice-collapse" aria-expanded="false">
+        <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/invoice/list}">
             <i class="bi bi-receipt me-2"></i> Quản lý hóa đơn
-        </button>
-        <div class="collapse" id="invoice-collapse">
-            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-list-ul me-2"></i>
-                    Danh sách hóa đơn
-                </a></li>
-                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-plus-circle me-2"></i>
-                    Thêm hóa đơn mới
-                </a></li>
-                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-file-earmark-bar-graph me-2"></i>
-                    Báo cáo doanh thu
-                </a></li>
-            </ul>
-        </div>
+        </a>
     </li>
     <li class="mb-1">
-        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-                data-bs-toggle="collapse" data-bs-target="#customer-collapse" aria-expanded="false">
+        <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/customer/list}">
             <i class="bi bi-person me-2"></i> Quản lý khách hàng
-        </button>
-        <div class="collapse" id="customer-collapse">
-            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><a th:href="@{/customer/list}"  class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-list-ul me-2"></i>
-                    Danh sách khách hàng
-                </a></li>
-                <li><a th:href="@{/customer/add}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-plus-circle me-2"></i>
-                    Thêm khách hàng mới
-                </a></li>
-            </ul>
-        </div>
+        </a>
     </li>
     <li class="mb-1">
         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"

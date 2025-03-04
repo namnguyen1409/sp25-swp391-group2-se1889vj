@@ -13,6 +13,18 @@
         <a href="/home" class="btn btn-secondary fw-semibold rounded-pill px-4 py-2 custom-btn">
           Trở về trang chủ
         </a>
+
+        <button class="btn btn-secondary fw-semibold rounded-pill px-4 py-2 custom-btn" id="return">
+          Quay lại trang trước
+        </button>
+
+        <script>
+          document.getElementById("return").addEventListener("click", function() {
+            window.history.back();
+          });
+        </script>
+
+
       </div>
     </div>
   </div>

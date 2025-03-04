@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
-@EqualsAndHashCode(callSuper = true)
+
 @Entity
 @Data
 @SuperBuilder(toBuilder = true)
@@ -25,7 +25,7 @@ public class Customer extends BaseEntity {
     @Column(name = "phone", nullable = false, columnDefinition = "nvarchar(20)")
     private String phone;
 
-    @Column(name = "email", columnDefinition = "nvarchar(255)")
+    @Column(name = "email", columnDefinition = "nvarchar(100)")
     private String email;
 
     @Column(name = "address",  columnDefinition = "nvarchar(255)")
