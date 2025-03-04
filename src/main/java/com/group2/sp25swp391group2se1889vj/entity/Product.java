@@ -27,7 +27,7 @@ public class Product extends BaseEntity {
     private BigDecimal price;
 
     @ManyToOne
-    @JoinColumn(name="product_pakage_id", nullable = false)
+    @JoinColumn(name="product_package_id", nullable = false)
     private ProductPackage productPackage;
 
     @Column(name = "description", nullable = true, columnDefinition = "nvarchar(MAX)")

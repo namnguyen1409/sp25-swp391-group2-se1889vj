@@ -8,26 +8,17 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@NoArgsConstructor
-@AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+@Builder
 @Data
-@Getter
-@Setter
-public class CustomerFilterDTO {
-    @Min(1)
-    private int page = 1;
-    @Min(1)
-    private int size = 10;
-    private String orderBy = "createdAt";
-    private String direction = "desc";
+@AllArgsConstructor
+@NoArgsConstructor
+public class CustomerFilterDTO extends BaseFilterDTO{
     private String fullName;
     private String phone;
     private String email;
     private String address;
     private BigDecimal minBalance;
     private BigDecimal maxBalance;
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime minCreatedAt;
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime maxCreatedAt;
+
 }
