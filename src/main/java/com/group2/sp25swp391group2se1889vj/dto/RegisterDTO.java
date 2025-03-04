@@ -5,6 +5,8 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
+
 @Builder
 @Data
 @AllArgsConstructor
@@ -18,7 +20,7 @@ public class RegisterDTO {
 
     @NotBlank(message = "Mật khẩu không được để trống")
     @PasswordStrength(message = "Mật khẩu không đủ mạnh")
-    private String pass;
+    private String password;
     private String confirmPassword;
 
     @NotBlank(message = "Họ không được để trống")
@@ -40,7 +42,7 @@ public class RegisterDTO {
     @DateTimeFormat(pattern = "yyyy-MM-dd", iso = DateTimeFormat.ISO.DATE)
     @NotNull(message = "Ngày sinh không được để trống")
     @AgeCheck(min = 18, max = 125, message = "Tuổi phải từ 18 đến 125")
-    private String dob;
+    private LocalDate birthday;
 
     @NotBlank(message = "Địa chỉ không được để trống")
     @Size(min = 10, max = 255, message = "Địa chỉ phải từ 10 đến 255 ký tự")

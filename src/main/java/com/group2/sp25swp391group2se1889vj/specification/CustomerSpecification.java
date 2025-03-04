@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CustomerSpecification {
+
+
     public static Specification<Customer> filterCustomers(Long ownerId, CustomerFilterDTO customerFilterDTO) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
