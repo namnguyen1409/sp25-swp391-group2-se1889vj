@@ -1,27 +1,25 @@
 package com.group2.sp25swp391group2se1889vj.controller;
 
 import com.group2.sp25swp391group2se1889vj.dto.ChangePasswordDTO;
-import com.group2.sp25swp391group2se1889vj.entity.RegistrationToken;
-import com.group2.sp25swp391group2se1889vj.enums.MessageKeyEnum;
-import com.group2.sp25swp391group2se1889vj.enums.MessageTypeEnum;
-import com.group2.sp25swp391group2se1889vj.exception.Http400;
-import com.group2.sp25swp391group2se1889vj.exception.Http404;
-import com.group2.sp25swp391group2se1889vj.security.RecaptchaService;
 import com.group2.sp25swp391group2se1889vj.dto.LoginDTO;
 import com.group2.sp25swp391group2se1889vj.dto.RegisterDTO;
-import com.group2.sp25swp391group2se1889vj.exception.InvalidRegistrationTokenException;
-import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
-import com.group2.sp25swp391group2se1889vj.security.JwtTokenProvider;
-import com.group2.sp25swp391group2se1889vj.security.RefreshTokenProvider;
-import com.group2.sp25swp391group2se1889vj.service.MessageService;
-import com.group2.sp25swp391group2se1889vj.service.StorageService;
-import com.group2.sp25swp391group2se1889vj.util.CookieUtil;
-import com.group2.sp25swp391group2se1889vj.util.EncryptionUtil;
 import com.group2.sp25swp391group2se1889vj.entity.RefreshToken;
 import com.group2.sp25swp391group2se1889vj.entity.User;
+import com.group2.sp25swp391group2se1889vj.entity.Warehouse;
+import com.group2.sp25swp391group2se1889vj.enums.RoleType;
+import com.group2.sp25swp391group2se1889vj.exception.InvalidRegistrationTokenException;
 import com.group2.sp25swp391group2se1889vj.repository.RefreshTokenRepository;
 import com.group2.sp25swp391group2se1889vj.repository.RegistrationTokenRepository;
 import com.group2.sp25swp391group2se1889vj.repository.UserRepository;
+import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
+import com.group2.sp25swp391group2se1889vj.security.JwtTokenProvider;
+import com.group2.sp25swp391group2se1889vj.security.RecaptchaService;
+import com.group2.sp25swp391group2se1889vj.security.RefreshTokenProvider;
+import com.group2.sp25swp391group2se1889vj.service.StorageService;
+import com.group2.sp25swp391group2se1889vj.service.UserService;
+import com.group2.sp25swp391group2se1889vj.util.CookieUtil;
+import com.group2.sp25swp391group2se1889vj.util.EncryptionUtil;
+import com.group2.sp25swp391group2se1889vj.validation.annotation.RecaptchaRequired;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -57,8 +55,7 @@ public class AuthController {
     private final EncryptionUtil encryptionUtil;
     private final CookieUtil cookieUtil;
     private final StorageService storageService;
-    private final MessageService messageService;
-
+    private final UserService userService;
 
     @Value("${refresh.token.expiration}")
     private String refreshTokenExpiration;
@@ -72,37 +69,11 @@ public class AuthController {
         return userDetails.getUser();
     }
 
-    private void addFlashMessage(RedirectAttributes redirectAttributes, MessageKeyEnum messageKey, MessageTypeEnum messageType) {
-        redirectAttributes.addFlashAttribute("flashMessage", messageService.getMessage(messageKey.getKey()));
-        redirectAttributes.addFlashAttribute("flashMessageType", messageType.getType());
-    }
-
-    private boolean notValidateRecaptcha(String recaptchaResponse, BindingResult bindingResult) {
-        if (recaptchaService.notVerifyRecaptcha(recaptchaResponse)) {
-            bindingResult.rejectValue("recaptchaResponse", MessageKeyEnum.ERROR_RECAPTCHA.getKey());
-            return true;
-        }
-        return false;
-    }
-
-    private RegistrationToken validateRegistrationToken(String token) throws Exception {
-        var registrationToken = registrationTokenRepository.findByToken(encryptionUtil.encrypt(token));
-        if (registrationToken == null) {
-            throw new Http404(messageService.getMessage(MessageKeyEnum.ERROR_REGISTER_TOKEN_INVALID.getKey()));
-        }
-        if (registrationToken.getUpdatedAt().plusDays(1).isBefore(LocalDateTime.now())) {
-            throw new Http400(messageService.getMessage(MessageKeyEnum.ERROR_REGISTER_TOKEN_EXPIRED.getKey()));
-        }
-        return registrationToken;
-    }
-
     @GetMapping("/login")
     public String login(Model model) {
         if (SecurityContextHolder.getContext().getAuthentication().getPrincipal() instanceof CustomUserDetails) {
             return "redirect:/";
         }
-
-
         model.addAttribute("title", "Login");
         model.addAttribute("loginDTO", new LoginDTO());
 
@@ -110,15 +81,11 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @RecaptchaRequired
     public String login(
             @ModelAttribute("loginDTO") @Validated LoginDTO loginDTO,
-            BindingResult bindingResult,
-            @RequestParam("g-recaptcha-response") String recaptchaResponse
+            BindingResult bindingResult
     ) {
-        if (recaptchaService.notVerifyRecaptcha(recaptchaResponse)) {
-            bindingResult.rejectValue("recaptchaResponse", "error.recaptcha", "Vui lòng xác minh bạn không phải là robot");
-        }
-
         if (bindingResult.hasErrors()) {
             return "auth/login";
         }
@@ -151,26 +118,7 @@ public class AuthController {
             @RequestParam("token") String token,
             Model model
     ) throws Exception {
-        validateRegistrationToken(token);
-        RegisterDTO registerDTO = new RegisterDTO();
-        registerDTO.setToken(token);
-        model.addAttribute("registerDTO", registerDTO);
-        return "auth/register";
-    }
-
-    @PostMapping("/register")
-    public String register(
-            @Validated @ModelAttribute("registerDTO") RegisterDTO registerDTO,
-            BindingResult bindingResult,
-            @RequestParam("g-recaptcha-response") String recaptchaResponse
-    ) throws Exception {
-        if (recaptchaService.notVerifyRecaptcha(recaptchaResponse)) {
-            bindingResult.rejectValue("recaptchaResponse", "error.recaptcha", "Vui lòng xác minh bạn không phải là robot");
-        }
-        if (bindingResult.hasErrors()) {
-            return "auth/register";
-        }
-        var registrationToken = registrationTokenRepository.findByToken(encryptionUtil.encrypt(registerDTO.getToken()));
+        var registrationToken = registrationTokenRepository.findByToken(encryptionUtil.encrypt(token));
         if (registrationToken == null) {
             throw new InvalidRegistrationTokenException("Token không hợp lệ, liên hệ với quản trị viên để được hỗ trợ");
         }
@@ -178,18 +126,23 @@ public class AuthController {
             throw new InvalidRegistrationTokenException("Token đã hết hạn, liên hệ với quản trị viên để được hỗ trợ");
         }
 
-        User user = new User();
-        user.setUsername(registerDTO.getUsername());
-        user.setPassword(passwordEncoder.encode(registerDTO.getPass()));
-        user.setFirstName(registerDTO.getFirstName());
-        user.setLastName(registerDTO.getLastName());
-        user.setPhone(registerDTO.getPhone());
-        user.setGender(registerDTO.isGender());
-        user.setBirthday(LocalDate.parse(registerDTO.getDob()));
-        user.setAddress(registerDTO.getAddress());
-        user.setEmail(registrationToken.getEmail());
-        user.setRole(registrationToken.getRole());
-        userRepository.save(user);
+        RegisterDTO registerDTO = new RegisterDTO();
+        registerDTO.setToken(token);
+        model.addAttribute("registerDTO", registerDTO);
+        model.addAttribute("title", "register");
+        return "auth/register";
+    }
+
+    @PostMapping("/register")
+    @RecaptchaRequired
+    public String register(
+            @Validated @ModelAttribute("registerDTO") RegisterDTO registerDTO,
+            BindingResult bindingResult
+    ) throws Exception {
+        if (bindingResult.hasErrors()) {
+            return "auth/register";
+        }
+        userService.registerUser(registerDTO);
         return "redirect:/login";
     }
 
@@ -212,25 +165,18 @@ public class AuthController {
     }
 
     @PostMapping("profile")
+    @RecaptchaRequired
     public String profile(@RequestParam("avatar") String avatar,
-                          @RequestParam("g-recaptcha-response") String recaptchaResponse,
                           RedirectAttributes redirectAttributes
     ) {
-        System.out.println(avatar);
-        if (recaptchaService.notVerifyRecaptcha(recaptchaResponse)) {
-            redirectAttributes.addFlashAttribute("flashMessage", "Vui lòng xác minh bạn không phải là robot");
-            redirectAttributes.addFlashAttribute("flashMessageType", "danger");
-        } else {
-            User user = getUser();
-            if (user.getAvatar() != null) {
-                storageService.deleteFile(user.getAvatar());
-            }
-            user.setAvatar(avatar);
-            userRepository.save(user);
-            redirectAttributes.addFlashAttribute("flashMessage", "Cập nhật ảnh đại diện thành công");
-            redirectAttributes.addFlashAttribute("flashMessageType", "success");
+        User user = getUser();
+        if (user.getAvatar() != null && !user.getAvatar().isEmpty()) {
+            storageService.deleteFile(user.getAvatar());
         }
-
+        user.setAvatar(avatar);
+        userRepository.save(user);
+        redirectAttributes.addFlashAttribute("flashMessage", "Cập nhật ảnh đại diện thành công");
+        redirectAttributes.addFlashAttribute("flashMessageType", "success");
         return "redirect:/profile";
     }
 
@@ -251,17 +197,13 @@ public class AuthController {
         }
         User user = getUser();
         if (!passwordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPassword())) {
-            bindingResult.rejectValue("oldPassword", MessageKeyEnum.ERROR_CHANGE_PASSWORD_OLD.getKey());
+            bindingResult.rejectValue("oldPassword", "error.changePassword", "Mật khẩu cũ không đúng");
             return "auth/change-password";
         }
         user.setPassword(passwordEncoder.encode(changePasswordDTO.getPassword()));
         userRepository.save(user);
-        addFlashMessage(redirectAttributes, MessageKeyEnum.SUCCESS_CHANGE_PASSWORD, MessageTypeEnum.SUCCESS);
         return "redirect:/change-password";
     }
 
-    /**
-     * Enumaration class of the different types of messages
-     * the same final
-     */
+
 }

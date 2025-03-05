@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en" layout:decorate="template"
+
+>
+<body>
+<section layout:fragment="content" class="container h-100">
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-10 col-lg-8 d-flex flex-column nowrap justify-content-center">
+            <div class="card mt-4 mb-4">
+                <div class="card-header">
+                    <h4 class="card-title"> Thêm mới bản ghi cho khách hàng
+                    <span th:text="${customer.fullName}"></span>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="p-md-4" th:object="${debt}" th:action="@{'add'}" id="addDebtForm">
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-cash"></i>
+                                </span>
+                                <div class="form-floating">
+                                    <select class="form-select" th:field="*{type}">
+                                        <option value="CUSTOMER_BORROW">
+                                            Khách hàng nợ cửa hàng
+                                        </option>
+                                        <option value="CUSTOMER_REPAY">
+                                            Khách hàng trả nợ cửa hàng
+                                        </option>
+                                        <option value="SHOP_BORROW">
+                                            Cửa hàng vay khách hàng
+                                        </option>
+                                        <option value="SHOP_REPAY">
+                                            Cửa hàng trả nợ khách hàng
+                                        </option>
+
+                                    </select>
+                                    <label th:for="*{type}" class="form-label">Loại giao dịch</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/textarea :: customTextarea('description', 'bi-justify', 'Mô tả')"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/input :: customInput('amount', 'text', 'bi-cash-coin', 'Số tiền', true)"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/input :: customInput('debtAt', 'datetime-local', 'bi-calendar', 'Ngày giao dịch', true)"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/inputImage :: customInputImage('image', 'bi-box-seam-fill', 'Hình ảnh minh chứng', @{/upload/debt})"></div>
+                        </div>
+                        <div th:replace="fragments/recapcha :: recapcha"></div>
+                        <p th:text="${error}" class="text-danger mb-3"></p>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-person-plus-fill"></i>
+                            Thêm mới
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('#amount').forEach(input => {
+                input.addEventListener('keydown', function (event) {
+                    let rawValue = this.getAttribute('data-raw') || '';
+
+                    if (event.key === 'Backspace') {
+                        event.preventDefault();
+                        if (rawValue.length > 1) {
+                            rawValue = rawValue.slice(0, -1);
+                            this.setAttribute('data-raw', rawValue);
+                            this.value = formatCurrency(rawValue);
+                        } else {
+                            this.setAttribute('data-raw', '');
+                            this.value = '';
+                        }
+                    }
+                });
+
+                input.addEventListener('input', function () {
+                    let rawValue = this.value.replace(/\D/g, '');
+                    rawValue = rawValue.replace(/^0+/, '') || '0';
+                    this.setAttribute('data-raw', rawValue);
+                    this.value = formatCurrency(rawValue);
+                });
+                input.setAttribute('data-raw', input.value);
+                input.value = formatCurrency(input.getAttribute('data-raw') || '');
+            });
+        });
+
+        document.getElementById('addDebtForm').addEventListener('submit', function () {
+            let amountInput = document.getElementById('amount');
+            amountInput.value = amountInput.getAttribute('data-raw');
+        });
+
+
+    </script>
+
+</section>
+</body>
+</html>

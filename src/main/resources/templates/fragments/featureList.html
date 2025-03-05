@@ -1,85 +1,44 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="vi">
 <body>
 
 <ul th:fragment="featureList(class, id)"
     th:id="${id}"
     th:class="${class}">
-    <li class="mb-1">
-        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-                data-bs-toggle="collapse" data-bs-target="#product-collapse" aria-expanded="false">
+
+    <li class="mb-1" sec:authorize="hasRole('OWNER')">
+        <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/product-package/list}">
+            <i class="bi bi-boxes me-2"></i> Quy cách đóng gói
+        </a>
+    </li>
+
+    <li class="mb-1" sec:authorize="hasRole('OWNER')">
+        <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/product/list}">
             <i class="bi bi-box-seam-fill me-2"></i> Quản lý gạo
-        </button>
-        <div class="collapse" id="product-collapse">
-            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><a th:href="@{/product/list}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-list-ul me-2"></i>
-                    Danh sách gạo
-                </a></li>
-                <li><a th:href="@{/product/add}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-plus-circle me-2"></i>
-                    Thêm gạo mới
-                </a></li>
-            </ul>
-        </div>
+        </a>
+    </li>
+    <li class="mb-1" sec:authorize="hasRole('OWNER')">
+        <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/warehouse}">
+            <i class="bi bi-shop me-2"></i> Quản lý cửa hàng
+        </a>
+    </li>
+    <li class="mb-1" sec:authorize="hasRole('OWNER')">
+        <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/zone/list}">
+            <i class="bi bi-bounding-box me-2"></i> Quản lý khu vực
+        </a>
     </li>
     <li class="mb-1">
-        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-                data-bs-toggle="collapse" data-bs-target="#inventory-collapse" aria-expanded="false">
-            <i class="bi bi-shop me-2"></i> Quản lý kho
-        </button>
-        <div class="collapse" id="inventory-collapse">
-            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><a th:href="@{/warehouse/list}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-list-ul me-2"></i>
-                    Danh sách kho
-                </a></li>
-                <li><a th:href="@{/warehouse/add}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-plus-circle me-2"></i>
-                    Thêm kho mới
-                </a></li>
-            </ul>
-        </div>
-    </li>
-    <li class="mb-1">
-        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-                data-bs-toggle="collapse" data-bs-target="#invoice-collapse" aria-expanded="false">
+        <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/invoice/list}">
             <i class="bi bi-receipt me-2"></i> Quản lý hóa đơn
-        </button>
-        <div class="collapse" id="invoice-collapse">
-            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-list-ul me-2"></i>
-                    Danh sách hóa đơn
-                </a></li>
-                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-plus-circle me-2"></i>
-                    Thêm hóa đơn mới
-                </a></li>
-                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-file-earmark-bar-graph me-2"></i>
-                    Báo cáo doanh thu
-                </a></li>
-            </ul>
-        </div>
+        </a>
     </li>
-    <li class="mb-1">
-        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-                data-bs-toggle="collapse" data-bs-target="#customer-collapse" aria-expanded="false">
+    <li class="mb-1" sec:authorize="hasRole('OWNER') or hasRole('STAFF')">
+        <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/customer/list}">
             <i class="bi bi-person me-2"></i> Quản lý khách hàng
-        </button>
-        <div class="collapse" id="customer-collapse">
-            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><a th:href="@{/customer/list}"  class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-list-ul me-2"></i>
-                    Danh sách khách hàng
-                </a></li>
-                <li><a th:href="@{/customer/add}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
-                    <i class="bi bi-plus-circle me-2"></i>
-                    Thêm khách hàng mới
-                </a></li>
-            </ul>
-        </div>
+        </a>
     </li>
     <li class="mb-1">
         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
@@ -94,7 +53,8 @@
                 </a></li>
                 <li><a th:href="@{/users/add}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
                     <i class="bi bi-plus-circle me-2"></i>
-                    Thêm người dùng mới
+                    <th:block sec:authorize="hasRole('OWNER')">Thêm nhân viên mới</th:block>
+                    <th:block sec:authorize="hasRole('ADMIN')">Thêm chủ cửa hàng mới</th:block>
                 </a></li>
             </ul>
         </div>

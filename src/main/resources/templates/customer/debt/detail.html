@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en" layout:decorate="template"
+
+>
+<body>
+<section layout:fragment="content" class="container h-100">
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-10 col-lg-8 d-flex flex-column nowrap justify-content-center">
+            <div class="card mt-4 mb-4">
+                <div class="card-header">
+                    <h4 class="card-title"> Chi tiết bản ghi nợ của khách hàng
+                        <span th:text="${customer.fullName}"></span>
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="p-md-4" th:object="${debt}" th:action="@{'add'}" id="addDebtForm">
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-cash"></i>
+                                </span>
+                                <div class="form-floating">
+                                    <select class="form-select" th:field="*{type}">
+                                        <option value="CUSTOMER_BORROW">
+                                            Khách hàng nợ cửa hàng
+                                        </option>
+                                        <option value="CUSTOMER_REPAY">
+                                            Khách hàng trả nợ cửa hàng
+                                        </option>
+                                        <option value="SHOP_BORROW">
+                                            Cửa hàng vay khách hàng
+                                        </option>
+                                        <option value="SHOP_REPAY">
+                                            Cửa hàng trả nợ khách hàng
+                                        </option>
+
+                                    </select>
+                                    <label th:for="*{type}" class="form-label">Loại giao dịch</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('amount', 'text', 'bi-cash-coin', 'Số tiền', true)"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('debtAt', 'datetime-local', 'bi-calendar', 'Ngày giao dịch', true)"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('createdAt', 'datetime-local', 'bi-calendar', 'Ngày Tạo', true)"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('updatedAt', 'datetime-local', 'bi-calendar', 'Ngày Cập Nhật', true)"></div>
+                        </div>
+                        <th:block th:if="${!debt.description.isEmpty()}">
+                            <hr>
+                            <div class="mb-3">
+                                <h3 class="text-center">Mô tả</h3>
+                                <textarea class="form-control" th:utext="*{description}"></textarea>
+                            </div>
+                        </th:block>
+
+                        <th:block th:if="${!debt.image.isEmpty()}">
+                            <hr>
+                            <div class="mb-3">
+                                <h3 class="text-center">Hình ảnh minh chứng</h3>
+                                <img th:src="@{${'/' + debt.image}}" class="img-fluid img-thumbnail" alt="Hình ảnh minh chứng" style="max-width: 100%">
+                            </div>
+                        </th:block>
+
+                        <div class="mb-3">
+
+                        </div>
+                        <div class="mb-3">
+                            <a href=".." class="btn btn-primary">
+                                <i class="bi bi-arrow-left"></i>
+                                Quay lại
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('#amount').forEach(input => {
+                input.addEventListener('keydown', function (event) {
+                    let rawValue = this.getAttribute('data-raw') || '';
+
+                    if (event.key === 'Backspace') {
+                        event.preventDefault();
+                        if (rawValue.length > 1) {
+                            rawValue = rawValue.slice(0, -1);
+                            this.setAttribute('data-raw', rawValue);
+                            this.value = formatCurrency(rawValue);
+                        } else {
+                            this.setAttribute('data-raw', '');
+                            this.value = '';
+                        }
+                    }
+                });
+
+                input.addEventListener('input', function () {
+                    let rawValue = this.value.replace(/\D/g, '');
+                    rawValue = rawValue.replace(/^0+/, '') || '0';
+                    this.setAttribute('data-raw', rawValue);
+                    this.value = formatCurrency(rawValue);
+                });
+                input.setAttribute('data-raw', input.value);
+                input.value = formatCurrency(input.getAttribute('data-raw') || '');
+            });
+        });
+
+        document.getElementById('addDebtForm').addEventListener('submit', function () {
+            let amountInput = document.getElementById('amount');
+            amountInput.value = amountInput.getAttribute('data-raw');
+        });
+
+
+    </script>
+
+    <script>
+        // validate data
+        $('#fullName').on('input', function () {
+            if ($(this).val() === '') {
+                $(this).addClass('is-invalid');
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+    </script>
+
+
+</section>
+</body>
+</html>

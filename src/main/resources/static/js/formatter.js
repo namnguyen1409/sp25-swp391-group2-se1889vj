@@ -30,3 +30,26 @@ formatDateTime = (dateTime) => {
 $('.dateTime').each(function() {
     $(this).text(formatDateTime($(this).text()));
 });
+
+formatCurrency = (currency) => {
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+    }).format(currency);
+}
+
+currencyToRaw = (currency) => {
+    return currency.replace(/\D/g, '');
+}
+
+$('.currency').each(function() {
+    $(this).text(formatCurrency($(this).text()));
+});
+
+$('.price').each(function() {
+    $(this).text(formatCurrency($(this).text()));
+});
+
+$('.currencyInput').each(function() {
+    $(this).val(formatCurrency($(this).val()));
+});

@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
 
-@EqualsAndHashCode(callSuper = true)
+
 @Entity
 @Data
 @SuperBuilder(toBuilder = true)
@@ -25,6 +25,10 @@ public class Product extends BaseEntity {
 
     @Column(name = "price", nullable = false, columnDefinition = "decimal(18,0)")
     private BigDecimal price;
+
+    @ManyToOne
+    @JoinColumn(name="product_package_id", nullable = false)
+    private ProductPackage productPackage;
 
     @Column(name = "description", nullable = true, columnDefinition = "nvarchar(MAX)")
     private String description;

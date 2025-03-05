@@ -3,7 +3,6 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="en" layout:decorate="template"
-
 >
 <body>
 <section layout:fragment="content" class="container h-100">
@@ -11,22 +10,20 @@
     <div class="col-md-10 col-lg-8 d-flex flex-column nowrap justify-content-center">
       <div class="card mt-4 mb-4">
         <div class="card-header">
-          <h4 class="card-title"> Chỉnh sửa kho hàng</h4>
+          <h4 class="card-title"> Chỉnh sửa cửa hàng</h4>
         </div>
         <div class="card-body">
           <form th:action="@{/warehouse/edit}" method="post" class="p-md-4" th:object="${warehouse}">
             <input type="hidden" th:field="*{id}">
             <div class="mb-3">
-              <div th:replace="fragments/input :: customInput('name', 'text', 'bi-hash', 'Tên kho hàng')"></div>
+              <div th:replace="fragments/input :: customInput('name', 'text', 'bi-hash', 'Tên cửa hàng', true)" ></div>
             </div>
             <div class="mb-3">
-              <div th:replace="fragments/input :: customInput('location', 'text', 'bi-geo-alt-fill', 'Vị trí')"></div>
+              <div th:replace="fragments/input :: customInput('location', 'text', 'bi-geo-alt-fill', 'Vị trí', true)"></div>
             </div>
             <div class="mb-3">
               <div th:replace="fragments/textarea :: customTextarea('description', 'bi-justify', 'Mô tả')"></div>
             </div>
-            <div th:replace="fragments/recapcha :: recapcha"></div>
-            <p th:text="${error}" class="text-danger mb-3"></p>
             <button type="submit" class="btn btn-primary">
               <i class="bi bi-pencil-square"></i>
               Chỉnh sửa
@@ -37,5 +34,8 @@
     </div>
   </div>
 </section>
+<script>
+
+</script>
 </body>
 </html>

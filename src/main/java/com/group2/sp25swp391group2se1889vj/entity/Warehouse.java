@@ -10,7 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
-@EqualsAndHashCode(callSuper = true)
+
 @Entity
 @Data
 @SuperBuilder(toBuilder = true)
@@ -25,6 +25,10 @@ public class Warehouse extends BaseEntity{
 
     @Column(name = "description", nullable = true, columnDefinition = "nvarchar(max)")
     private String description;
+
+    @OneToOne
+    @JoinColumn(name="owner_id", referencedColumnName = "id")
+    private User owner;
 
     @OneToMany(mappedBy = "warehouse", fetch = FetchType.LAZY)
     private Set<Zone> zones = new HashSet<>();

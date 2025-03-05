@@ -10,11 +10,10 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Entity
 @Data
 @SuperBuilder(toBuilder = true)
@@ -23,30 +22,39 @@ import java.util.Set;
 @Table(name = "users")
 public class User extends BaseEntity{
 
+    @EqualsAndHashCode.Include
     @Column(name = "username", nullable = false, unique = true, columnDefinition = "nvarchar(50)")
     private String username;
 
+    @EqualsAndHashCode.Include
     @Column(name = "password", nullable = false, columnDefinition = "nvarchar(100)")
     private String password;
 
+    @EqualsAndHashCode.Include
     @Column(name = "first_name", nullable = false, columnDefinition = "nvarchar(50)")
     private String firstName;
 
+    @EqualsAndHashCode.Include
     @Column(name = "last_name", nullable = false, columnDefinition = "nvarchar(50)")
     private String lastName;
 
+    @EqualsAndHashCode.Include
     @Column(name = "email", nullable = false, unique = true, columnDefinition = "nvarchar(100)")
     private String email;
 
+    @EqualsAndHashCode.Include
     @Column(name = "phone", nullable = false, unique = true, columnDefinition = "nvarchar(20)")
     private String phone;
 
+    @EqualsAndHashCode.Include
     @Column(name = "gender", nullable = false, columnDefinition = "bit")
     private Boolean gender;
 
+    @EqualsAndHashCode.Include
     @Column(name = "birthday", nullable = false)
     private LocalDate birthday;
 
+    @EqualsAndHashCode.Include
     @Column(name = "address", nullable = false, columnDefinition = "nvarchar(255)")
     private String address;
 
@@ -59,7 +67,7 @@ public class User extends BaseEntity{
     @Column(name = "avatar", columnDefinition = "nvarchar(255)")
     private String avatar;
 
-    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "owner")
     private Set<User> subordinates = new HashSet<>();
 
     @ManyToOne
@@ -70,19 +78,19 @@ public class User extends BaseEntity{
     @Column(name = "role", nullable = false, columnDefinition = "nvarchar(20)")
     private RoleType role;
 
-    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
-    private Set<Warehouse> warehouses = new HashSet<>();
+    @OneToOne(mappedBy = "owner")
+    private Warehouse warehouse;
 
     @ManyToOne
     @JoinColumn(name = "warehouse_id")
     private Warehouse assignedWarehouse;
 
-    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "createdBy")
     private Set<Product> products = new HashSet<>();
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user")
     private Set<RefreshToken> refreshTokens = new HashSet<>();
 
-    @OneToMany(mappedBy = "createdBy", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "createdBy")
     private Set<RegistrationToken> registrationTokens = new HashSet<>();
 }

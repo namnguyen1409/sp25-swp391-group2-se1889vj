@@ -1,6 +1,7 @@
 package com.group2.sp25swp391group2se1889vj.handler;
 
 import com.group2.sp25swp391group2se1889vj.entity.User;
+import com.group2.sp25swp391group2se1889vj.exception.Http400;
 import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -51,6 +52,18 @@ public class GlobalExceptionHandler {
         return "common/error";
     }
 
+    @ExceptionHandler({Http400.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public String handleHttp400(Http400 exception,
+                                Model model) {
+        model.addAttribute("currentUser", getCurrentUser());
+        model.addAttribute("error",
+                new Error("400",
+                        "Lỗi yêu cầu",
+                        exception.getMessage()));
+        return "common/error";
+    }
+
     @ExceptionHandler(Exception.class)
     public String handleGeneralException(Exception exception,
                                          Model model) {
@@ -60,6 +73,7 @@ public class GlobalExceptionHandler {
                 new Error("500",
                         "Lỗi hệ thống",
                         "Xin lỗi, đã xảy ra lỗi hệ thống. Vui lòng thử lại sau."));
+        exception.printStackTrace();
         System.out.println(exception.getMessage());
         // in ra class name của exception
         System.out.println(exception.getClass().getName());
