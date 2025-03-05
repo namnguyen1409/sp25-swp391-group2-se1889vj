@@ -13,8 +13,11 @@ public interface CustomerService {
     CustomerDTO findCustomerById(Long id);
     void saveCustomer(CustomerDTO customerDTO);
     void updateCustomer(CustomerDTO customerDTO);
-    Boolean existByPhone(String phone);
-    Boolean existByEmail(String email);
+
+    Boolean existByPhoneAndOwnerId(String phone, Long ownerId);
+
+    Boolean existByEmailAndOwnerId(String email, Long ownerId);
+
     Boolean existByPhoneAndIdNot(String phone, Long id);
     Boolean existByEmailAndIdNot(String email, Long id);
     void addBalance(Long id, BigDecimal balance);

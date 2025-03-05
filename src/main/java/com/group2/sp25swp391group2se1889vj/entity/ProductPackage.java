@@ -18,7 +18,7 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "product_packages")
 public class ProductPackage extends BaseEntity{
 
-    @Column(name = "name", nullable = false, columnDefinition = "NVARCHAR(255)")
+    @Column(name = "name", nullable = false, columnDefinition = "NVARCHAR(50)")
     private String name;
 
     @Column(name = "weight", nullable = false)

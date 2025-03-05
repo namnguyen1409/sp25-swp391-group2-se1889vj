@@ -14,14 +14,9 @@ import java.util.Optional;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSpecificationExecutor<Customer> {
-    Page<Customer> findByFullNameContaining(String fullName, Pageable pageable);
-    Page<Customer> findByCreatedById(Long createdById, Pageable pageable);
-    Page<Customer> findByCreatedByIdAndFullNameContaining(Long createdById, String fullName, Pageable pageable);
-    Page<Customer> findByCreatedByIdAndPhoneContaining(Long createdById, String phone, Pageable pageable);
-    Page<Customer> findByCreatedByIdAndEmailContaining(Long createdById, String email, Pageable pageable);
-    Page<Customer> findByCreatedByIdAndAddressContaining(Long createdById, String address, Pageable pageable);
-    Boolean existsByPhone(String phone);
-    Boolean existsByEmail(String email);
+
+    Boolean existsByPhoneAndOwnerId(String phone, Long ownerId);
+    Boolean existsByEmailAndOwnerId(String email, Long ownerId);
     Boolean existsByPhoneAndIdNot(String phone, Long id);
     Boolean existsByEmailAndIdNot(String email, Long id);
 

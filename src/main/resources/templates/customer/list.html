@@ -7,30 +7,6 @@
 <body>
 <section layout:fragment="content" class="container-fluid h-100">
 
-    <style>
-        .table-container {
-            overflow-x: auto; /* Kích hoạt cuộn ngang nếu cần */
-            max-width: 100%; /* Giới hạn chiều rộng */
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            white-space: nowrap; /* Tránh xuống dòng */
-        }
-
-        th:last-child, td:last-child {
-            position: sticky;
-            right: 0;
-            background-color: white; /* Giữ màu nền để không bị đè bởi nội dung khác */
-            z-index: 2; /* Giữ nó trên các phần tử khác */
-            box-shadow: -1px 0 2px rgba(0, 0, 0, 0.1); /* Hiệu ứng bóng để tách biệt */
-        }
-    </style>
-
     <h2 class="text-center mt-3">Danh sách khách hàng</h2>
 
     <div class="mt-3">
@@ -53,7 +29,7 @@
     </div>
     <div>
         <div class="table-responsive" >
-            <table  class="table table-striped table-hover mt-5">
+            <table class="table table-container table-striped table-sm table-hover mt-5">
                 <caption>
                     <div class="container-fluid">
                         <div class="row align-items-center">
@@ -85,40 +61,46 @@
                 <tr>
                     <th th:each="field : ${fields}"
                         th:data="${field}"
-                        style="cursor: pointer;">
+                        style="cursor: pointer; min-width: 80px;"
+
+                    >
                         <span>
                             <span th:text="${fieldTitles[__${field}__]}"></span>
                             <i th:if="${customerFilterDTO.orderBy} == ${field}"
                                th:class="${customerFilterDTO.direction == 'ASC' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i>
                         </span>
-                    <th class="text-center">Hành động</th>
+                    <th class="text-center" style="min-width: 200px;">Hành động</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:object="${customerFilterDTO}">
                     <td>
-                        <input type="text" class="form-control" th:value="*{fullName}" id="fullNameField" placeholder="Tên khách hàng">
+                        <input type="text" class="form-control form-control-sm" th:value="*{fullName}" id="fullNameField" placeholder="Tên khách hàng">
                     </td>
                     <td>
-                        <input type="text" class="form-control" th:value="*{phone}" id="phoneField" placeholder="Số điện thoại">
+                        <input type="text" class="form-control form-control-sm" th:value="*{phone}" id="phoneField" placeholder="Số điện thoại">
                     </td>
                     <td>
-                        <input type="text" class="form-control" th:value="*{email}" id="emailField" placeholder="Email">
+                        <input type="text" class="form-control form-control-sm" th:value="*{email}" id="emailField" placeholder="Email">
                     </td>
                     <td>
-                        <input type="text" class="form-control" th:value="*{address}" id="addressField" placeholder="Địa chỉ">
+                        <input type="text" class="form-control form-control-sm" th:value="*{address}" id="addressField" placeholder="Địa chỉ">
                     </td>
                     <td>
-                        <input type="text" class="form-control currency-input" th:attr="data-raw=*{minBalance}" th:value="*{minBalance}" id="minBalanceField" placeholder="Số dư tối thiểu">
-                        <input type="text" class="form-control currency-input" th:attr="data-raw=*{maxBalance}" th:value="*{maxBalance}" id="maxBalanceField" placeholder="Số dư tối đa">
+                        <div class="d-flex gap-2" style="max-width: 200px">
+                            <input type="text" class="form-control form-control-sm currency-input" th:attr="data-raw=*{minBalance}" th:value="*{minBalance}" id="minBalanceField" placeholder="Số dư tối thiểu">
+                            <input type="text" class="form-control form-control-sm currency-input" th:attr="data-raw=*{maxBalance}" th:value="*{maxBalance}" id="maxBalanceField" placeholder="Số dư tối đa">
+                        </div>
                     </td>
                     <td>
-                        <input type="datetime-local" class="form-control" th:value="*{minCreatedAt}" id="minCreatedAtField" placeholder="Ngày tạo tối thiểu">
-                        <input type="datetime-local" class="form-control" th:value="*{maxCreatedAt}" id="maxCreatedAtField" placeholder="Ngày tạo tối đa">
+                        <div class="d-flex gap-2" style="max-width: 200px">
+                            <input type="datetime-local" class="form-control form-control-sm" th:value="*{minCreatedAt}" id="minCreatedAtField" placeholder="Ngày tạo tối thiểu" style="max-width: 80px;">
+                            <input type="datetime-local" class="form-control form-control-sm" th:value="*{maxCreatedAt}" id="maxCreatedAtField" placeholder="Ngày tạo tối đa" style="max-width: 80px;">
+                        </div>
                     </td>
-                    <td>
+                    <td class="text-center">
                         <button id="btnSubmit" class="btn btn-primary">
-                            <i class="bi bi-search"></i>
+                            <i class="bi bi-search"></i> Tìm kiếm
                         </button>
                     </td>
                 </tr>
