@@ -54,7 +54,6 @@ public class ModelMapperConfig {
                 map().setCreatedAt(source.getCreatedAt());
                 map().setUpdatedBy(source.getUpdatedBy().getId());
                 map().setUpdatedAt(source.getUpdatedAt());
-                map().setWarehouseId(source.getWarehouse().getId());
                 if(source.getProduct() != null) {
                     map().setProductId(source.getProduct().getId());
                     map().setProductName(source.getProduct().getName());

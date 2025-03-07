@@ -20,10 +20,6 @@ public class Zone extends BaseEntity{
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "warehouse_id", nullable = false)
-    private Warehouse warehouse;
-
-    @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
 

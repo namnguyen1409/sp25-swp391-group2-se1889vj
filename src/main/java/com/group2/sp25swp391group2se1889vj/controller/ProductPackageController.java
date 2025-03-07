@@ -6,6 +6,7 @@ import com.group2.sp25swp391group2se1889vj.service.ProductPackageService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -22,4 +23,13 @@ public class ProductPackageController {
     }
 
 
+    @GetMapping({"/list", "/", ""})
+    public String list() {
+        return "product/package/list";
+    }
+
+    @GetMapping("/add")
+    public String addProductPackage() {
+        return "product/package/add";
+    }
 }

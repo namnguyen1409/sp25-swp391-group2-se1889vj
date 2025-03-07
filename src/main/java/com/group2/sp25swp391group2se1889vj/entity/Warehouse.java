@@ -30,9 +30,6 @@ public class Warehouse extends BaseEntity{
     @JoinColumn(name="owner_id", referencedColumnName = "id")
     private User owner;
 
-    @OneToMany(mappedBy = "warehouse", fetch = FetchType.LAZY)
-    private Set<Zone> zones = new HashSet<>();
-
     @OneToMany(mappedBy = "assignedWarehouse", fetch = FetchType.LAZY)
     private Set<User> staff = new HashSet<>();
 }
