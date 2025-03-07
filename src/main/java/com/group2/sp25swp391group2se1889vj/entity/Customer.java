@@ -35,8 +35,8 @@ public class Customer extends BaseEntity {
     private BigDecimal balance = BigDecimal.ZERO;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "owner_id")
-    private User owner;
+    @JoinColumn(name = "warehouse_id")
+    private Warehouse warehouse;
 
     @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
     private Set<Invoice> invoices = new HashSet<>();

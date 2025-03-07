@@ -19,4 +19,7 @@ public class ProductPackageDTO extends BaseDTO {
     @NotBlank(message = "khối lượng không được để trống")
     @Min(value = 1, message = "Khối lượng phải lớn hơn 0")
     private int weight;
+
+    private Long WarehouseId;
+
 }

@@ -46,11 +46,10 @@ public class CustomerController {
         return userDetails.getUser();
     }
 
-    private Long getOwnerId() {
+    private Long getWarehouseId() {
         var currentUser = getUser();
-        Long ownerId = currentUser.getId();
-        if (currentUser.getRole() == RoleType.STAFF) ownerId = currentUser.getOwner().getId();
-        return ownerId;
+        if(currentUser.getRole() == RoleType.OWNER) return currentUser.getWarehouse().getId();
+        else return currentUser.getAssignedWarehouse().getId();
     }
 
     private Map<String, String> createPairs(List<String> fields, List<String> fieldTitles) {
@@ -82,9 +81,9 @@ public class CustomerController {
 
         Pageable pageable = PageRequest.of(customerFilterDTO.getPage() - 1, customerFilterDTO.getSize(), sortDirection);
 
-        Long ownerId = getOwnerId();
+        Long warehouseId = getWarehouseId();
 
-        Page<CustomerDTO> customers = customerService.searchCustomers(ownerId, customerFilterDTO, pageable);
+        Page<CustomerDTO> customers = customerService.searchCustomers(warehouseId, customerFilterDTO, pageable);
 
         model.addAttribute("customers", customers);
         model.addAttribute("customerFilterDTO", customerFilterDTO);
@@ -112,17 +111,17 @@ public class CustomerController {
             @Validated @ModelAttribute("customer") CustomerDTO customerDTO,
             BindingResult bindingResult
     ) {
-        Long ownerId = getOwnerId();
-        if(Boolean.TRUE.equals(customerService.existByPhoneAndOwnerId(customerDTO.getPhone(), ownerId))) {
+        Long warehouseId = getWarehouseId();
+        if(Boolean.TRUE.equals(customerService.existByPhoneAndWarehouseId(customerDTO.getPhone(), warehouseId))) {
             bindingResult.rejectValue("phone", "error.phone", "Số điện thoại đã tồn tại");
         }
-        if(Boolean.TRUE.equals(customerService.existByEmailAndOwnerId(customerDTO.getEmail(), ownerId)) && !customerDTO.getEmail().isEmpty()) {
+        if(Boolean.TRUE.equals(customerService.existByEmailAndWarehouseId(customerDTO.getEmail(), warehouseId)) && !customerDTO.getEmail().isEmpty()) {
             bindingResult.rejectValue("email", "error.email", "Email đã tồn tại");
         }
         if (bindingResult.hasErrors()) {
             return "customer/add";
         }
-        customerDTO.setOwnerId(ownerId);
+        customerDTO.setWarehouseId(warehouseId);
         customerService.saveCustomer(customerDTO);
         return "redirect:/customer/list";
     }
@@ -131,7 +130,7 @@ public class CustomerController {
     public String edit(@PathVariable Long id, Model model) {
         CustomerDTO customerDTO = customerService.findCustomerById(id);
 
-        if (!Objects.equals(customerDTO.getOwnerId(), getOwnerId())) {
+        if (!Objects.equals(customerDTO.getWarehouseId(), getWarehouseId())) {
             return "redirect:/customer/list";
         }
         model.addAttribute("customer", customerDTO);
@@ -144,10 +143,10 @@ public class CustomerController {
             @Validated @ModelAttribute("customer") CustomerDTO customerDTO,
             BindingResult bindingResult
     ) {
-        if(Boolean.TRUE.equals(customerService.existByPhoneAndIdNot(customerDTO.getPhone(), customerDTO.getId()))) {
+        if(Boolean.TRUE.equals(customerService.existByPhoneAndWarehouseIdAndIdNot(customerDTO.getPhone() ,getWarehouseId(), customerDTO.getId()))) {
             bindingResult.rejectValue("phone", "error.phone", "Số điện thoại đã tồn tại");
         }
-        if(Boolean.TRUE.equals(customerService.existByEmailAndIdNot(customerDTO.getEmail(), customerDTO.getId()))) {
+        if(Boolean.TRUE.equals(customerService.existByEmailAndWarehouseIdAndIdNot(customerDTO.getEmail(), getWarehouseId(), customerDTO.getId()))) {
             bindingResult.rejectValue("email", "error.email", "Email đã tồn tại");
         }
         if (bindingResult.hasErrors()) {
@@ -155,7 +154,7 @@ public class CustomerController {
         }
 
         var check = customerService.findCustomerById(customerDTO.getId());
-        if (!Objects.equals(check.getOwnerId(), getOwnerId())) {
+        if (!Objects.equals(check.getWarehouseId(), getWarehouseId())) {
             return "redirect:/customer/list";
         }
 
@@ -167,7 +166,7 @@ public class CustomerController {
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable Long id, Model model) {
         CustomerDTO customerDTO = customerService.findCustomerById(id);
-        if (!Objects.equals(customerDTO.getOwnerId(), getOwnerId())) {
+        if (!Objects.equals(customerDTO.getWarehouseId(), getWarehouseId())) {
             return "redirect:/customer/list";
         }
         model.addAttribute("customer", customerDTO);
@@ -181,7 +180,7 @@ public class CustomerController {
     ) {
         CustomerDTO customer = customerService.findCustomerById(id);
 
-        if (!Objects.equals(customer.getOwnerId(), getOwnerId())) {
+        if (!Objects.equals(customer.getWarehouseId(), getWarehouseId())) {
             return "redirect:/customer/list";
         }
         if (debtFilterDTO == null) {

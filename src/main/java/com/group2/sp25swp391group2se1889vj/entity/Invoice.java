@@ -36,8 +36,8 @@ public class Invoice extends BaseEntity{
     private BigDecimal totalDebt;
 
     @ManyToOne
-    @JoinColumn(name = "owner_id")
-    private User owner;
+    @JoinColumn(name = "warehouse_id")
+    private Warehouse warehouse;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en" layout:decorate="template"
+
+>
+<body>
+<section layout:fragment="content" class="container h-100">
+    <div class="row justify-content-center h-100">
+        <div class="col-md-10 col-lg-8 d-flex flex-column nowrap justify-content-center">
+            <div class="card mt-4 mb-4">
+                <div class="card-header">
+                    <h4 class="card-title"> Thêm mới quy cách đóng gói </h4>
+                </div>
+                <div class="card-body bd-sidebar">
+                    <form th:action="@{/product-package/add}" method="post" class="p-md-4" th:object="${productPackageDTO}">
+                        <!--/*@thymesVar id="currentUser" type="com.hsf302.trialproject.entity.User"*/-->
+                        <div class="mb-3">
+                            <div th:replace="fragments/input :: customInput('name', 'text', 'bi-hash', 'Tên quy cách', 'true')"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/input :: customInput('weight', 'number', 'bi-rulers', 'Khối lượng', 'true')"></div>
+                        </div>
+                        <div th:replace="fragments/recapcha :: recapcha"></div>
+                        <p th:text="${error}" class="text-danger mb-3"></p>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i>
+                            Thêm mới
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

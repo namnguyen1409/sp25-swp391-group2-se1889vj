@@ -58,25 +58,25 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Boolean existByPhoneAndOwnerId(String phone, Long ownerId) {
-        return customerRepository.existsByPhoneAndOwnerId(phone, ownerId);
+    public Boolean existByPhoneAndWarehouseId(String phone, Long warehouseId) {
+        return customerRepository.existsByPhoneAndWarehouseId(phone, warehouseId);
     }
 
     @Override
-    public Boolean existByEmailAndOwnerId(String email, Long ownerId) {
-        return customerRepository.existsByEmailAndOwnerId(email, ownerId);
-    }
-
-
-    @Override
-    public Boolean existByPhoneAndIdNot(String phone, Long id) {
-        return customerRepository.existsByPhoneAndIdNot(phone, id);
+    public Boolean existByEmailAndWarehouseId(String email, Long warehouseId) {
+        return customerRepository.existsByEmailAndWarehouseId(email, warehouseId);
     }
 
     @Override
-    public Boolean existByEmailAndIdNot(String email, Long id) {
-        return customerRepository.existsByEmailAndIdNot(email, id);
+    public Boolean existByPhoneAndWarehouseIdAndIdNot(String phone, Long warehouseId, Long id) {
+        return customerRepository.existsByPhoneAndWarehouseIdAndIdNot(phone, warehouseId, id);
     }
+
+    @Override
+    public Boolean existByEmailAndWarehouseIdAndIdNot(String email, Long warehouseId, Long id) {
+        return customerRepository.existsByEmailAndWarehouseIdAndIdNot(email, warehouseId, id);
+    }
+
 
     @Override
     public void addBalance(Long id, BigDecimal balance) {
@@ -89,8 +89,8 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Page<CustomerDTO> searchCustomers(Long customerId, CustomerFilterDTO customerFilterDTO, Pageable pageable) {
-        Specification<Customer> spec = CustomerSpecification.filterCustomers(customerId, customerFilterDTO);
+    public Page<CustomerDTO> searchCustomers(Long warehouseId, CustomerFilterDTO customerFilterDTO, Pageable pageable) {
+        Specification<Customer> spec = CustomerSpecification.filterCustomers(warehouseId, customerFilterDTO);
         return customerRepository.findAll(spec, pageable).map(customerMapper::mapToCustomerDTO);
     }
 
