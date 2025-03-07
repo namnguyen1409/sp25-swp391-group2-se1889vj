@@ -5,6 +5,8 @@ import com.group2.sp25swp391group2se1889vj.dto.ProductPackageFilterDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface ProductPackageService {
 
     Boolean existsByNameAndCreatedById(String name, Long createdById);
@@ -12,4 +14,6 @@ public interface ProductPackageService {
     void addProductPackage(ProductPackageDTO productPackageDTO);
 
     Page<ProductPackageDTO> searchProductPackages(Long warehouseId, ProductPackageFilterDTO productPackageFilterDTO, Pageable pageable);
+
+    List<ProductPackageDTO> searchProductPackages(Long warehouseId, String name);
 }

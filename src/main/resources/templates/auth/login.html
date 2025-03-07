@@ -29,20 +29,13 @@
                         <p th:text="${error}" class="text-danger mb-3"></p>
                         <button type="submit" class="btn btn-primary">Đăng nhập</button>
                     </form>
+                    <div class="text-center mt-3">
+                        <a th:href="@{/forgot-password}">Quên mật khẩu?</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <script>
-        document.getElementById("loginForm").addEventListener("submit", function(event) {
-            var recaptchaResponse = grecaptcha.getResponse(); // Lấy giá trị reCAPTCHA
-
-            if (!recaptchaResponse) {
-                event.preventDefault(); // Ngăn form gửi đi
-                document.getElementById("recaptchaError").style.display = "block";
-            }
-        });
-    </script>
 </section>
 </body>
 </html>

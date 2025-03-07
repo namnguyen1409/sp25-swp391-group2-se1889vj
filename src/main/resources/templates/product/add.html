@@ -26,6 +26,12 @@
                             <div th:replace="fragments/inputImage :: customInputImage('image', 'bi-box-seam-fill', 'Hình ảnh sản phẩm', @{/upload/product})"></div>
                         </div>
                         <div class="mb-3">
+                            <select th:field="*{productPackageId}" class="form-select" data-live-search="true" data-show-subtext="false" style="-webkit-appearance: none;">
+                                <option value="">Chọn quy cách đóng gói</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
                             <div th:replace="fragments/textarea :: customTextarea('description', 'bi-justify', 'Mô tả')"></div>
                         </div>
                         <div th:replace="fragments/recapcha :: recapcha"></div>
@@ -39,6 +45,9 @@
             </div>
         </div>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+
 </section>
 </body>
 </html>
