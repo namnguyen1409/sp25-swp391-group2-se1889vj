@@ -14,13 +14,15 @@ public interface CustomerService {
     void saveCustomer(CustomerDTO customerDTO);
     void updateCustomer(CustomerDTO customerDTO);
 
-    Boolean existByPhoneAndOwnerId(String phone, Long ownerId);
+    Boolean existByPhoneAndWarehouseId(String phone, Long warehouseId);
 
-    Boolean existByEmailAndOwnerId(String email, Long ownerId);
+    Boolean existByEmailAndWarehouseId(String email, Long warehouseId);
 
-    Boolean existByPhoneAndIdNot(String phone, Long id);
-    Boolean existByEmailAndIdNot(String email, Long id);
+    Boolean existByPhoneAndWarehouseIdAndIdNot(String phone, Long warehouseId, Long id);
+
+    Boolean existByEmailAndWarehouseIdAndIdNot(String email, Long warehouseId, Long id);
+
     void addBalance(Long id, BigDecimal balance);
     void subtractBalance(Long id, BigDecimal balance);
-    Page<CustomerDTO> searchCustomers(Long customerId, CustomerFilterDTO customerFilterDTO, Pageable pageable);
+    Page<CustomerDTO> searchCustomers(Long warehouseId, CustomerFilterDTO customerFilterDTO, Pageable pageable);
 }

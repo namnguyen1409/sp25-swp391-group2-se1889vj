@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en" layout:decorate="template"
+
+>
+<body>
+<section layout:fragment="content" class="container-fluid h-100">
+
+  <h2 class="text-center mt-3">Danh sách quy cách đóng gói</h2>
+
+  <div class="mt-3">
+    <div class="mt-3">
+      <form id="searchForm" th:object="${productPackageFilterDTO}" th:action="@{${'/product-package/'}}"  method="post">
+        <input type="hidden" th:field="*{page}">
+        <input type="hidden" th:field="*{orderBy}">
+        <input type="hidden" th:field="*{direction}">
+        <input type="hidden" th:field="*{size}">
+        <input type="hidden" th:field="*{name}">
+        <input type="hidden" th:field="*{weightFrom}">
+        <input type="hidden" th:field="*{weightTo}">
+        <input type="hidden" th:field="*{minCreatedAt}">
+        <input type="hidden" th:field="*{maxCreatedAt}">
+        <input type="hidden" th:field="*{minUpdatedAt}">
+        <input type="hidden" th:field="*{maxUpdatedAt}">
+      </form>
+    </div>
+  </div>
+  <div>
+    <div class="table-responsive" >
+      <table class="table table-container table-striped table-sm table-hover mt-5">
+        <caption>
+          <div class="container-fluid">
+            <div class="row align-items-center">
+              <div class="col-md-4">
+                Đang hiển thị <span th:text="${productPackages.size}"></span>/<span th:text="${productPackages.totalPages * productPackages.size}"></span> bản ghi
+              </div>
+              <div class="col-md-4">
+                <div class="input-group">
+                  <label class="input-group-text" for="sizeField">Hiển thị</label>
+                  <input class="form-control" id="sizeField" list="size-options" th:value="${productPackageFilterDTO.size}" style="max-width: 80px;">
+                  <datalist id="size-options">
+                    <option value="5"></option>
+                    <option value="10"></option>
+                    <option value="20"></option>
+                    <option value="50"></option>
+                  </datalist>
+                  <label class="input-group-text" for="sizeField">kết quả/trang</label>
+                </div>
+              </div>
+              <div class="col-md-4 text-end">
+                <a th:href="@{'/product-package/add'}" class="btn btn-secondary btn-sm">
+                  <i class="bi bi-plus-circle"></i> Thêm mới
+                </a>
+              </div>
+            </div>
+          </div>
+        </caption>
+        <thead>
+        <tr>
+          <th th:each="field : ${fields}"
+              th:data="${field}"
+              style="cursor: pointer; min-width: 80px;"
+
+          >
+                        <span>
+                            <span th:text="${fieldTitles[__${field}__]}"></span>
+                            <i th:if="${productPackageFilterDTO.orderBy} == ${field}"
+                               th:class="${productPackageFilterDTO.direction == 'ASC' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"></i>
+                        </span>
+          <th class="text-center" style="min-width: 200px;">Hành động</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:object="${productPackageFilterDTO}">
+          <td>
+            <input type="text" class="form-control form-control-sm" th:value="*{name}" id="nameField" placeholder="Tên quy cách">
+          </td>
+          <td>
+            <div class="d-flex gap-2" style="max-width: 200px">
+              <input type="text" class="form-control form-control-sm weight-input" th:attr="data-raw=*{weightFrom}" th:value="*{weightFrom}" id="weightFromField" placeholder="Cân nặng từ">
+              <input type="text" class="form-control form-control-sm weight-input" th:attr="data-raw=*{weightTo}" th:value="*{weightTo}" id="weightToField" placeholder="Cân nặng đến">
+            </div>
+          </td>
+          <td>
+            <div class="d-flex gap-2" style="max-width: 200px">
+              <input type="datetime-local" class="form-control form-control-sm" th:value="*{minCreatedAt}" id="minCreatedAtField" placeholder="Ngày tạo tối thiểu" style="max-width: 80px;">
+              <input type="datetime-local" class="form-control form-control-sm" th:value="*{maxCreatedAt}" id="maxCreatedAtField" placeholder="Ngày tạo tối đa" style="max-width: 80px;">
+            </div>
+          </td>
+          <td>
+            <div class="d-flex gap-2" style="max-width: 200px">
+              <input type="datetime-local" class="form-control form-control-sm" th:value="*{minUpdatedAt}" id="minUpdatedAtField" placeholder="Ngày cập nhật tối thiểu" style="max-width: 80px;">
+              <input type="datetime-local" class="form-control form-control-sm" th:value="*{maxUpdatedAt}" id="maxUpdatedAtField" placeholder="Ngày cập nhật tối đa" style="max-width: 80px;">
+            </div>
+          </td>
+          <td class="text-center">
+            <button id="btnSubmit" class="btn btn-primary btn-sm">
+              <i class="bi bi-search"></i> Tìm kiếm
+            </button>
+          </td>
+        </tr>
+
+
+        <tr th:if="${productPackages.totalPages > 0}" th:each="item : ${productPackages}">
+          <td th:each="field : ${fields}" >
+            <th:block th:switch="${fieldClasses[__${field}__]}" >
+              <th:block th:case="'html'">
+                <span th:classappend="${fieldClasses[__${field}__]}" th:utext="${item[field]}"></span>
+              </th:block>
+              <th:block th:case="*">
+                <span th:classappend="${fieldClasses[__${field}__]}" th:text="${item[field]}"></span>
+              </th:block>
+            </th:block>
+          </td>
+          <td class="text-center">
+            <a th:href="@{'/product-package/detail/' + ${item.id}}" class="btn btn-info btn-sm">
+              <i class="bi bi-eye-fill"></i>
+            </a>
+            <a th:href="@{'/product-package/edit/' + ${item.id}}" class="btn btn-warning btn-sm">
+              <i class="bi bi-pencil-fill"></i>
+            </a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <th:block th:if="${productPackages.totalPages == 0}">
+      <div class="alert alert-warning text-center mt-5">
+        Không có bản ghi nào, thử <a href="javascript:void(0);" onclick="resetField()" class="alert-link"> đặt lại bộ lọc </a> hoặc thêm mới bản ghi
+      </div>
+    </th:block>
+    <th:block th:if="${productPackages.totalPages > 0}">
+      <div th:replace="fragments/pagination :: pagination(${productPackages})"></div>
+    </th:block>
+  </div>
+
+  <script>
+    function goToPage(page) {
+      document.getElementById('searchForm').elements['page'].value = page;
+      document.getElementById('searchForm').submit();
+    }
+
+    document.querySelectorAll('th').forEach(th => {
+      if (!th.getAttribute('data')) return;
+      th.addEventListener('click', () => {
+        updateOrder(th.getAttribute('data'));
+      });
+    });
+
+    function updateOrder(field) {
+      let form = document.getElementById('searchForm');
+      let orderBy = form.elements['orderBy'].value;
+      let direction = form.elements['direction'].value;
+      if (orderBy === field) {
+        form.elements['direction'].value = direction === 'ASC' ? 'DESC' : 'ASC';
+      } else {
+        form.elements['orderBy'].value = field;
+        form.elements['direction'].value = 'ASC';
+      }
+      updateField();
+    }
+
+    document.getElementById('btnSubmit').addEventListener('click', () => {
+      updateField();
+    });
+
+
+    function resetField() {
+      let form = document.getElementById('searchForm');
+      form.elements['name'].value = '';
+        form.elements['weightFrom'].value = '';
+        form.elements['weightTo'].value = '';
+      form.elements['minBalance'].value = '';
+      form.elements['maxBalance'].value = '';
+      form.elements['minCreatedAt'].value = '';
+      form.elements['maxCreatedAt'].value = '';
+      form.elements['minUpdatedAt'].value = '';
+      form.elements['maxUpdatedAt'].value = '';
+      form.elements['page'].value = 1;
+      form.elements['size'].value = 10;
+      form.submit();
+    }
+
+
+    function updateField() {
+      let form = document.getElementById('searchForm');
+      form.elements['name'].value = document.getElementById('nameField').value;
+        form.elements['weightFrom'].value = document.getElementById('weightFromField').value;
+        form.elements['weightTo'].value = document.getElementById('weightToField').value;
+      form.elements['minCreatedAt'].value = document.getElementById('minCreatedAtField').value;
+      form.elements['maxCreatedAt'].value = document.getElementById('maxCreatedAtField').value;
+        form.elements['minUpdatedAt'].value = document.getElementById('minUpdatedAtField').value;
+        form.elements['maxUpdatedAt'].value = document.getElementById('maxUpdatedAtField').value;
+      form.elements['size'].value = document.getElementById('sizeField').value;
+      form.submit();
+    }
+
+  </script>
+</section>
+</body>
+</html>

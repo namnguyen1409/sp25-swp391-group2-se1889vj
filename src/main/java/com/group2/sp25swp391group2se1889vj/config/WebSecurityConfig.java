@@ -43,7 +43,9 @@ public class WebSecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/custom-login/**",
-                                "/logout/**"
+                                "/logout/**",
+                                "/forgot-password",
+                                "/reset-password"
                         ).permitAll()
                         .anyRequest().authenticated()
         ).formLogin(AbstractHttpConfigurer::disable

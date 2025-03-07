@@ -1,9 +1,12 @@
 package com.group2.sp25swp391group2se1889vj.controller;
 
 import com.group2.sp25swp391group2se1889vj.dto.ProductDTO;
+import com.group2.sp25swp391group2se1889vj.entity.ProductPackage;
 import com.group2.sp25swp391group2se1889vj.entity.User;
+import com.group2.sp25swp391group2se1889vj.enums.RoleType;
 import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
 import com.group2.sp25swp391group2se1889vj.security.RecaptchaService;
+import com.group2.sp25swp391group2se1889vj.service.ProductPackageService;
 import com.group2.sp25swp391group2se1889vj.service.ProductService;
 import com.group2.sp25swp391group2se1889vj.service.StorageService;
 import com.group2.sp25swp391group2se1889vj.util.XSSProtectedUtil;
@@ -34,6 +37,7 @@ public class ProductController {
     private final StorageService storageService;
 
     private static final String PRICE = "price";
+    private final ProductPackageService productPackageService;
 
     private User getUser() {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
@@ -53,6 +57,14 @@ public class ProductController {
     }
 
 
+    private Long getWarehouseId() {
+        var currentUser = getUser();
+        if(currentUser.getRole() == RoleType.OWNER) return currentUser.getWarehouse().getId();
+        else return currentUser.getAssignedWarehouse().getId();
+    }
+
+
+
     @GetMapping("/add")
     public String addProduct(Model model) {
         model.addAttribute("product", new ProductDTO());
@@ -66,20 +78,31 @@ public class ProductController {
             @RequestParam("g-recaptcha-response") String recaptchaResponse,
             RedirectAttributes redirectAttributes
     ) {
-
-
         if (productDTO.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
-            bindingResult.rejectValue(PRICE, "price.error", "Giá bán phải lớn hơn 0");
+            bindingResult.rejectValue("price", "price.error", "Giá bán phải lớn hơn 0");
         }
+
         if (bindingResult.hasErrors()) {
             return "product/add";
         }
+
+        // Lấy ProductPackage từ ID
+        ProductPackage productPackage = productPackageService.findByIdAndWarehouseId(productDTO.getProductPackageId(), getWarehouseId());
+        if (productPackage == null) {
+            bindingResult.rejectValue("productPackageId", "package.error", "Quy cách đóng gói không hợp lệ");
+            return "product/add";
+        }
+
+        // Xử lý ảnh và nội dung
         var image = storageService.moveToUploads(productDTO.getImage());
         productDTO.setImage(image);
         productDTO.setDescription(xssProtectedUtil.sanitize(productDTO.getDescription()));
         productDTO.setDescriptionPlainText(xssProtectedUtil.htmlToPlainText(productDTO.getDescription()));
-        productService.saveProduct(productDTO);
+
+        // Lưu sản phẩm
+        productService.saveProduct(productDTO, productPackage);
         redirectAttributes.addFlashAttribute("success", "Thêm sản phẩm thành công");
+
         return "redirect:/product/list";
     }
 

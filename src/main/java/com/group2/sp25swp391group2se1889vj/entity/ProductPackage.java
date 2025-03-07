@@ -1,8 +1,6 @@
 package com.group2.sp25swp391group2se1889vj.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -23,5 +21,10 @@ public class ProductPackage extends BaseEntity{
 
     @Column(name = "weight", nullable = false)
     private int weight;
+
+    @ManyToOne
+    @JoinColumn(name = "warehouse_id")
+    private Warehouse warehouse;
+
 
 }

@@ -15,8 +15,8 @@ import java.util.Optional;
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSpecificationExecutor<Customer> {
 
-    Boolean existsByPhoneAndOwnerId(String phone, Long ownerId);
-    Boolean existsByEmailAndOwnerId(String email, Long ownerId);
+    Boolean existsByPhoneAndWarehouseId(String phone, Long warehouseId);
+    Boolean existsByEmailAndWarehouseId(String email, Long warehouseId);
     Boolean existsByPhoneAndIdNot(String phone, Long id);
     Boolean existsByEmailAndIdNot(String email, Long id);
 
@@ -30,4 +30,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSp
     @Query("update Customer c set c.balance = c.balance - ?2, c.updatedAt = CURRENT_TIMESTAMP where c.id = ?1")
     void decreaseBalance(Long id, BigDecimal amount);
 
+    Boolean existsByPhoneAndWarehouseIdAndIdNot(String phone, Long warehouseId, Long id);
+
+    Boolean existsByEmailAndWarehouseIdAndIdNot(String email, Long warehouseId, Long id);
 }
