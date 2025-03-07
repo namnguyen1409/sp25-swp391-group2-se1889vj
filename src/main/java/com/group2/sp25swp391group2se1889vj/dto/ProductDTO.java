@@ -27,5 +27,5 @@ public class ProductDTO extends BaseDTO {
     private String image;
     private String descriptionPlainText;
     private int stockQuantity;
-    private Long WarehouseId;
+    private Long warehouseId;
 }
