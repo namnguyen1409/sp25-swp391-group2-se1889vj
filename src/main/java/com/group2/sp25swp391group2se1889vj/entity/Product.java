@@ -30,7 +30,6 @@ public class Product extends BaseEntity {
     @Column(name = "stock_quantity", nullable = false, columnDefinition = "int")
     private int stockQuantity = 0;
 
-
     @ManyToOne
     @JoinColumn(name="product_package_id", nullable = false)
     private ProductPackage productPackage;

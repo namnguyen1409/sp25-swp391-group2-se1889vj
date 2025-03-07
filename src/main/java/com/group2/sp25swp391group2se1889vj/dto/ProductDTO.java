@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
 @Builder
@@ -25,7 +27,9 @@ public class ProductDTO extends BaseDTO {
     private String description;
     @NotBlank(message = "Hình ảnh không được để trống")
     private String image;
+    private Long productPackageId;
     private String descriptionPlainText;
     private int stockQuantity;
     private Long warehouseId;
+    private Set<Long> zoneIds = new HashSet<>();
 }

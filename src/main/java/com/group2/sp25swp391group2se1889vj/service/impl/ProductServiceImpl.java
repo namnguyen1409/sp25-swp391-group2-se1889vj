@@ -3,6 +3,7 @@ package com.group2.sp25swp391group2se1889vj.service.impl;
 
 import com.group2.sp25swp391group2se1889vj.dto.ProductDTO;
 import com.group2.sp25swp391group2se1889vj.entity.Product;
+import com.group2.sp25swp391group2se1889vj.entity.ProductPackage;
 import com.group2.sp25swp391group2se1889vj.exception.ProductNoSuchElementException;
 import com.group2.sp25swp391group2se1889vj.mapper.ProductMapper;
 import com.group2.sp25swp391group2se1889vj.repository.ProductRepository;
@@ -68,11 +69,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
-    @Override
-    public void saveProduct(ProductDTO productDTO) {
-        Product product = productMapper.mapToProduct(productDTO);
-        productRepository.save(product);
-    }
+
 
     @Override
     public void deleteProductById(Long id) {
@@ -82,5 +79,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Boolean existsByNameAndCreatedById(String name, Long ownerId) {
         return productRepository.existsByNameAndCreatedById(name, ownerId);
+    }
+
+    @Override
+    public void saveProduct(ProductDTO productDTO, ProductPackage productPackage) {
+        Product product = productMapper.mapToProduct(productDTO);
+        product.setProductPackage(productPackage);
+        productRepository.save(product);
+
     }
 }
