@@ -26,6 +26,11 @@ public class Product extends BaseEntity {
     @Column(name = "price", nullable = false, columnDefinition = "decimal(18,0)")
     private BigDecimal price;
 
+    // khối lượng tồn kho của sản phẩm (kg)
+    @Column(name = "stock_quantity", nullable = false, columnDefinition = "int")
+    private int stockQuantity = 0;
+
+
     @ManyToOne
     @JoinColumn(name="product_package_id", nullable = false)
     private ProductPackage productPackage;
@@ -35,6 +40,10 @@ public class Product extends BaseEntity {
 
     @Column(name = "description_plain_text", nullable = true, columnDefinition = "nvarchar(MAX)")
     private String descriptionPlainText;
+
+    @ManyToOne
+    @JoinColumn(name = "warehouse_id")
+    private Warehouse warehouse;
 
     @Column(name = "image", nullable = true, columnDefinition = "nvarchar(255)")
     private String image;

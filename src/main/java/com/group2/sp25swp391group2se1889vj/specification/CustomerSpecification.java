@@ -11,10 +11,10 @@ import java.util.List;
 public class CustomerSpecification {
 
 
-    public static Specification<Customer> filterCustomers(Long ownerId, CustomerFilterDTO customerFilterDTO) {
+    public static Specification<Customer> filterCustomers(Long warehouseId, CustomerFilterDTO customerFilterDTO) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(criteriaBuilder.equal(root.get("owner").get("id"), ownerId));
+            predicates.add(criteriaBuilder.equal(root.get("warehouse").get("id"), warehouseId));
             if (customerFilterDTO.getFullName() != null) {
                 predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("fullName")), "%" + customerFilterDTO.getFullName().toLowerCase() + "%"));
             }

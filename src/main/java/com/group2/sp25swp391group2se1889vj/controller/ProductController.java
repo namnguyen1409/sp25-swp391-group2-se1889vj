@@ -66,8 +66,6 @@ public class ProductController {
             @RequestParam("g-recaptcha-response") String recaptchaResponse,
             RedirectAttributes redirectAttributes
     ) {
-
-
         if (productDTO.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
             bindingResult.rejectValue(PRICE, "price.error", "Giá bán phải lớn hơn 0");
         }
