@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      lang="en" layout:decorate="template"
+<html lang="en"
+      layout:decorate="template"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
 
 >
 <body>
-<section layout:fragment="content" class="container h-100">
+<section class="container h-100" layout:fragment="content">
     <div class="row justify-content-center h-100">
         <div class="col-md-10 col-lg-8 d-flex flex-column nowrap justify-content-center">
             <div class="card mt-4 mb-4">
@@ -14,7 +13,7 @@
                     <h4 class="card-title"> Thêm mới gạo</h4>
                 </div>
                 <div class="card-body bd-sidebar">
-                    <form th:action="@{/product/add}" method="post" class="p-md-4" th:object="${product}">
+                    <form class="p-md-4" method="post" th:action="@{/product/add}" th:object="${product}">
                         <!--/*@thymesVar id="currentUser" type="com.hsf302.trialproject.entity.User"*/-->
                         <div class="mb-3">
                             <div th:replace="fragments/input :: customInput('name', 'text', 'bi-hash', 'Tên gạo', 'true')"></div>
@@ -26,17 +25,56 @@
                             <div th:replace="fragments/inputImage :: customInputImage('image', 'bi-box-seam-fill', 'Hình ảnh sản phẩm', @{/upload/product})"></div>
                         </div>
                         <div class="mb-3">
-                            <select th:field="*{productPackageId}" class="form-select" data-live-search="true" data-show-subtext="false" style="-webkit-appearance: none;">
-                                <option value="">Chọn quy cách đóng gói</option>
-                            </select>
+                            <div class="input-group">
+                                <span class="input-group-text p-3">
+                                    <i class="bi bi-box-seam-fill"></i>
+                                </span>
+                                <div class="form-floating"
+                                     th:classappend="${#fields.hasErrors('productPackageId')} ? 'is-invalid' : ''">
+                                    <input class="form-control" id="productPackageName" list="productPackageList"
+                                           placeholder="Chọn quy cách đóng gói..." autocomplete="off">
+                                    <label for="productPackageName">Chọn quy cách đóng gói</label>
+                                    <datalist id="productPackageList"></datalist>
+
+                                    <!-- Trường ẩn lưu ID -->
+                                    <input th:field="*{productPackageId}" type="hidden">
+                                </div>
+                            </div>
+
+                            <!-- Hiển thị lỗi nếu có -->
+                            <div class="invalid-feedback"
+                                 th:if="${#fields.hasErrors('productPackageId')}"
+                                 th:text="${#fields.errors('productPackageId')}">
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <div th:replace="fragments/textarea :: customTextarea('description', 'bi-justify', 'Mô tả')"></div>
                         </div>
-                        <div th:replace="fragments/recapcha :: recapcha"></div>
-                        <p th:text="${error}" class="text-danger mb-3"></p>
-                        <button type="submit" class="btn btn-primary">
+
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text p-3">
+                                    <i class="bi bi-geo-alt"></i>
+                                </span>
+                                <div class="form-floating">
+                                    <input class="form-control" id="zoneSearch" placeholder="Nhập tên Zone...">
+                                    <label for="zoneSearch">Tìm Zone</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hiển thị danh sách zone đã chọn -->
+                        <div id="selectedZonesContainer" class="mb-3">
+                            <!-- Các zone đã chọn sẽ hiển thị ở đây -->
+                        </div>
+
+                        <!-- Input ẩn lưu danh sách Zone ID -->
+                        <input type="hidden" id="selectedZoneIds" th:field="*{zoneIds}">
+
+
+                        <p class="text-danger mb-3" th:text="${error}"></p>
+                        <button class="btn btn-primary" type="submit">
                             <i class="bi bi-save"></i>
                             Thêm mới
                         </button>
@@ -45,8 +83,121 @@
             </div>
         </div>
     </div>
+    <script>
+        $(document).ready(function () {
+            $("#productPackageName").on("input", function () {
+                let searchTerm = $(this).val();
+                if (searchTerm.length < 2) return;
 
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+                $.ajax({
+                    url: "/api/product-package/search",
+                    data: {name: searchTerm},
+                    dataType: "json",
+                    success: function (data) {
+                        let options = data.map(pkg =>
+                            `<option data-id="${pkg.id}" value="${pkg.name} (${pkg.weight}kg)"></option>`
+                        ).join("");
+                        $("#productPackageList").html(options);
+                    }
+                });
+            });
+
+            // Khi người dùng chọn từ danh sách, cập nhật ID vào input hidden
+            $("#productPackageName").on("change", function () {
+                let selectedOption = $("#productPackageList option").filter(function () {
+                    return $(this).val() === $("#productPackageName").val();
+                });
+
+                if (selectedOption.length) {
+                    $("#productPackageId").val(selectedOption.data("id"));
+                } else {
+                    $("#productPackageId").val(""); // Xóa nếu nhập tay không khớp
+                }
+            });
+        });
+
+        let selectedPackageName = $("#productPackageName").val();
+        if (selectedPackageName) {
+            $.ajax({
+                url: "/api/product-package/search",
+                data: {name: selectedPackageName.split(" (")[0]}, // Lấy phần tên trước dấu ngoặc
+                dataType: "json",
+                success: function (data) {
+                    let options = data.map(pkg =>
+                        `<option data-id="${pkg.id}" value="${pkg.name} (${pkg.weight}kg)"></option>`
+                    ).join("");
+                    $("#productPackageList").html(options);
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $("#zoneSearch").on("input", function () {
+                let searchTerm = $(this).val();
+                if (searchTerm.length < 1) return;
+
+                $.ajax({
+                    url: "/api/zones/search",
+                    data: {name: searchTerm},
+                    dataType: "json",
+                    success: function (zones) {
+                        let dropdown = $("#zoneDropdown");
+                        if (dropdown.length === 0) {
+                            $("#zoneSearch").after('<div id="zoneDropdown" class="dropdown-menu show"></div>');
+                            dropdown = $("#zoneDropdown");
+                        }
+                        dropdown.empty();
+
+                        zones.forEach(zone => {
+                            dropdown.append(`<button type="button" class="dropdown-item select-zone"
+                                         data-id="${zone.id}" data-name="${zone.name}">
+                                        ${zone.name}
+                                     </button>`);
+                        });
+                    }
+                });
+            });
+
+            // Khi chọn Zone, thêm vào danh sách
+            $(document).on("click", ".select-zone", function () {
+                let zoneId = $(this).data("id");
+                let zoneName = $(this).data("name");
+
+                // Kiểm tra xem đã tồn tại chưa
+                if ($(`#selectedZone-${zoneId}`).length === 0) {
+                    $("#selectedZonesContainer").append(`
+                <span class="badge bg-primary me-2 selected-zone" id="selectedZone-${zoneId}">
+                    ${zoneName}
+                    <button type="button" class="btn-close btn-close-white ms-1 remove-zone" data-id="${zoneId}"></button>
+                </span>
+            `);
+                }
+
+                updateZoneIds();
+                $("#zoneDropdown").remove();
+            });
+
+            // Khi bấm nút X để xoá Zone
+            $(document).on("click", ".remove-zone", function () {
+                let zoneId = $(this).data("id");
+                $(`#selectedZone-${zoneId}`).remove();
+                updateZoneIds();
+            });
+
+            // Cập nhật danh sách ID vào input hidden
+            function updateZoneIds() {
+                let selectedIds = $(".selected-zone").map(function () {
+                    return $(this).attr("id").replace("selectedZone-", "");
+                }).get().join(",");
+
+                $("#selectedZoneIds").val(selectedIds);
+            }
+        });
+
+
+
+    </script>
+
 
 </section>
 </body>

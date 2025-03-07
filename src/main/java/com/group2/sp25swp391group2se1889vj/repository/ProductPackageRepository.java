@@ -13,4 +13,5 @@ public interface ProductPackageRepository extends JpaRepository<ProductPackage, 
 
     List<ProductPackage> findAllByNameContainingAndWarehouseId(String name, Long warehouseId);
 
+    ProductPackage findByIdAndWarehouseId(Long productPackageId, Long warehouseId);
 }

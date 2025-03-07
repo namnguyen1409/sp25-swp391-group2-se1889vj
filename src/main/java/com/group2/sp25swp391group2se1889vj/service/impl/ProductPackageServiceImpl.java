@@ -48,4 +48,9 @@ public class ProductPackageServiceImpl implements ProductPackageService {
         return productPackageRepository.findAllByNameContainingAndWarehouseId(name, warehouseId).stream().map(productPackageMapper::mapToProductPackageDTO).collect(Collectors.toList());
     }
 
+    @Override
+    public ProductPackage findByIdAndWarehouseId(Long productPackageId, Long warehouseId) {
+        return productPackageRepository.findByIdAndWarehouseId(productPackageId, warehouseId);
+    }
+
 }
