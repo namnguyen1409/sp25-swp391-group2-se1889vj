@@ -20,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -84,6 +83,9 @@ public class UserServiceImpl implements UserService {
         if (registrationToken == null) {
             throw new InvalidRegistrationTokenException("Token không hợp lệ, liên hệ với quản trị viên để được hỗ trợ");
         }
+        if (userRepository.existsByEmail(registrationToken.getEmail())) {
+            throw new InvalidRegistrationTokenException("Email đã được sử dụng, không thể đăng ký mới");
+        }
         if (registrationToken.getUpdatedAt().plusDays(1).isBefore(LocalDateTime.now())) {
             throw new InvalidRegistrationTokenException("Token đã hết hạn, liên hệ với quản trị viên để được hỗ trợ");
         }
@@ -122,5 +124,12 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
     }
+
+    @Override
+    public boolean existsByEmail(String value) {
+        return userRepository.existsByEmail(value);
+    }
+
+
 
 }

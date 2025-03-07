@@ -15,4 +15,6 @@ public interface  UserService {
     User findUserByUsername(String username);
 
     void registerUser(RegisterDTO registerDTO) throws Exception;
+
+    boolean existsByEmail(String value);
 }

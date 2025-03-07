@@ -24,6 +24,7 @@
     <script crossorigin="anonymous"
             integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
 </head>
 <body class="bg-body-tertiary d-flex flex-column h-100">
 
@@ -74,11 +75,6 @@
         <nav th:replace="~{fragments/navbar :: navbar}"></nav>
 
         <div class="container-fluid flex-grow-1">
-            <div class="alert alert-dismissible fade show mt-3" role="alert"
-                 th:classappend="'alert-' + ${flashMessageType}" th:if="${flashMessage}">
-                <span th:text="${flashMessage}"></span>
-                <button aria-label="Close" class="btn-close" data-bs-dismiss="alert" type="button"></button>
-            </div>
             <section layout:fragment="content"></section>
         </div>
 
@@ -324,6 +320,22 @@
 
 
 </script>
+
+<th:block th:if="${flashMessage}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+
+    <script>
+        Swal.fire({
+            icon: '[[${flashMessageType}]]',
+            title: '[[${flashMessage}]]',
+            showConfirmButton: false,
+            timer: 150000,
+
+        })
+    </script>
+
+</th:block>
+
 
 
 </html>

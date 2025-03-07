@@ -14,6 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class ProductPackageServiceImpl implements ProductPackageService {
@@ -38,6 +41,11 @@ public class ProductPackageServiceImpl implements ProductPackageService {
     public Page<ProductPackageDTO> searchProductPackages(Long warehouseId, ProductPackageFilterDTO productPackageFilterDTO, Pageable pageable) {
         Specification<ProductPackage> spec = ProductPackageSpecification.filterProductPackages(warehouseId, productPackageFilterDTO);
         return productPackageRepository.findAll(spec, pageable).map(productPackageMapper::mapToProductPackageDTO);
+    }
+
+    @Override
+    public List<ProductPackageDTO> searchProductPackages(Long warehouseId, String name) {
+        return productPackageRepository.findAllByNameContainingAndWarehouseId(name, warehouseId).stream().map(productPackageMapper::mapToProductPackageDTO).collect(Collectors.toList());
     }
 
 }
