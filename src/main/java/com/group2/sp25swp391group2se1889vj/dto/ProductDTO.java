@@ -26,4 +26,6 @@ public class ProductDTO extends BaseDTO {
     @NotBlank(message = "Hình ảnh không được để trống")
     private String image;
     private String descriptionPlainText;
+    private int stockQuantity;
+    private Long WarehouseId;
 }

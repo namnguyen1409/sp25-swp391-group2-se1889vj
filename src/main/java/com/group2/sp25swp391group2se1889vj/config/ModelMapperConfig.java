@@ -23,6 +23,7 @@ public class ModelMapperConfig {
                 map().setCreatedAt(source.getCreatedAt());
                 map().setUpdatedBy(source.getUpdatedBy().getId());
                 map().setUpdatedAt(source.getUpdatedAt());
+
             }
         });
 
@@ -34,6 +35,7 @@ public class ModelMapperConfig {
                 map().setCreatedAt(source.getCreatedAt());
                 map().setUpdatedBy(source.getUpdatedBy().getId());
                 map().setUpdatedAt(source.getUpdatedAt());
+                map().setWarehouseId(source.getWarehouse().getId());
             }
         });
 
@@ -75,7 +77,7 @@ public class ModelMapperConfig {
                 map().setCreatedAt(source.getCreatedAt());
                 map().setUpdatedBy(source.getUpdatedBy().getId());
                 map().setUpdatedAt(source.getUpdatedAt());
-                map().setOwnerId(source.getOwner().getId());
+                map().setWarehouseId(source.getWarehouse().getId());
             }
         });
 
@@ -97,6 +99,7 @@ public class ModelMapperConfig {
                 map().setCreatedAt(source.getCreatedAt());
                 map().setUpdatedBy(source.getUpdatedBy().getId());
                 map().setUpdatedAt(source.getUpdatedAt());
+                map().setWarehouseId(source.getWarehouse().getId());
             }
         });
 

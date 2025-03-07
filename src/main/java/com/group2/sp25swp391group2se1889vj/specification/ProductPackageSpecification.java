@@ -10,12 +10,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProductPackageSpecification {
-    public static Specification<ProductPackage> filterProductPackages(Long createdById, ProductPackageFilterDTO filterDTO) {
+    public static Specification<ProductPackage> filterProductPackages(Long warehouseId, ProductPackageFilterDTO filterDTO) {
         return(root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            if (createdById != null) {
-                predicates.add(criteriaBuilder.equal(root.get("createdBy").get("id"), createdById));
+            if (warehouseId != null) {
+                predicates.add(criteriaBuilder.equal(root.get("warehouse").get("id"), warehouseId));
             }
 
             if (filterDTO.getName() != null) {
@@ -35,6 +35,15 @@ public class ProductPackageSpecification {
             if (filterDTO.getMaxCreatedAt() != null) {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), filterDTO.getMaxCreatedAt()));
             }
+
+            if (filterDTO.getMinUpdatedAt() != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("updatedAt"), filterDTO.getMinUpdatedAt()));
+            }
+
+            if (filterDTO.getMaxUpdatedAt() != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("updatedAt"), filterDTO.getMaxUpdatedAt()));
+            }
+
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
