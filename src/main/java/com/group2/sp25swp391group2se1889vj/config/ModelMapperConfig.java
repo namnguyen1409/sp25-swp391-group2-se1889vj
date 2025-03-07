@@ -9,6 +9,9 @@ import org.modelmapper.PropertyMap;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.HashSet;
+import java.util.stream.Collectors;
+
 @Configuration
 public class ModelMapperConfig {
 
@@ -36,6 +39,10 @@ public class ModelMapperConfig {
                 map().setUpdatedBy(source.getUpdatedBy().getId());
                 map().setUpdatedAt(source.getUpdatedAt());
                 map().setWarehouseId(source.getWarehouse().getId());
+                map().setProductPackageId(source.getProductPackage().getId());
+                map().setZoneIds(source.getZones() != null ?
+                        source.getZones().stream().map(Zone::getId).collect(Collectors.toSet()) :
+                        new HashSet<>());
             }
         });
 
