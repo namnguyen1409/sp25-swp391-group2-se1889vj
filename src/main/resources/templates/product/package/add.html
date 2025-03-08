@@ -1,21 +1,28 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="en" layout:decorate="template"
 
 >
 <body>
 <section layout:fragment="content" class="container h-100">
-    <div class="row justify-content-center mb-5">
+    <div class="row justify-content-center h-100">
         <div class="col-md-10 col-lg-8 d-flex flex-column nowrap justify-content-center">
             <div class="card mt-4 mb-4">
                 <div class="card-header">
-                    <h4 class="card-title"> Thêm mới khu vực trong kho</h4>
+                    <h4 class="card-title"> Thêm mới gạo</h4>
                 </div>
-                <div class="card-body">
-                    <form method="post" class="p-md-4" th:object="${zone}" th:action="@{/zone/add}">
+                <div class="card-body bd-sidebar">
+                    <form th:action="@{//product-package/add}" method="post" class="p-md-4" th:object="${package}">
                         <div class="mb-3">
-                            <div th:replace="fragments/input :: customInput('name', 'text', 'bi-hash', 'Tên khu vực', true)"></div>
+                            <div th:replace="fragments/input :: customInput('name', 'text', 'bi-hash', 'Kiểu đóng gói', 'true')"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/input :: customInput('price', 'number', 'bi-cash-coin', 'Khối lượng', '')"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/inputImage :: customInputImage('image', 'bi-box-seam-fill', 'Hình ảnh sản phẩm', @{/upload/product})"></div>
                         </div>
                         <div class="mb-3">
                             <div th:replace="fragments/textarea :: customTextarea('description', 'bi-justify', 'Mô tả')"></div>
@@ -23,7 +30,7 @@
                         <div th:replace="fragments/recapcha :: recapcha"></div>
                         <p th:text="${error}" class="text-danger mb-3"></p>
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-person-plus-fill"></i>
+                            <i class="bi bi-save"></i>
                             Thêm mới
                         </button>
                     </form>
@@ -31,7 +38,6 @@
             </div>
         </div>
     </div>
-
 </section>
 </body>
 </html>

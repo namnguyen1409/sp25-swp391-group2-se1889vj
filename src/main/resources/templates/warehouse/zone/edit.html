@@ -1,4 +1,11 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       lang="en" layout:decorate="template"
@@ -10,10 +17,10 @@
         <div class="col-md-10 col-lg-8 d-flex flex-column nowrap justify-content-center">
             <div class="card mt-4 mb-4">
                 <div class="card-header">
-                    <h4 class="card-title"> Thêm mới khu vực trong kho</h4>
+                    <h4 class="card-title">Chỉnh sửa khu vực trong kho</h4>
                 </div>
                 <div class="card-body">
-                    <form method="post" class="p-md-4" th:object="${zone}" th:action="@{/zone/add}">
+                    <form method="post" class="p-md-4" th:object="${zone}" th:action="@{/zone/edit}">
                         <div class="mb-3">
                             <div th:replace="fragments/input :: customInput('name', 'text', 'bi-hash', 'Tên khu vực', true)"></div>
                         </div>
@@ -33,5 +40,7 @@
     </div>
 
 </section>
+</body>
+</html>
 </body>
 </html>
