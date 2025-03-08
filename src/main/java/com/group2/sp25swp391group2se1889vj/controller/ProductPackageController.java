@@ -69,7 +69,7 @@ public class ProductPackageController {
         }
         productPackageDTO.setWarehouseId(getWarehouseId());
         productPackageService.addProductPackage(productPackageDTO);
-        return "redirect:/product-package/add";
+        return "redirect:/product-package/list";
     }
 
     @GetMapping({"/list", "", "/"})
@@ -112,6 +112,15 @@ public class ProductPackageController {
         return "redirect:/product-package/list";
     }
 
+    @GetMapping("/edit/{id}")
+    public String editProductPackage(Model model, Long id) {
+//        ProductPackageDTO productPackage = productPackageService.findProductPackageById(id);
+//        if (!productPackage.getWarehouseId().equals(getWarehouseId())) {
+//            return "redirect:/product-package";
+//        }
+//        model.addAttribute("productPackage", productPackage);
+        return "product-package/edit";
+    }
 
 
 }
