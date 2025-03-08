@@ -2,10 +2,13 @@ package com.group2.sp25swp391group2se1889vj.service.impl;
 
 import com.group2.sp25swp391group2se1889vj.dto.ZoneDTO;
 import com.group2.sp25swp391group2se1889vj.dto.ZoneFilterDTO;
+import com.group2.sp25swp391group2se1889vj.entity.Product;
 import com.group2.sp25swp391group2se1889vj.entity.Zone;
+import com.group2.sp25swp391group2se1889vj.exception.Http400;
 import com.group2.sp25swp391group2se1889vj.exception.NoZoneElementException;
 import com.group2.sp25swp391group2se1889vj.exception.ZoneNoSuchElementException;
 import com.group2.sp25swp391group2se1889vj.mapper.ZoneMapper;
+import com.group2.sp25swp391group2se1889vj.repository.ProductRepository;
 import com.group2.sp25swp391group2se1889vj.repository.ZoneRepository;
 import com.group2.sp25swp391group2se1889vj.service.MessageService;
 import com.group2.sp25swp391group2se1889vj.service.ZoneService;
@@ -16,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +29,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ZoneServiceImpl implements ZoneService {
 
+    private final ProductRepository productRepository;
     private ZoneRepository zoneRepository;
     private ZoneMapper zoneMapper;
     private MessageService messageService;
@@ -55,5 +60,18 @@ public class ZoneServiceImpl implements ZoneService {
     @Override
     public List<ZoneDTO> searchZones(Long warehouseId, String keyword) {
         return zoneRepository.findAllByNameContainingAndWarehouseId(keyword, warehouseId).stream().map(zoneMapper::mapToZoneDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void updateZone(ZoneDTO zoneDTO) {
+        Zone zone = zoneRepository.findByIdAndWarehouseId(zoneDTO.getId(), zoneDTO.getWarehouseId());
+        if (zone == null) {
+            throw new Http400("Zone not found");
+        }
+        zone.setName(zoneDTO.getName());
+        Product product = productRepository.getProductByIdAndWarehouseId(zoneDTO.getProductId(), zoneDTO.getWarehouseId());
+        zone.setProduct(product);
+        zone.setDescription(zoneDTO.getDescription());
     }
 }

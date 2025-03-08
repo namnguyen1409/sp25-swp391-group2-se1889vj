@@ -63,10 +63,10 @@
             $('#productName').on('input', function () {
                 let productName = $(this).val();
                 $.ajax({
-                    url: '/product/search',
+                    url: '/api/product/search',
                     type: 'GET',
                     data: {
-                        search: productName
+                        name: productName
                     },
                     success: function (data) {
                         $('#productList').empty();
@@ -83,9 +83,6 @@
                 $('#productId').val(productId);
             });
         });
-
-
-
     </script>
 </section>
 </body>

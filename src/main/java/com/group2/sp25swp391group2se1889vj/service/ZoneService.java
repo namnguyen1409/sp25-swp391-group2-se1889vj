@@ -13,4 +13,6 @@ public interface ZoneService {
     Page<ZoneDTO> searchZones(Long warehouseId, ZoneFilterDTO zoneFilterDTO, Pageable pageable);
 
     List<ZoneDTO> searchZones(Long warehouseId, String keyword);
+
+    void updateZone(ZoneDTO zone);
 }
