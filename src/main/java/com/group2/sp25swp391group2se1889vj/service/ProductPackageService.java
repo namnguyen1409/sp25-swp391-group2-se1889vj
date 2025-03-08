@@ -9,7 +9,8 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ProductPackageService {
-
+    ProductPackageDTO findProductPackageById(Long id);
+    void saveProductPackage(ProductPackageDTO productPackageDTO);
     Boolean existsByNameAndCreatedById(String name, Long createdById);
 
     void addProductPackage(ProductPackageDTO productPackageDTO);

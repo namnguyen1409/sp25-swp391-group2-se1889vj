@@ -25,6 +25,18 @@ public class ProductPackageServiceImpl implements ProductPackageService {
     private final WarehouseRepository warehouseRepository;
 
     @Override
+    public ProductPackageDTO findProductPackageById(Long id) {
+        return productPackageRepository.findById(id)
+                .map(productPackageMapper::mapToProductPackageDTO)
+                .orElse(null);
+    }
+
+    @Override
+    public void saveProductPackage(ProductPackageDTO productPackageDTO) {
+        productPackageRepository.save(productPackageMapper.mapToProductPackage(productPackageDTO));
+    }
+
+    @Override
     public Boolean existsByNameAndCreatedById(String name, Long createdById) {
         return productPackageRepository.existsByNameAndCreatedById(name, createdById);
     }

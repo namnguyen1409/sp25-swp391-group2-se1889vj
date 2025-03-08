@@ -1,5 +1,6 @@
 package com.group2.sp25swp391group2se1889vj.controller;
 
+import com.group2.sp25swp391group2se1889vj.dto.CustomerDTO;
 import com.group2.sp25swp391group2se1889vj.dto.ZoneDTO;
 import com.group2.sp25swp391group2se1889vj.dto.ZoneFilterDTO;
 import com.group2.sp25swp391group2se1889vj.entity.User;
@@ -76,6 +77,7 @@ public class ZoneController {
         model.addAttribute("zone", zone);
         return "warehouse/zone/edit";
     }
+
     @PostMapping("/edit")
     public String editZone(
             @Validated @ModelAttribute("zone") ZoneDTO zoneDTO,
@@ -144,4 +146,14 @@ public class ZoneController {
     }
 
 
+    @GetMapping("/detail/{id}")
+    public String detail(@PathVariable Long id, Model model) {
+        ZoneDTO zoneDTO = zoneService.findZoneById(id);
+
+        if (!Objects.equals(zoneDTO.getWarehouseId(), getWarehouseId())) {
+            return "redirect:/zone";
+        }
+        model.addAttribute("zone", zoneDTO);
+        return "warehouse/zone/detail";
+    }
 }
