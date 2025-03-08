@@ -9,6 +9,7 @@ import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
 import com.group2.sp25swp391group2se1889vj.service.WarehouseService;
 import com.group2.sp25swp391group2se1889vj.service.ZoneService;
 import com.group2.sp25swp391group2se1889vj.util.XSSProtectedUtil;
+import jakarta.validation.Valid;
 import jakarta.websocket.server.PathParam;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -73,15 +76,31 @@ public class ZoneController {
         model.addAttribute("zone", zone);
         return "warehouse/zone/edit";
     }
-
     @PostMapping("/edit")
-    public String editZone(@ModelAttribute ZoneDTO zone) {
-        if(!Objects.equals(zone.getWarehouseId(), getWarehouseId())) {
-            return "redirect:/zone";
+    public String editZone(
+            @Validated @ModelAttribute("zone") ZoneDTO zoneDTO,
+            BindingResult bindingResult
+    ) {
+        if (bindingResult.hasErrors()) {
+            System.err.println("DDax co loi");
+            return "warehouse/zone/edit";
         }
-        zoneService.saveZone(zone);
+
+        // Kiểm tra nếu zoneDTO không có ID hợp lệ
+        if (zoneDTO.getId() == null) {
+            return "redirect:/zone/list";
+        }
+
+        var check = zoneService.findZoneById(zoneDTO.getId());
+        if (check == null || !Objects.equals(check.getWarehouseId(), getWarehouseId())) {
+            return "redirect:/zone/list";
+        }
+
+        zoneDTO.setWarehouseId(getWarehouseId());
+        zoneService.saveZone(zoneDTO);
         return "redirect:/zone";
     }
+
 
     @GetMapping({"/list", "", "/"})
     public String list(

@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,7 +22,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Product getProductByIdAndWarehouseId(Long productId, Long warehouseId);
 
-    Optional<Product> findAllByNameContainingAndWarehouseId(String keyword, Long warehouseId);
+    List<Product> findAllByNameContainingAndWarehouseId(String keyword, Long warehouseId);
 
     boolean existsByNameAndWarehouseId(String name, Long warehouseId);
 }
