@@ -5,6 +5,8 @@ import com.group2.sp25swp391group2se1889vj.entity.ProductPackage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface ProductService {
     Page<ProductDTO> findPaginatedProducts(int pageNumber, int pageSize);
     Page<ProductDTO> findPaginatedProductsByOwnerId(Long ownerId, Pageable pageable);
@@ -17,4 +19,8 @@ public interface ProductService {
     Boolean existsByNameAndCreatedById(String name, Long ownerId);
 
     void saveProduct(ProductDTO productDTO, ProductPackage productPackage);
+
+    List<ProductDTO> searchProducts(Long warehouseId, String keyword);
+
+    void addProduct(ProductDTO productDTO) throws Exception;
 }

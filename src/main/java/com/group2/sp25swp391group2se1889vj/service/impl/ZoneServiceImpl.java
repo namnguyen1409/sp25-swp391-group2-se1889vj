@@ -42,7 +42,8 @@ public class ZoneServiceImpl implements ZoneService {
 
     @Override
     public void saveZone(ZoneDTO zoneDTO) {
-        zoneRepository.save(zoneMapper.mapToZone(zoneDTO));
+        Zone zone = zoneMapper.mapToZone(zoneDTO);
+        zoneRepository.save(zone);
     }
 
     @Override

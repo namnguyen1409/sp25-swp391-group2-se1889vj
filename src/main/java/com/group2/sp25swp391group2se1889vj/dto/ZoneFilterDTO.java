@@ -8,9 +8,7 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ZoneFilterDTO extends BaseFilterDTO{
+public class ZoneFilterDTO extends BaseFilterDTO {
     private String name;
     private String productName;
-    private Integer minQuantity;
-    private Integer maxQuantity;
 }

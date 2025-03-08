@@ -39,7 +39,7 @@ public class ZoneController {
 
     private Long getWarehouseId() {
         var currentUser = getUser();
-        if (currentUser.getRole() == RoleType.OWNER) return currentUser.getWarehouse().getId();
+        if(currentUser.getRole() == RoleType.OWNER) return currentUser.getWarehouse().getId();
         else return currentUser.getAssignedWarehouse().getId();
     }
 
@@ -67,8 +67,8 @@ public class ZoneController {
     @GetMapping("/edit/{id}")
     public String editZone(Model model, @PathVariable("id") Long id) {
         ZoneDTO zone = zoneService.findZoneById(id);
-        if (Objects.equals(zone.getWarehouseId(), getWarehouseId())) {
-            return "warehouse/zone/edit";
+        if(!Objects.equals(zone.getWarehouseId(), getWarehouseId())) {
+            return "redirect:/zone";
         }
         model.addAttribute("zone", zone);
         return "warehouse/zone/edit";
@@ -76,6 +76,9 @@ public class ZoneController {
 
     @PostMapping("/edit")
     public String editZone(@ModelAttribute ZoneDTO zone) {
+        if(!Objects.equals(zone.getWarehouseId(), getWarehouseId())) {
+            return "redirect:/zone";
+        }
         zoneService.saveZone(zone);
         return "redirect:/zone";
     }
@@ -85,7 +88,7 @@ public class ZoneController {
             Model model,
             @ModelAttribute(value = "zoneFilterDTO", binding = false) ZoneFilterDTO zoneFilterDTO
     ) {
-        if (zoneFilterDTO == null) {
+        if(zoneFilterDTO == null) {
             zoneFilterDTO = new ZoneFilterDTO();
         }
 
@@ -93,17 +96,15 @@ public class ZoneController {
                 ? Sort.by(zoneFilterDTO.getOrderBy()).ascending()
                 : Sort.by(zoneFilterDTO.getOrderBy()).descending();
 
-        List<String> fields = Arrays.asList("name", "productName", "productImage", "quantity", "createdAt");
-        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên khu vực", "Tên sản phẩm", "Hình ảnh sản phẩm", "Tồn kho", "Ngày tạo"));
-        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "", "image", "", "dateTime"));
+        List<String> fields = Arrays.asList("name", "productName", "productImage", "createdAt");
+        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên khu vực", "Tên sản phẩm", "Hình ảnh sản phẩm", "Ngày tạo"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "", "image", "dateTime"));
 
         model.addAttribute("fields", fields);
         model.addAttribute("fieldTitles", fieldTitles);
         model.addAttribute("fieldClasses", fieldClasses);
 
-        Pageable pageable = PageRequest.of(zoneFilterDTO.getPage() - 1, zoneFilterDTO.getSize(), sortDirection);
-
-        System.out.println("Dữ liệu filter nhận được: " + zoneFilterDTO.toString());
+        Pageable pageable = PageRequest.of(zoneFilterDTO.getPage()-1, zoneFilterDTO.getSize(), sortDirection);
 
         Long warehouseId = getWarehouseId();
         Page<ZoneDTO> zones = zoneService.searchZones(warehouseId, zoneFilterDTO, pageable);
@@ -116,16 +117,12 @@ public class ZoneController {
 
     @PostMapping({"/list", "", "/"})
     public String list(
-            Model model,
-            @ModelAttribute(value = "zoneFilterDTO", binding = false) ZoneFilterDTO zoneFilterDTO,
+            @ModelAttribute(value = "zoneFilterDTO") ZoneFilterDTO zoneFilterDTO,
             RedirectAttributes redirectAttributes
     ) {
         redirectAttributes.addFlashAttribute("zoneFilterDTO", zoneFilterDTO);
-        model.addAttribute("zoneFilterDTO", zoneFilterDTO);
-        return"redirect:/zone";
+        return "redirect:/zone";
     }
-
-
 
 
 }
