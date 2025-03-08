@@ -7,7 +7,7 @@
 <body>
 <section layout:fragment="content" class="container-fluid h-100">
 
-    <h2 class="text-center mt-3">Danh sách khách hàng</h2>
+    <h2 class="text-center mt-3">Danh sách kho hàng</h2>
 
     <div class="mt-3">
         <div class="mt-3">
@@ -51,7 +51,7 @@
                             </div>
                             <div class="col-md-4 text-end">
                                 <a th:href="@{'/zone/add'}" class="btn btn-secondary">
-                                    <i class="bi bi-plus-circle"></i> Thêm Khách hàng mới
+                                    <i class="bi bi-plus-circle"></i> Thêm kho hàng
                                 </a>
                             </div>
                         </div>
@@ -76,28 +76,22 @@
                 <tr th:object="${zoneFilterDTO}">
                     <td>
                         <input type="text" class="form-control form-control-sm" th:value="*{name}"
-                               id="name" placeholder="Tên khu vực">
+                               id="zoneName" placeholder="Tên khu vực">
                     </td>
                     <td>
-                        <input type="text" class="form-control form-control-sm" th:value="*{productName}" id="phoneField"
+                        <input type="text" class="form-control form-control-sm" th:value="*{productName}" id="productName"
                                placeholder="Tên sản phẩm">
                     </td>
                     <td>
-<!--                        <input type="text" class="form-control form-control-sm" th:value="*{pro}" id="emailField"-->
-<!--                               placeholder="Email">-->
                     </td>
-<!--                    <td>-->
-<!--                        <input type="text" class="form-control form-control-sm" th:value="*{address}" id="addressField"-->
-<!--                               placeholder="Địa chỉ">-->
-<!--                    </td>-->
                     <td>
                         <div class="d-flex gap-2" style="max-width: 200px">
                             <input type="text" class="form-control form-control-sm currency-input"
                                    th:attr="data-raw=*{minQuantity}" th:value="*{minQuantity}" id="minQuantityField"
-                                   placeholder="Số dư tối thiểu">
+                                   placeholder="Số lượng tối thiểu">
                             <input type="text" class="form-control form-control-sm currency-input"
                                    th:attr="data-raw=*{maxQuantity}" th:value="*{maxQuantity}" id="maxQuantityField"
-                                   placeholder="Số dư tối đa">
+                                   placeholder="Số lượng tối đa">
                         </div>
                     </td>
                     <td>
@@ -132,9 +126,6 @@
                         </th:block>
                     </td>
                     <td class="text-center">
-                        <a th:href="@{'/zone/' + ${item.id} + '/debt'}" class="btn btn-primary btn-sm">
-                            <i class="bi bi-cash-coin"></i>
-                        </a>
                         <a th:href="@{'/zone/detail/' + ${item.id}}" class="btn btn-info btn-sm">
                             <i class="bi bi-eye-fill"></i>
                         </a>
@@ -190,12 +181,10 @@
 
         function resetField() {
             let form = document.getElementById('searchForm');
-            form.elements['fullName'].value = '';
-            form.elements['phone'].value = '';
-            form.elements['email'].value = '';
-            form.elements['address'].value = '';
-            form.elements['minBalance'].value = '';
-            form.elements['maxBalance'].value = '';
+            form.elements['name'].value = '';
+            form.elements['productName'].value = '';
+            form.elements['minQuantity'].value = '';
+            form.elements['maxQuantity'].value = '';
             form.elements['minCreatedAt'].value = '';
             form.elements['maxCreatedAt'].value = '';
             form.elements['page'].value = 1;
@@ -262,20 +251,19 @@
 
         function updateField() {
             let form = document.getElementById('searchForm');
-            form.elements['fullName'].value = document.getElementById('fullNameField').value;
-            form.elements['phone'].value = document.getElementById('phoneField').value;
-            form.elements['email'].value = document.getElementById('emailField').value;
-            form.elements['address'].value = document.getElementById('addressField').value;
-            form.elements['minBalance'].value = document.getElementById('minBalanceField').getAttribute('data-raw') || '';
+            form.elements['name'].value = document.getElementById('productName').value;
+            form.elements['productName'].value = document.getElementById('phoneField').value;
+            // form.elements['email'].value = document.getElementById('emailField').value;
+            // form.elements['address'].value = document.getElementById('addressField').value;
+            form.elements['minQuantity'].value = document.getElementById('minQuantityField').getAttribute('data-raw') || '';
             ;
-            form.elements['maxBalance'].value = document.getElementById('maxBalanceField').getAttribute('data-raw') || '';
+            form.elements['maxQuantity'].value = document.getElementById('maxQuantityField').getAttribute('data-raw') || '';
             ;
             form.elements['minCreatedAt'].value = document.getElementById('minCreatedAtField').value;
             form.elements['maxCreatedAt'].value = document.getElementById('maxCreatedAtField').value;
             form.elements['size'].value = document.getElementById('sizeField').value;
             form.submit();
         }
-
     </script>
 </section>
 </body>

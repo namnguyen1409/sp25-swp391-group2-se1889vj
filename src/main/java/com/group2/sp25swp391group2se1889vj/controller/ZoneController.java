@@ -4,10 +4,12 @@ import com.group2.sp25swp391group2se1889vj.dto.ZoneDTO;
 import com.group2.sp25swp391group2se1889vj.dto.ZoneFilterDTO;
 import com.group2.sp25swp391group2se1889vj.entity.User;
 import com.group2.sp25swp391group2se1889vj.entity.Zone;
+import com.group2.sp25swp391group2se1889vj.enums.RoleType;
 import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
 import com.group2.sp25swp391group2se1889vj.service.WarehouseService;
 import com.group2.sp25swp391group2se1889vj.service.ZoneService;
 import com.group2.sp25swp391group2se1889vj.util.XSSProtectedUtil;
+import jakarta.websocket.server.PathParam;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,10 +21,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @AllArgsConstructor
 @Controller
@@ -36,6 +35,12 @@ public class ZoneController {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
                 .getPrincipal();
         return userDetails.getUser();
+    }
+
+    private Long getWarehouseId() {
+        var currentUser = getUser();
+        if(currentUser.getRole() == RoleType.OWNER) return currentUser.getWarehouse().getId();
+        else return currentUser.getAssignedWarehouse().getId();
     }
 
     private Map<String, String> createPairs(List<String> fields, List<String> fieldTitles) {
@@ -54,13 +59,18 @@ public class ZoneController {
 
     @PostMapping("/add")
     public String addZone(@ModelAttribute ZoneDTO zone) {
+        zone.setWarehouseId(getWarehouseId());
         zoneService.saveZone(zone);
         return "redirect:/zone";
     }
 
-    @GetMapping("/edit")
-    public String editZone(Model model) {
-        model.addAttribute("zone", new ZoneDTO());
+    @GetMapping("/edit/{id}")
+    public String editZone(Model model, @PathVariable("id") Long id) {
+        ZoneDTO zone = zoneService.findZoneById(id);
+        if(Objects.equals(zone.getWarehouseId(), getWarehouseId())) {
+            return "warehouse/zone/edit";
+        }
+        model.addAttribute("zone", zone);
         return "warehouse/zone/edit";
     }
 
@@ -84,7 +94,7 @@ public class ZoneController {
                 : Sort.by(zoneFilterDTO.getOrderBy()).descending();
 
         List<String> fields = Arrays.asList("name", "productName", "productImage", "quantity", "createdAt");
-        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên khu vực", "Tên sản phẩm", "Hình ảnh", "Tồn kho", "Ngày tạo"));
+        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên khu vực", "Tên sản phẩm", "Hình ảnh sản phẩm", "Tồn kho", "Ngày tạo"));
         Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "", "image", "", "dateTime"));
 
         model.addAttribute("fields", fields);
@@ -93,9 +103,8 @@ public class ZoneController {
 
         Pageable pageable = PageRequest.of(zoneFilterDTO.getPage()-1, zoneFilterDTO.getSize(), sortDirection);
 
-        Long ownerId = getUser().getId();
-
-        Page<ZoneDTO> zones = zoneService.searchZone(ownerId, zoneFilterDTO, pageable);
+        Long warehouseId = getWarehouseId();
+        Page<ZoneDTO> zones = zoneService.searchZones(warehouseId, zoneFilterDTO, pageable);
 
         model.addAttribute("zones", zones);
         model.addAttribute("zoneFilterDTO", zoneFilterDTO);

@@ -9,10 +9,10 @@ import java.util.List;
 import jakarta. persistence. criteria. Predicate;
 
 public class ZoneSpecification {
-    public static Specification<Zone> filterZones(Long ownerId, ZoneFilterDTO zoneFilterDTO) {
+    public static Specification<Zone> filterZones(Long warehouseId, ZoneFilterDTO zoneFilterDTO) {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
-            predicates.add(criteriaBuilder.equal(root.get("owner").get("id"), ownerId));
+            predicates.add(criteriaBuilder.equal(root.get("warehouse").get("id"), warehouseId));
             if (zoneFilterDTO.getName() != null) {
                 predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("name")), "%" + zoneFilterDTO.getName().toLowerCase() + "%"));
             }

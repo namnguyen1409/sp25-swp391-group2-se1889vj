@@ -19,6 +19,10 @@ public class Zone extends BaseEntity{
     @Column(name = "description", columnDefinition = "nvarchar(255)")
     private String description;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "warehouse_id")
+    private Warehouse warehouse;
+
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
