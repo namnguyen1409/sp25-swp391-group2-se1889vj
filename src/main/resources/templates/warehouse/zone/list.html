@@ -14,7 +14,7 @@
             <form id="searchForm" th:object="${zoneFilterDTO}" th:action="@{${'/zone/'}}" method="post">
                 <input type="hidden" th:field="*{page}">
                 <input type="hidden" th:field="*{orderBy}">
-                <input type="hidden" th:field="*{direction}">
+                <input type="hidden" th:field="*{direction}" >
                 <input type="hidden" th:field="*{size}">
                 <input type="hidden" th:field="*{name}">
                 <input type="hidden" th:field="*{productName}">
@@ -171,6 +171,7 @@
                 form.elements['orderBy'].value = field;
                 form.elements['direction'].value = 'ASC';
             }
+            alert("Sau khi cập nhật:"+  form.elements['orderBy'].value + form.elements['direction'].value);
             updateField();
         }
 
@@ -251,10 +252,8 @@
 
         function updateField() {
             let form = document.getElementById('searchForm');
-            form.elements['name'].value = document.getElementById('productName').value;
-            form.elements['productName'].value = document.getElementById('phoneField').value;
-            // form.elements['email'].value = document.getElementById('emailField').value;
-            // form.elements['address'].value = document.getElementById('addressField').value;
+            form.elements['name'].value = document.getElementById('zoneName').value;
+            form.elements['productName'].value = document.getElementById('productName').value;
             form.elements['minQuantity'].value = document.getElementById('minQuantityField').getAttribute('data-raw') || '';
             ;
             form.elements['maxQuantity'].value = document.getElementById('maxQuantityField').getAttribute('data-raw') || '';
@@ -262,6 +261,14 @@
             form.elements['minCreatedAt'].value = document.getElementById('minCreatedAtField').value;
             form.elements['maxCreatedAt'].value = document.getElementById('maxCreatedAtField').value;
             form.elements['size'].value = document.getElementById('sizeField').value;
+
+            let formData = new FormData(form);
+
+            // Log dữ liệu trước khi gửi đi
+            for (let pair of formData.entries()) {
+                alert(pair[0] + ": " + pair[1]);
+            }
+
             form.submit();
         }
     </script>

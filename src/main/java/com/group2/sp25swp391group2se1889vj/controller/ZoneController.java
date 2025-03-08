@@ -39,7 +39,7 @@ public class ZoneController {
 
     private Long getWarehouseId() {
         var currentUser = getUser();
-        if(currentUser.getRole() == RoleType.OWNER) return currentUser.getWarehouse().getId();
+        if (currentUser.getRole() == RoleType.OWNER) return currentUser.getWarehouse().getId();
         else return currentUser.getAssignedWarehouse().getId();
     }
 
@@ -67,7 +67,7 @@ public class ZoneController {
     @GetMapping("/edit/{id}")
     public String editZone(Model model, @PathVariable("id") Long id) {
         ZoneDTO zone = zoneService.findZoneById(id);
-        if(Objects.equals(zone.getWarehouseId(), getWarehouseId())) {
+        if (Objects.equals(zone.getWarehouseId(), getWarehouseId())) {
             return "warehouse/zone/edit";
         }
         model.addAttribute("zone", zone);
@@ -85,7 +85,7 @@ public class ZoneController {
             Model model,
             @ModelAttribute(value = "zoneFilterDTO", binding = false) ZoneFilterDTO zoneFilterDTO
     ) {
-        if(zoneFilterDTO == null) {
+        if (zoneFilterDTO == null) {
             zoneFilterDTO = new ZoneFilterDTO();
         }
 
@@ -101,7 +101,9 @@ public class ZoneController {
         model.addAttribute("fieldTitles", fieldTitles);
         model.addAttribute("fieldClasses", fieldClasses);
 
-        Pageable pageable = PageRequest.of(zoneFilterDTO.getPage()-1, zoneFilterDTO.getSize(), sortDirection);
+        Pageable pageable = PageRequest.of(zoneFilterDTO.getPage() - 1, zoneFilterDTO.getSize(), sortDirection);
+
+        System.out.println("Dữ liệu filter nhận được: " + zoneFilterDTO.toString());
 
         Long warehouseId = getWarehouseId();
         Page<ZoneDTO> zones = zoneService.searchZones(warehouseId, zoneFilterDTO, pageable);
@@ -119,8 +121,11 @@ public class ZoneController {
             RedirectAttributes redirectAttributes
     ) {
         redirectAttributes.addFlashAttribute("zoneFilterDTO", zoneFilterDTO);
-        return "redirect:/zone";
+        model.addAttribute("zoneFilterDTO", zoneFilterDTO);
+        return"redirect:/zone";
     }
+
+
 
 
 }

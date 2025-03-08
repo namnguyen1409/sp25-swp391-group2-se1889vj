@@ -20,10 +20,10 @@ public class ZoneSpecification {
                 predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("productName")), "%" + zoneFilterDTO.getProductName().toLowerCase() + "%"));
             }
             if (zoneFilterDTO.getMinQuantity() != null) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("price"), zoneFilterDTO.getMinQuantity()));
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("quantity"), zoneFilterDTO.getMinQuantity()));
             }
             if (zoneFilterDTO.getMaxQuantity() != null) {
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("price"), zoneFilterDTO.getMinQuantity()));
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("quantity"), zoneFilterDTO.getMinQuantity()));
             }
             if (zoneFilterDTO.getMinCreatedAt() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createAt"), zoneFilterDTO.getMinCreatedAt()));
