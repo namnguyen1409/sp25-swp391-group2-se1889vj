@@ -1,23 +1,26 @@
 package com.group2.sp25swp391group2se1889vj.controller;
 
+import com.group2.sp25swp391group2se1889vj.dto.InvoiceDTO;
 import com.group2.sp25swp391group2se1889vj.entity.User;
 import com.group2.sp25swp391group2se1889vj.enums.RoleType;
 import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
-import com.group2.sp25swp391group2se1889vj.service.ProductPackageService;
+import com.group2.sp25swp391group2se1889vj.service.InvoiceService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping("/api/product-package")
-@AllArgsConstructor
-public class ProductPackageRestController {
+import java.util.Map;
 
-    private final ProductPackageService productPackageService;
+@RestController
+@RequestMapping("/api/invoice")
+@AllArgsConstructor
+public class InvoiceRestController {
+
+    private final InvoiceService invoiceService;
 
     private User getUser() {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
@@ -31,16 +34,13 @@ public class ProductPackageRestController {
         else return currentUser.getAssignedWarehouse().getId();
     }
 
-    @GetMapping("/search")
-    public ResponseEntity<?> search(
-            @RequestParam("name") String keyword
-    ) {
-        return ResponseEntity.ok(productPackageService.searchProductPackages(getWarehouseId(), keyword));
-    }
 
-    @GetMapping("/getAll")
-    public ResponseEntity<?> getAll() {
-        return ResponseEntity.ok(productPackageService.getAllProductPackages(getWarehouseId()));
+    @PostMapping("/purchase")
+    public ResponseEntity<Long> createOrder(
+            @RequestBody InvoiceDTO invoiceDTO
+            ) {
+        invoiceDTO.setWarehouseId(getWarehouseId());
+        var result = invoiceService.createInvoice(invoiceDTO);
+        return ResponseEntity.ok(result);
     }
-
 }

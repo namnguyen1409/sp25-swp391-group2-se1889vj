@@ -13,7 +13,7 @@
                     <h4 class="card-title"> Thêm mới gạo</h4>
                 </div>
                 <div class="card-body bd-sidebar">
-                    <form class="p-md-4" th:object="${product}" id="uploadForm">
+                    <form class="p-md-4" th:object="${product}" id="uploadForm" autocomplete="off">
                         <!--/*@thymesVar id="currentUser" type="com.hsf302.trialproject.entity.User"*/-->
                         <div class="mb-3">
                             <div th:replace="fragments/input :: customInput('name', 'text', 'bi-hash', 'Tên gạo', 'true')"></div>

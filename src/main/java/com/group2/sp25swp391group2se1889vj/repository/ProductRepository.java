@@ -1,16 +1,14 @@
 package com.group2.sp25swp391group2se1889vj.repository;
 
 import com.group2.sp25swp391group2se1889vj.entity.Product;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
@@ -25,5 +23,17 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findAllByNameContainingAndWarehouseId(String keyword, Long warehouseId);
 
     boolean existsByNameAndWarehouseId(String name, Long warehouseId);
+
+    @Modifying
+    @Query("update Product p set p.stockQuantity = p.stockQuantity + ?2, p.updatedAt = CURRENT_TIMESTAMP where p.id = ?1")
+    void increaseStockQuantity(Long id, Integer quantity);
+
+    @Modifying
+    @Query("update Product p set p.stockQuantity = p.stockQuantity - ?2, p.updatedAt = CURRENT_TIMESTAMP where p.id = ?1")
+    void decreaseStockQuantity(Long id, Integer quantity);
+
+
+
+
 }
 

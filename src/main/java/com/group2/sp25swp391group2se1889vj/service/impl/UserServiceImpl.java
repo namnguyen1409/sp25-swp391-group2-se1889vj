@@ -13,6 +13,7 @@ import com.group2.sp25swp391group2se1889vj.repository.WarehouseRepository;
 import com.group2.sp25swp391group2se1889vj.service.UserService;
 import com.group2.sp25swp391group2se1889vj.util.EncryptionUtil;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,7 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final RegistrationTokenRepository registrationTokenRepository;
@@ -111,8 +113,9 @@ public class UserServiceImpl implements UserService {
             warehouse.setName("Kho của " + user.getUsername());
             warehouse.setLocation(user.getAddress());
             warehouse.setOwner(user);
+            warehouse = warehouseRepository.save(warehouse);
+            log.info("Warehouse created: {}", warehouse.getId());
             user.setWarehouse(warehouse);
-            warehouseRepository.save(warehouse);
         } else {
             // Gán vào kho của chủ shop
             User owner = registrationToken.getCreatedBy();

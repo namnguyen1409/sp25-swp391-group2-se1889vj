@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @Transactional
 public interface CustomerService {
     CustomerDTO findCustomerById(Long id);
-    void saveCustomer(CustomerDTO customerDTO);
+    CustomerDTO saveCustomer(CustomerDTO customerDTO);
     void updateCustomer(CustomerDTO customerDTO);
 
     Boolean existByPhoneAndWarehouseId(String phone, Long warehouseId);
@@ -25,4 +25,9 @@ public interface CustomerService {
     void addBalance(Long id, BigDecimal balance);
     void subtractBalance(Long id, BigDecimal balance);
     Page<CustomerDTO> searchCustomers(Long warehouseId, CustomerFilterDTO customerFilterDTO, Pageable pageable);
+
+    CustomerDTO findCustomerByPhone(String phone);
+
+    CustomerDTO findCustomerByPhoneAndWarehouseId(String phone, Long warehouseId);
+
 }

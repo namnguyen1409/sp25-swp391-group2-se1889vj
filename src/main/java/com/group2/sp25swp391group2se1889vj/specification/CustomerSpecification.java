@@ -15,16 +15,16 @@ public class CustomerSpecification {
         return (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
             predicates.add(criteriaBuilder.equal(root.get("warehouse").get("id"), warehouseId));
-            if (customerFilterDTO.getFullName() != null) {
+            if (customerFilterDTO.getFullName() != null && !customerFilterDTO.getFullName().isEmpty()) {
                 predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("fullName")), "%" + customerFilterDTO.getFullName().toLowerCase() + "%"));
             }
-            if (customerFilterDTO.getPhone() != null) {
+            if (customerFilterDTO.getPhone() != null && !customerFilterDTO.getPhone().isEmpty()) {
                 predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("phone")), "%" + customerFilterDTO.getPhone().toLowerCase() + "%"));
             }
-            if (customerFilterDTO.getEmail() != null) {
+            if (customerFilterDTO.getEmail() != null && !customerFilterDTO.getEmail().isEmpty()) {
                 predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("email")), "%" + customerFilterDTO.getEmail().toLowerCase() + "%"));
             }
-            if (customerFilterDTO.getAddress() != null) {
+            if (customerFilterDTO.getAddress() != null && !customerFilterDTO.getAddress().isEmpty()) {
                 predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("address")), "%" + customerFilterDTO.getAddress().toLowerCase() + "%"));
             }
             if (customerFilterDTO.getMinBalance() != null) {

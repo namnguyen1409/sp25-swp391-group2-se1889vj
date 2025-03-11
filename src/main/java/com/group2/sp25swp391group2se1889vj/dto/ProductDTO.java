@@ -32,4 +32,5 @@ public class ProductDTO extends BaseDTO {
     private int stockQuantity;
     private Long warehouseId;
     private Set<Long> zoneIds = new HashSet<>();
+    private Set<ZoneDTO> zones;
 }

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  layout:decorate="template"
+  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+  xmlns:th="http://www.thymeleaf.org"
+>
+  <body>
+    <section class="container-fluid h-100" layout:fragment="content">
+      <div class="h-100">
+        <h1 class="display-6 fw-bold">Thêm hóa đơn</h1>
+
+        <!-- Danh sách tab -->
+        <ul class="nav nav-tabs" id="invoiceTabs">
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              data-bs-toggle="dropdown"
+              role="button"
+              >
+              <i class="bi bi-plus-circle"></i>
+            </a
+            >
+            <ul class="dropdown-menu">
+              <li>
+                <a
+                  class="dropdown-item"
+                  href="#"
+                  onclick="addInvoiceTab('purchase', event)"
+                  >Hóa đơn nhập kho</a
+                >
+              </li>
+              <li>
+                <a
+                  class="dropdown-item"
+                  href="#"
+                  onclick="addInvoiceTab('sales', event)"
+                  >Hóa đơn bán hàng</a
+                >
+              </li>
+            </ul>
+          </li>
+        </ul>
+
+        <!-- Nội dung tab -->
+        <div class="tab-content mt-3" id="invoiceContent"></div>
+      </div>
+
+      <script>
+        let tabCount = 0;
+        let invoiceData = {};
+        let productPackaging = [];
+
+        let csrfToken = $("meta[name='_csrf']").attr("content");
+        let csrfHeader = $("meta[name='_csrf_header']").attr("content");
+
+        fetch(`/api/product-package/getAll`)
+            .then(response => response.json())
+            .then(data => {
+                productPackaging = data;
+            })
+            .catch(error => console.error("Lỗi tải quy cách đóng gói:", error));
+
+
+        function addInvoiceTab(type) {
+            tabCount++;
+            const tabId = `invoiceTab${tabCount}`;
+            const tabTitle = (type === 'purchase') ? "Nhập kho" : "Bán hàng";
+
+            invoiceData[tabId] = {
+                type,
+                items: [],
+                customer: {},
+                status: "NEW",
+                orderId: null,
+                tabId: tabId
+            }; // Khởi tạo dữ liệu
+
+            // Tạo phần tử tab mới
+            let tabItem = document.createElement("li");
+            tabItem.className = "nav-item";
+            tabItem.innerHTML = `
+                <a class="nav-link" id="${tabId}-tab" data-bs-toggle="tab" href="#${tabId}">
+                    <span id="${tabId}-tab-status" class="text-primary">
+                        ●
+                    </span>
+                    ${tabTitle} #${tabCount}
+                    <button type="button" class="btn-close ms-2" onclick="removeTab('${tabId}', event)"></button>
+                </a>
+            `;
+            document.getElementById("invoiceTabs").appendChild(tabItem);
+
+            // Tạo nội dung tab
+            let tabContent = document.createElement("div");
+            tabContent.className = "tab-pane fade";
+            tabContent.id = tabId;
+            tabContent.innerHTML = `<p>Đang tải dữ liệu...</p>`;
+            document.getElementById("invoiceContent").appendChild(tabContent);
+
+            // Kích hoạt tab mới
+            new bootstrap.Tab(document.getElementById(`${tabId}-tab`)).show();
+
+            // Gọi API để lấy nội dung riêng cho từng hóa đơn
+            fetch(`/invoice/${type}?tabId=${tabId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error("Lỗi kết nối mạng!");
+                    return response.text();
+                })
+                .then(html => {
+                    tabContent.innerHTML = html;
+                    if (type === 'purchase') {
+                        initPurchaseEvents(tabId);
+                    } else {
+                        initSalesEvents(tabId);
+                    }
+                })
+                .catch(error => {
+                    tabContent.innerHTML = `<p class="text-danger">Lỗi tải dữ liệu!</p>`;
+                });
+        }
+
+        function removeTab(tabId, event) {
+            event.preventDefault();
+
+            let tab = document.getElementById(`${tabId}-tab`);
+            let content = document.getElementById(tabId);
+
+            if (tab && content) {
+                let isActive = tab.classList.contains("active");
+                tab.remove();
+                content.remove();
+
+                delete invoiceData[tabId]; // Xóa dữ liệu của tab
+
+                if (isActive) {
+                    let nextTab = document.querySelector("#invoiceTabs .nav-link:not(.dropdown-toggle)");
+                    if (nextTab) {
+                        new bootstrap.Tab(nextTab).show();
+                    }
+                }
+            }
+        }
+
+        function initPurchaseEvents(tabId) {
+            console.log(`Khởi tạo sự kiện cho tab: ${tabId}`);
+
+            let searchInput = document.getElementById(`productSearch${tabId}`);
+            let productList = document.getElementById(`productList${tabId}`);
+            let productSuggestion = document.getElementById(`productSuggestion${tabId}`);
+
+            let customerPhone = document.getElementById(`customerPhone${tabId}`);
+            let customerName = document.getElementById(`customerName${tabId}`);
+            let customerAddress = document.getElementById(`customerAddress${tabId}`);
+            let customerBalance = document.getElementById(`customerBalance${tabId}`);
+            let btnCustomer = document.getElementById(`btnCustomer${tabId}`);
+
+            let totalPrice = document.getElementById(`totalPrice${tabId}`);
+            let payment = document.getElementById(`payment${tabId}`);
+            let paymentDropdown = document.getElementById(`paymentDropdown${tabId}`)
+            let unpaid = document.getElementById(`unpaid${tabId}`);
+            let partial = document.getElementById(`partial${tabId}`);
+            let paid = document.getElementById(`paid${tabId}`);
+
+            let debt = document.getElementById(`debt${tabId}`);
+            let btnPurchase = document.getElementById(`btnPurchase${tabId}`);
+            let loadingService = document.getElementById(`loadingService${tabId}`);
+
+            unpaid.addEventListener("click", function () {
+                payment.value = formatCurrency(0);
+                payment.setAttribute("data-raw", "0");
+                updateTotal(tabId)
+                payment.setAttribute("readonly", "true");
+                paymentDropdown.innerText = "Không thanh toán";
+            });
+
+            partial.addEventListener("click", function () {
+                payment.removeAttribute("readonly");
+                payment.focus();
+                paymentDropdown.innerText = "Thanh toán một phần";
+            });
+
+            paid.addEventListener("click", function () {
+                payment.value = totalPrice.value;
+                payment.setAttribute("data-raw", totalPrice.getAttribute("data-raw"));
+                updateTotal(tabId)
+                payment.setAttribute("readonly", "true");
+                paymentDropdown.innerText = "Thanh toán toàn bộ";
+            });
+
+// Hàm debounce: Chỉ gọi API sau khi người dùng ngừng nhập trong 300ms
+          function debounce(func, delay) {
+            let timeout;
+            return function (...args) {
+              clearTimeout(timeout);
+              timeout = setTimeout(() => func.apply(this, args), delay);
+            };
+          }
+
+// Gợi ý sản phẩm theo tên với debounce
+          if (searchInput) {
+            searchInput.addEventListener("input", debounce(function () {
+              let keyword = this.value.trim();
+              if (keyword.length > 0) {
+                fetch(`/api/product/search?name=${keyword}`)
+                        .then(response => response.json())
+                        .then(data => {
+                          productSuggestion.classList.remove("d-none");
+                          productSuggestion.innerHTML = data.map(product => `
+                          <div onclick="addProductToPurchase('${tabId}', '${product.id}', '${product.name}', '${product.image}', ${product.productPackageId})"
+                              class="list-group-item list-group-item-action d-flex align-items-center">
+                              <img src="/${product.image}" class="img-thumbnail me-3" width="75" height="75">
+                              <div>
+                                  <strong>${product.name}</strong> - <span class="text-success">${formatCurrency(product.price)}</span>
+                                  <div class="text-muted">Tồn kho: ${product.stockQuantity}kg | Quy cách đóng gói: ${productPackaging.find(pkg => pkg.id === product.productPackageId).name}
+
+                                  </div>
+                                  <div class="text-muted">Khu vực: ${product.zones.map(zone => zone.name).join(', ')}</div>
+                              </div>
+                          </div>
+                    `).join('');
+                        })
+                        .catch(error => console.error("Lỗi tải sản phẩm:", error));
+              } else {
+                productSuggestion.innerHTML = "";
+              }
+            }, 300)); // Độ trễ 300ms
+          }
+
+            // Tự động điền thông tin khách hàng theo số điện thoại
+          customerPhone.addEventListener("input", function () {
+            let phone = this.value.trim();
+            if (phone.length === 10) {
+              fetch(`/api/customer/search?phone=${phone}`)
+                      .then(response => {
+                        if (!response.ok) {
+                          throw new Error("Không thể tìm thấy thông tin khách hàng");
+                        }
+                        return response.json();
+                      })
+                      .then(data => {
+                        if (data) {
+                          customerName.value = data.fullName;
+                          customerAddress.value = data.address;
+                          customerBalance.value = formatCurrency(data.balance);
+                          customerBalance.setAttribute("data-raw", data.balance);
+                          invoiceData[tabId].customer = data;
+                          updateTotal(tabId);
+                        } else {
+                          btnCustomer.classList.remove("d-none");
+                        }
+                      })
+                      .catch(error => {
+                        btnCustomer.classList.remove("d-none");
+                      });
+            }
+          });
+
+
+            // Thêm khách hàng mới
+            btnCustomer.addEventListener("click", function () {
+                fetch(`/api/customer/add`, {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                        [csrfHeader]: csrfToken
+                    },
+                    body: JSON.stringify({
+                        phone: customerPhone.value,
+                        fullName: customerName.value,
+                        address: customerAddress.value
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        customerBalance.value = formatCurrency(data.balance);
+                        customerBalance.setAttribute("data-raw", data.balance);
+                        invoiceData[tabId].customer = data;
+                        updateTotal(tabId)
+                        btnCustomer.classList.add("d-none");
+                    })
+                    .catch(error => {
+                        alert("Lỗi thêm khách hàng!");
+                        console.error("Lỗi thêm khách hàng:", error);
+                    });
+            })
+
+
+            // Xử lý sự kiện thanh toán
+            btnPurchase.addEventListener("click", function () {
+                submitPurchase(tabId);
+            });
+
+            handleCurrencyInput(payment, tabId);
+            payment.addEventListener("input", function () {
+                updateTotal(tabId)
+            })
+        }
+
+        function formatCurrency(value) {
+            let number = parseInt(value, 10);
+            return isNaN(number) ? "0 VND" : number.toLocaleString("vi-VN", { style: "currency", currency: "VND" });
+        }
+
+        function addProductToPurchase(tabId, productId, productName, productImage, productPackageId) {
+            if (!productPackageId) {
+                alert("Vui lòng chọn quy cách đóng gói!");
+                return;
+            }
+
+            let uniqueKey = `${productId}-${productPackageId}-${Date.now()}`;
+
+            invoiceData[tabId].items.push({
+                uniqueKey: uniqueKey,
+                id: productId,
+                name: productName,
+                productPackageId: productPackageId,
+                quantity: 1,
+                price: 0,
+                total: 0
+            });
+
+            let productList = document.getElementById(`productList${tabId}`);
+            if (productList) {
+                let row = document.createElement("tr");
+                row.id = `row-${uniqueKey}`;
+                row.innerHTML = `
+            <td>${productName}</td>
+            <td>
+                <img src="/${productImage}" class="img-thumbnail" width="50" height="50">
+            </td>
+            <td>
+                <select class="form-select" onchange="updateProductPackage('${tabId}', '${uniqueKey}', this.value)">
+                    <option value="">Chọn quy cách đóng gói</option>
+                    ${productPackaging.map(pkg => `
+                        <option value="${pkg.id}" ${pkg.id === productPackageId ? 'selected' : ''}>
+                            ${pkg.name} (${pkg.weight}kg)
+                        </option>
+                    `).join('')}
+                </select>
+            </td>
+            <td>
+                <input type="number" class="form-control form-control-sm " min="1" value="1" style="max-width: 70px"
+                    oninput="updateProductQuantity('${tabId}', '${uniqueKey}', this.value)">
+            </td>
+            <td>
+                <input type="text" class="form-control form-control-sm price-input" data-raw="0"
+                    oninput="updateProductPrice('${tabId}', '${uniqueKey}', this.value)">
+            </td>
+            <td>
+                <input type="text" id="total-${uniqueKey}" class="form-control form-control-sm price-input" data-raw="0"
+                 disabled>
+            </td>
+            <td>
+                <button class="btn btn-danger" onclick="removeProductFromInvoice('${tabId}', '${uniqueKey}')">Xóa</button>
+            </td>
+        `;
+                productList.appendChild(row);
+              let priceInputs = row.querySelectorAll(".price-input");
+              priceInputs.forEach(input => {
+                handleCurrencyInput(input, tabId)
+              });
+            }
+
+            let productSuggestion = document.getElementById(`productSuggestion${tabId}`);
+            if (productSuggestion) {
+                productSuggestion.classList.add("d-none");
+            }
+        }
+
+        function updateProductPackage(tabId, uniqueKey, productPackageId) {
+            let item = invoiceData[tabId].items.find(item => item.uniqueKey === uniqueKey);
+            if (item) {
+                item.productPackageId = productPackageId;
+            }
+        }
+
+        function updateProductQuantity(tabId, uniqueKey, quantity) {
+            let item = invoiceData[tabId].items.find(item => item.uniqueKey === uniqueKey);
+            if (item) {
+                item.quantity = parseInt(quantity);
+                updateTotalPrice(tabId, uniqueKey);
+            }
+
+        }
+
+        function updateProductPrice(tabId, uniqueKey, price) {
+            let item = invoiceData[tabId].items.find(item => item.uniqueKey === uniqueKey);
+            let priceNumber = parseFloat(price.replace(/\D/g, "")) || 0;
+            if (item) {
+                item.price = priceNumber;
+                updateTotalPrice(tabId, uniqueKey);
+                updateTotal(tabId)
+            }
+        }
+
+        function updateTotalPrice(tabId, uniqueKey) {
+            let item = invoiceData[tabId].items.find(item => item.uniqueKey === uniqueKey);
+            if (item) {
+                item.total = item.quantity * item.price;
+                document.getElementById(`total-${uniqueKey}`).value = formatCurrency(item.total);
+            }
+            updateTotal(tabId)
+        }
+
+        function removeProductFromInvoice(tabId, uniqueKey) {
+            invoiceData[tabId].items = invoiceData[tabId].items.filter(item => item.uniqueKey !== uniqueKey);
+            let row = document.getElementById(`row-${uniqueKey}`);
+            if (row) {
+                row.remove();
+                updateTotal(tabId)
+            }
+        }
+
+        function updateTotal(tabId) {
+            let customerBalance = document.getElementById(`customerBalance${tabId}`);
+
+            let totalPrice = document.getElementById(`totalPrice${tabId}`);
+            let payment = document.getElementById(`payment${tabId}`);
+            let debt = document.getElementById(`debt${tabId}`);
+
+            let total = invoiceData[tabId].items.reduce((sum, item) => sum + item.total, 0);
+            totalPrice.setAttribute("data-raw", total);
+            totalPrice.value = formatCurrency(total);
+
+            let balance = parseInt(customerBalance.getAttribute("data-raw") || "0", 10);
+            let payAmount = parseInt(payment.getAttribute("data-raw") || "0", 10);
+
+            let remainingDebt = balance+total - payAmount;
+            debt.setAttribute("data-raw", remainingDebt);
+            debt.value = formatCurrency(remainingDebt);
+        }
+
+        function handleCurrencyInput(input, tabId) {
+            input.addEventListener('keydown', function (event) {
+                let rawValue = this.getAttribute('data-raw') || '';
+
+                if (event.key === 'Backspace') {
+                    event.preventDefault();
+                    if (rawValue.length > 1) {
+                        rawValue = rawValue.slice(0, -1);
+                        this.setAttribute('data-raw', rawValue);
+                        this.value = formatCurrency(rawValue);
+                    } else {
+                        this.setAttribute('data-raw', '');
+                        this.value = '';
+                    }
+                }
+            });
+
+            input.addEventListener('input', function () {
+                let rawValue = this.value.replace(/\D/g, '');
+                rawValue = rawValue.replace(/^0+/, '') || '0';
+                this.setAttribute('data-raw', rawValue);
+                this.value = formatCurrency(rawValue);
+            });
+            input.setAttribute('data-raw', input.value);
+            input.value = formatCurrency(input.getAttribute('data-raw') || '');
+            updateTotal(tabId);
+        }
+
+
+        function submitPurchase(tabId) {
+            document.getElementById(`btnPurchase${tabId}`).classList.add("d-none");
+            let data = invoiceData[tabId];
+
+            let payload = {
+                type: 'PURCHASE',
+                totalPrice: document.getElementById(`totalPrice${tabId}`).getAttribute("data-raw"),
+                totalDiscount: 0,
+                totalPayable: document.getElementById(`totalPrice${tabId}`).getAttribute("data-raw"),
+                totalPaid: document.getElementById(`payment${tabId}`).getAttribute("data-raw") || 0,
+                totalDebt: document.getElementById(`debt${tabId}`).getAttribute("data-raw"),
+                customerBalance: data.customer.balance,
+                customerId: data.customer.id,
+                isShipped: document.getElementById(`loadingService${tabId}`).checked? true : false,
+                description: document.getElementById(`note${tabId}`).value,
+                items: data.items.map(item => ({
+                    productId: item.id,
+                    productPackageId: item.productPackageId,
+                    quantity: item.quantity,
+                    price: item.price,
+                    discount: 0,
+                    payable: item.total
+                }))
+            }
+
+            if (!validateInvoice(payload)) {
+                document.getElementById(`btnPurchase${tabId}`).classList.remove("d-none");
+                showModal("Modal", Context.DANGER, "Dữ liệu không hợp lệ!", "Vui lòng nhập đầy đủ thông tin trước khi gửi");
+                return;
+            }
+
+            fetch(`/api/invoice/purchase`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  [csrfHeader]: csrfToken
+                },
+                body: JSON.stringify(payload)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                      document.getElementById('btnPurchase').classList.remove("d-none");
+                      showModal("Modal", Context.DANGER, "Lỗi kết nối!", "Vui lòng thử lại sau");
+                        throw new Error("Lỗi kết nối mạng!");
+                    }
+                    return response.text();
+                })
+                .then(data => {
+                    const orderId = parseInt(data, 10);
+                    // thêm trạng thái đang chờ xử lý lên tab
+                    const tab = document.getElementById(tabId + "-tab");
+                    tab.setAttribute("data-orderId", orderId);
+                    invoiceData[tabId].status = "PENDING";
+                    invoiceData[tabId].orderId = orderId;
+                    const tabStatus = document.getElementById(tabId + "-tab-status");
+                    tabStatus.classList.remove("text-primary");
+                    tabStatus.classList.add("text-warning");
+                    const statusElement = document.getElementById(`status${tabId}`);
+                    statusElement.classList.add("bg-warning")
+                    statusElement.innerHTML = 'Đang xử lý';
+                })
+                .catch(error => {
+                  document.getElementById(`btnPurchase${tabId}`).removeAttribute("disabled");
+                    alert("Lỗi nhập kho!");
+                    console.error("Lỗi nhập kho:", error);
+                });
+
+        }
+
+        // kiểm tra dữ liệu trước khi submit
+        function validateInvoice(invoice) {
+            if (!invoice.type || invoice.totalPrice < 0 || invoice.totalPaid < 0 || invoice.totalDebt < 0 || !invoice.customerId) {
+                return false;
+            }
+
+            if (!invoice.items || invoice.items.length === 0) {
+                return false;
+            }
+
+            return invoice.items.every(item => item.productId && item.productPackageId && item.quantity > 0 && item.price >= 0 && item.payable >= 0);
+        }
+      </script>
+
+
+
+      <script>
+        const socket = new SockJS('/ws');
+        const stompClient = Stomp.over(socket);
+
+        // Kết nối tới WebSocket
+        stompClient.connect({}, function (frame) {
+          console.log("✅ WebSocket Connected: ", frame);
+
+          // Chỉ subscribe sau khi kết nối thành công
+          stompClient.subscribe('/user/queue/invoice-status', function (message) {
+            const data = JSON.parse(message.body);
+            console.log("📩 Nhận tin nhắn:", data);
+
+            updateUIWithInvoiceStatus(data);
+          });
+
+        }, function (error) {
+          console.error("🔴 Lỗi kết nối WebSocket:", error);
+        });
+
+        function updateUIWithInvoiceStatus(data) {
+          console.log("Xử lý dữ liệu:", data);
+          const orderId = data.orderId;
+          const status = data.status;
+          const message = data.message;
+
+          const foundTab = Object.entries(invoiceData).find(
+                  ([key, value]) => value.orderId === orderId
+          );
+
+          console.log(orderId, foundTab, invoiceData);
+
+          // tìm tab chứa orderId
+          const tabId = foundTab ? foundTab[1].tabId : null;
+          console.log("TabId:", tabId);
+          if (tabId) {
+                const tab = document.getElementById(tabId + "-tab");
+                if (tab) {
+                    invoiceData[tabId].status = status;
+                    const tabStatus = document.getElementById(tabId + "-tab-status");
+                    tabStatus.classList.remove("text-warning");
+                    const  statusElement = document.getElementById(`status${tabId}`);
+                    const messageElement = document.getElementById(`message${tabId}`);
+                    messageElement.innerHTML = message;
+                    if (status === 'SUCCESS') {
+                      statusElement.innerHTML = "Đã nhập kho thành công";
+                      statusElement.classList.add("bg-success");
+                      statusElement.classList.remove("bg-warning");
+                      tabStatus.classList.add("text-success");
+                    } else {
+                      statusElement.innerHTML = "Đã xảy ra lỗi khi nhập kho";
+                      statusElement.classList.add("bg-danger");
+                      statusElement.classList.remove("bg-warning");
+                      tabStatus.classList.add("text-danger");
+                    }
+
+                } else {
+                    console.error("Không tìm thấy tab:", tabId);
+                }
+            }
+
+        }
+
+      </script>
+
+    </section>
+  </body>
+</html>
