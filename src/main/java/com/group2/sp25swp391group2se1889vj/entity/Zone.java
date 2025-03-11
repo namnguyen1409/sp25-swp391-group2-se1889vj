@@ -6,27 +6,29 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Entity
 @Data
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @Table(name = "zones")
 public class Zone extends BaseEntity{
+
+    @EqualsAndHashCode.Include
     @Column(name = "name", nullable = false, columnDefinition = "nvarchar(50)")
     private String name;
 
+    @EqualsAndHashCode.Include
     @Column(name = "description", columnDefinition = "nvarchar(255)")
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "warehouse_id", nullable = false)
+    @EqualsAndHashCode.Exclude
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
 
-    @Column(name = "quantity", columnDefinition = "int")
-    private Integer quantity;
 }

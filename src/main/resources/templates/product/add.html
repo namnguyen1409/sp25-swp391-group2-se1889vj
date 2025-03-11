@@ -13,7 +13,7 @@
                     <h4 class="card-title"> Thêm mới gạo</h4>
                 </div>
                 <div class="card-body bd-sidebar">
-                    <form class="p-md-4" method="post" th:action="@{/product/add}" th:object="${product}">
+                    <form class="p-md-4" th:object="${product}" id="uploadForm" autocomplete="off">
                         <!--/*@thymesVar id="currentUser" type="com.hsf302.trialproject.entity.User"*/-->
                         <div class="mb-3">
                             <div th:replace="fragments/input :: customInput('name', 'text', 'bi-hash', 'Tên gạo', 'true')"></div>
@@ -69,8 +69,7 @@
                             <!-- Các zone đã chọn sẽ hiển thị ở đây -->
                         </div>
 
-                        <!-- Input ẩn lưu danh sách Zone ID -->
-                        <input type="hidden" id="selectedZoneIds" th:field="*{zoneIds}">
+                        <input type="hidden" id="selectedZoneIds">
 
 
                         <p class="text-danger mb-3" th:text="${error}"></p>
@@ -85,62 +84,50 @@
     </div>
     <script>
         $(document).ready(function () {
+            let debounceTimer;
+
+            let csrfToken = $("meta[name='_csrf']").attr("content");
+            let csrfHeader = $("meta[name='_csrf_header']").attr("content");
+
+            $.ajaxSetup({
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(csrfHeader, csrfToken);
+                }
+            });
+            // Debounce để giảm số lần gọi AJAX
+            function debounce(fn, delay) {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(fn, delay);
+            }
+
+            // Tìm kiếm quy cách đóng gói
             $("#productPackageName").on("input", function () {
-                let searchTerm = $(this).val();
+                let searchTerm = $(this).val().trim();
                 if (searchTerm.length < 2) return;
 
-                $.ajax({
-                    url: "/api/product-package/search",
-                    data: {name: searchTerm},
-                    dataType: "json",
-                    success: function (data) {
+                debounce(() => {
+                    $.getJSON("/api/product-package/search", { name: searchTerm }, function (data) {
                         let options = data.map(pkg =>
                             `<option data-id="${pkg.id}" value="${pkg.name} (${pkg.weight}kg)"></option>`
                         ).join("");
                         $("#productPackageList").html(options);
-                    }
-                });
+                    });
+                }, 300);
             });
 
-            // Khi người dùng chọn từ danh sách, cập nhật ID vào input hidden
+            // Cập nhật ID sản phẩm khi chọn
             $("#productPackageName").on("change", function () {
-                let selectedOption = $("#productPackageList option").filter(function () {
-                    return $(this).val() === $("#productPackageName").val();
-                });
-
-                if (selectedOption.length) {
-                    $("#productPackageId").val(selectedOption.data("id"));
-                } else {
-                    $("#productPackageId").val(""); // Xóa nếu nhập tay không khớp
-                }
+                let selectedOption = $("#productPackageList option[value='" + $(this).val() + "']");
+                $("#productPackageId").val(selectedOption.length ? selectedOption.data("id") : "");
             });
-        });
 
-        let selectedPackageName = $("#productPackageName").val();
-        if (selectedPackageName) {
-            $.ajax({
-                url: "/api/product-package/search",
-                data: {name: selectedPackageName.split(" (")[0]}, // Lấy phần tên trước dấu ngoặc
-                dataType: "json",
-                success: function (data) {
-                    let options = data.map(pkg =>
-                        `<option data-id="${pkg.id}" value="${pkg.name} (${pkg.weight}kg)"></option>`
-                    ).join("");
-                    $("#productPackageList").html(options);
-                }
-            });
-        }
-
-        $(document).ready(function () {
+            // Tìm kiếm Zone
             $("#zoneSearch").on("input", function () {
-                let searchTerm = $(this).val();
+                let searchTerm = $(this).val().trim();
                 if (searchTerm.length < 1) return;
 
-                $.ajax({
-                    url: "/api/zones/search",
-                    data: {name: searchTerm},
-                    dataType: "json",
-                    success: function (zones) {
+                debounce(() => {
+                    $.getJSON("/api/zone/search", { name: searchTerm }, function (zones) {
                         let dropdown = $("#zoneDropdown");
                         if (dropdown.length === 0) {
                             $("#zoneSearch").after('<div id="zoneDropdown" class="dropdown-menu show"></div>');
@@ -150,20 +137,19 @@
 
                         zones.forEach(zone => {
                             dropdown.append(`<button type="button" class="dropdown-item select-zone"
-                                         data-id="${zone.id}" data-name="${zone.name}">
-                                        ${zone.name}
-                                     </button>`);
+                                            data-id="${zone.id}" data-name="${zone.name}">
+                                         ${zone.name}
+                                      </button>`);
                         });
-                    }
-                });
+                    });
+                }, 300);
             });
 
-            // Khi chọn Zone, thêm vào danh sách
+            // Chọn Zone
             $(document).on("click", ".select-zone", function () {
                 let zoneId = $(this).data("id");
                 let zoneName = $(this).data("name");
 
-                // Kiểm tra xem đã tồn tại chưa
                 if ($(`#selectedZone-${zoneId}`).length === 0) {
                     $("#selectedZonesContainer").append(`
                 <span class="badge bg-primary me-2 selected-zone" id="selectedZone-${zoneId}">
@@ -177,28 +163,50 @@
                 $("#zoneDropdown").remove();
             });
 
-            // Khi bấm nút X để xoá Zone
+            // Xóa Zone đã chọn
             $(document).on("click", ".remove-zone", function () {
-                let zoneId = $(this).data("id");
-                $(`#selectedZone-${zoneId}`).remove();
+                $(`#selectedZone-${$(this).data("id")}`).remove();
                 updateZoneIds();
             });
 
-            // Cập nhật danh sách ID vào input hidden
+            // Cập nhật danh sách Zone ID
             function updateZoneIds() {
                 let selectedIds = $(".selected-zone").map(function () {
                     return $(this).attr("id").replace("selectedZone-", "");
-                }).get().join(",");
+                }).get();
 
-                $("#selectedZoneIds").val(selectedIds);
+                $("#selectedZoneIds").val(selectedIds.join(","));
             }
+
+            $("#uploadForm").on("submit", function (event) {
+                event.preventDefault(); // Ngăn form gửi theo cách truyền thống
+
+                let formData = {
+                    name: $("#name").val(),
+                    price: parseFloat($("#price").val()),
+                    image: $("#image").val(),
+                    productPackageId: $("#productPackageId").val() ? parseInt($("#productPackageId").val()) : null,
+                    description: $("#description").val(),
+                    zoneIds: $("#selectedZoneIds").val().split(",").filter(id => id.trim() !== "").map(id => parseInt(id))
+                };
+
+
+                $.ajax({
+                    url: "/api/product/add",
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(formData),
+                    success: function (response) {
+                        alert("Thêm sản phẩm thành công!");
+                        window.location.href = "/product/list";
+                    },
+                    error: function (xhr) {
+                        alert("Lỗi: " + xhr.responseJSON.message);
+                    }
+                });
+            });
         });
-
-
-
     </script>
-
-
 </section>
 </body>
 </html>

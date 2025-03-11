@@ -35,9 +35,10 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public void saveCustomer(CustomerDTO customerDTO) {
+    public CustomerDTO saveCustomer(CustomerDTO customerDTO) {
         Customer customer = customerMapper.mapToCustomer(customerDTO);
-        customerRepository.save(customer);
+        Customer customer1 = customerRepository.save(customer);
+        return customerMapper.mapToCustomerDTO(customer1);
     }
 
     @Override
@@ -92,6 +93,18 @@ public class CustomerServiceImpl implements CustomerService {
     public Page<CustomerDTO> searchCustomers(Long warehouseId, CustomerFilterDTO customerFilterDTO, Pageable pageable) {
         Specification<Customer> spec = CustomerSpecification.filterCustomers(warehouseId, customerFilterDTO);
         return customerRepository.findAll(spec, pageable).map(customerMapper::mapToCustomerDTO);
+    }
+
+    @Override
+    public CustomerDTO findCustomerByPhone(String phone) {
+        return customerRepository.findByPhone(phone)
+                .map(customerMapper::mapToCustomerDTO).orElse(null);
+    }
+
+    @Override
+    public CustomerDTO findCustomerByPhoneAndWarehouseId(String phone, Long warehouseId) {
+        return customerRepository.findByPhoneAndWarehouseId(phone, warehouseId)
+                .map(customerMapper::mapToCustomerDTO).orElse(null);
     }
 
 

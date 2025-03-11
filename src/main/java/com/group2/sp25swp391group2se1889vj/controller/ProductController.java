@@ -99,8 +99,9 @@ public class ProductController {
         productDTO.setDescription(xssProtectedUtil.sanitize(productDTO.getDescription()));
         productDTO.setDescriptionPlainText(xssProtectedUtil.htmlToPlainText(productDTO.getDescription()));
 
+
         // Lưu sản phẩm
-        productService.saveProduct(productDTO, productPackage);
+//        productService.saveProduct(productDTO, productPackage);
         redirectAttributes.addFlashAttribute("success", "Thêm sản phẩm thành công");
 
         return "redirect:/product/list";

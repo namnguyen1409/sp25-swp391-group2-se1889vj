@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en" layout:decorate="template">
+<body>
+<section layout:fragment="content" class="container h-100">
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Thông tin quy cách đóng gói</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Tên quy cách</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0" th:text="${productPackageDTO.name}"></p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Cân nặng</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0" th:text="${productPackageDTO.weight}"></p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <p class="mb-0">Ngày tạo</p>
+                        </div>
+                        <div class="col-sm-9">
+                            <p class="text-muted mb-0 phone dateTime" th:text="${productPackageDTO.createdAt}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="">
+                <a th:href="@{/product-package}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left-square"></i> Trở về
+                </a>
+            </div>
+
+        </div>
+    </div>
+</section>
+</body>
+</html>

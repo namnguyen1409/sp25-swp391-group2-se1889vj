@@ -2,8 +2,10 @@ package com.group2.sp25swp391group2se1889vj.controller;
 
 import com.group2.sp25swp391group2se1889vj.dto.ProductPackageDTO;
 import com.group2.sp25swp391group2se1889vj.dto.ProductPackageFilterDTO;
+import com.group2.sp25swp391group2se1889vj.dto.ZoneDTO;
 import com.group2.sp25swp391group2se1889vj.entity.User;
 import com.group2.sp25swp391group2se1889vj.enums.RoleType;
+import com.group2.sp25swp391group2se1889vj.repository.ProductRepository;
 import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
 import com.group2.sp25swp391group2se1889vj.service.ProductPackageService;
 import lombok.AllArgsConstructor;
@@ -15,16 +17,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @RequestMapping("/product-package")
@@ -32,6 +29,7 @@ import java.util.Map;
 public class ProductPackageController {
 
     private final ProductPackageService productPackageService;
+    private final ProductRepository productRepository;
 
     private User getUser() {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
@@ -69,7 +67,7 @@ public class ProductPackageController {
         }
         productPackageDTO.setWarehouseId(getWarehouseId());
         productPackageService.addProductPackage(productPackageDTO);
-        return "redirect:/product-package/add";
+        return "redirect:/product-package/list";
     }
 
     @GetMapping({"/list", "", "/"})
@@ -112,6 +110,46 @@ public class ProductPackageController {
         return "redirect:/product-package/list";
     }
 
+    @GetMapping("/edit/{id}")
+    public String editProductPackage(Model model, @PathVariable("id") Long id) {
+        ProductPackageDTO productPackageDTO = productPackageService.findProductPackageById(id);
+        if(!Objects.equals(productPackageDTO.getWarehouseId(), getWarehouseId())) {
+            return "redirect:/product-package/list";
+        }
+        model.addAttribute("productPackageDTO", productPackageDTO);
+        return "product-package/edit";
+    }
 
+    @PostMapping("/edit")
+    public String editProductPackage(
+            @Validated @ModelAttribute("productPackageDTO") ProductPackageDTO productPackageDTO,
+            BindingResult bindingResult
+    ) {
+        if (bindingResult.hasErrors()) {
+            return "product-package/edit";
+        }
+        System.out.println(productPackageDTO.toString());
+        if (productPackageDTO.getId() == null) {
+            return "redirect:/product-package/list";
+        }
 
+        var check = productPackageService.findProductPackageById(productPackageDTO.getId());
+        if (check == null || !Objects.equals(check.getWarehouseId(), getWarehouseId())) {
+            return "redirect:/product-package/list";
+        }
+
+        productPackageDTO.setWarehouseId(getWarehouseId());
+        productPackageService.saveProductPackage(productPackageDTO);
+        return "redirect:/product-package";
+    }
+
+    @GetMapping("/detail/{id}")
+    public String detailProductPackage(Model model, @PathVariable("id") Long id) {
+        ProductPackageDTO productPackageDTO = productPackageService.findProductPackageById(id);
+        if(!Objects.equals(productPackageDTO.getWarehouseId(), getWarehouseId())) {
+            return "redirect:/product-package/list";
+        }
+        model.addAttribute("productPackageDTO", productPackageDTO);
+        return "product-package/detail";
+    }
 }

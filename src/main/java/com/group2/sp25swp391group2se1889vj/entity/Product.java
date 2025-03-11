@@ -1,6 +1,7 @@
 package com.group2.sp25swp391group2se1889vj.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,6 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = false)
 @Entity
 @Data
 @SuperBuilder(toBuilder = true)
@@ -20,15 +22,18 @@ import java.util.Set;
 @AllArgsConstructor
 @Table(name = "product")
 public class Product extends BaseEntity {
+    @EqualsAndHashCode.Include
     @Column(name = "name", nullable = false, columnDefinition = "nvarchar(50)")
     private String name;
 
+    @EqualsAndHashCode.Include
     @Column(name = "price", nullable = false, columnDefinition = "decimal(18,0)")
     private BigDecimal price;
 
     // khối lượng tồn kho của sản phẩm (kg)
+    @EqualsAndHashCode.Include
     @Column(name = "stock_quantity", nullable = false, columnDefinition = "int")
-    private int stockQuantity = 0;
+    private Integer stockQuantity = 0;
 
     @ManyToOne
     @JoinColumn(name="product_package_id", nullable = false)
@@ -48,6 +53,7 @@ public class Product extends BaseEntity {
     private String image;
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+    @JsonIgnore
     private Set<Zone> zones = new HashSet<>();
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)

@@ -13,7 +13,7 @@
                     <h4 class="card-title"> Thêm mới khu vực trong kho</h4>
                 </div>
                 <div class="card-body">
-                    <form method="post" class="p-md-4" th:object="${zone}" th:action="@{'add'}">
+                    <form method="post" class="p-md-4" th:object="${zone}" th:action="@{/zone/add}">
                         <div class="mb-3">
                             <div th:replace="fragments/input :: customInput('name', 'text', 'bi-hash', 'Tên khu vực', true)"></div>
                         </div>

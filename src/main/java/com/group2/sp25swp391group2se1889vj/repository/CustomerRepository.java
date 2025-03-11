@@ -33,4 +33,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSp
     Boolean existsByPhoneAndWarehouseIdAndIdNot(String phone, Long warehouseId, Long id);
 
     Boolean existsByEmailAndWarehouseIdAndIdNot(String email, Long warehouseId, Long id);
+
+    Optional<Customer> findByPhoneAndWarehouseId(String phone, Long warehouseId);
+
+    Optional<Customer> findByIdAndWarehouseId(Long customerId, Long warehouseId);
 }

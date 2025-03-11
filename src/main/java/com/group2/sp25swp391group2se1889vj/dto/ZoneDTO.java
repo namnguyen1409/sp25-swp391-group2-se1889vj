@@ -20,5 +20,4 @@ public class ZoneDTO extends BaseDTO {
     private Long productId;
     private String productName;
     private String productImage;
-    private Integer quantity;
 }

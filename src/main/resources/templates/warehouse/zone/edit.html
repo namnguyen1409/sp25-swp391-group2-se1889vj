@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en" layout:decorate="template"
+
+>
+<body>
+<section layout:fragment="content" class="container h-100">
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-10 col-lg-8 d-flex flex-column nowrap justify-content-center">
+            <div class="card mt-4 mb-4">
+                <div class="card-header">
+                    <h4 class="card-title">Chỉnh sửa khu vực trong kho</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="p-md-4" th:object="${zone}" th:action="@{/zone/edit}">
+                        <input type="hidden" th:field="*{id}">
+                        <div class="mb-3">
+                            <div th:replace="fragments/input :: customInput('name', 'text', 'bi-hash', 'Tên khu vực', true)"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/textarea :: customTextarea('description', 'bi-justify', 'Mô tả')"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text p-3">
+                                    <i class="bi bi-box-seam-fill"></i>
+                                </span>
+                                <div class="form-floating"
+                                     th:classappend="${#fields.hasErrors('productId')} ? 'is-invalid' : ''">
+                                    <input class="form-control" id="productName" list="productList"
+                                           placeholder="Chọn sản phẩm..." autocomplete="off" th:value="*{productName}">
+                                    <label for="productName">Chọn sản phẩm</label>
+                                    <datalist id="productList"></datalist>
+
+                                    <!-- Trường ẩn lưu ID -->
+                                    <input th:field="*{productId}" type="hidden">
+                                </div>
+                            </div>
+
+                            <!-- Hiển thị lỗi nếu có -->
+                            <div class="invalid-feedback"
+                                 th:if="${#fields.hasErrors('productId')}"
+                                 th:text="${#fields.errors('productId')}">
+                            </div>
+                        </div>
+
+                        <div th:replace="fragments/recapcha :: recapcha"></div>
+                        <p th:text="${error}" class="text-danger mb-3"></p>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i>
+                            Lưu
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $('#productName').on('input', function () {
+                let productName = $(this).val();
+                $.ajax({
+                    url: '/api/product/search',
+                    type: 'GET',
+                    data: {
+                        name: productName
+                    },
+                    success: function (data) {
+                        $('#productList').empty();
+                        data.forEach(function (product) {
+                            $('#productList').append('<option value="' + product.name + '" data-id="' + product.id + '">');
+                        });
+                    }
+                });
+            });
+
+            $('#productName').on('change', function () {
+                let productName = $(this).val();
+                let productId = $('#productList option[value="' + productName + '"]').data('id');
+                $('#productId').val(productId);
+            });
+        });
+    </script>
+</section>
+</body>
+</html>
