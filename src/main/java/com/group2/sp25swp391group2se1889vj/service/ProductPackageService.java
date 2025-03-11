@@ -19,4 +19,6 @@ public interface ProductPackageService {
     List<ProductPackageDTO> searchProductPackages(Long warehouseId, String name);
 
     ProductPackage findByIdAndWarehouseId(Long productPackageId, Long warehouseId);
+
+    List<ProductPackageDTO> getAllProductPackages(Long warehouseId);
 }

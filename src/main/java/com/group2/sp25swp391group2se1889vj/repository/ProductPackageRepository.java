@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Repository
@@ -14,4 +15,6 @@ public interface ProductPackageRepository extends JpaRepository<ProductPackage, 
     List<ProductPackage> findAllByNameContainingAndWarehouseId(String name, Long warehouseId);
 
     ProductPackage findByIdAndWarehouseId(Long productPackageId, Long warehouseId);
+
+    List<ProductPackage> findAllByWarehouseId(Long warehouseId);
 }
