@@ -23,13 +23,16 @@ public class UserDetailsDTO {
     private String email;
     private String phone;
     private Boolean gender;
-    private LocalDate dob;
+    private LocalDate birthday;
     private String address;
+    private Long warehouseId;
     private RoleType role;
-    private boolean isLocked;
+    private boolean locked;
     private String lockReason;
     private LocalDateTime createAt;
     private String avatar;
+
+
 
 //    private Set<InventoryDTO> inventories;
 //

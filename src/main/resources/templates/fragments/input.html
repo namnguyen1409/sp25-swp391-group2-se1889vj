@@ -8,8 +8,7 @@
             <i th:class="'bi ' + ${icon}"></i>
         </span>
         <div class="form-floating"
-             th:classappend="${#fields.hasErrors('__${name}__')} ? 'is-invalid' : ''"
-        >
+             th:classappend="${#fields.hasErrors('__${name}__')} ? 'is-invalid' : ''">
             <input class="form-control"
                    th:required="${required}"
                    th:classappend="${#fields.hasErrors('__${name}__')} ? 'is-invalid' : ''"

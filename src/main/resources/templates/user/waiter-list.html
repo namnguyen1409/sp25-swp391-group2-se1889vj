@@ -37,7 +37,7 @@
                 </div>
             </div>
 
-            <input type="hidden" name="page" th:value="${users.number + 1}">
+            <input type="hidden" name="page" th:value="${waiters.number + 1}">
             <input type="hidden" name="orderBy" th:value="${orderBy}">
             <input type="hidden" name="direction" th:value="${direction}">
 
@@ -60,7 +60,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="item : ${users}">
+                <tr th:each="item : ${waiters}">
                     <td th:each="field : ${fields}" th:classappend="${fieldClasses[__${field}__]}" >
                         <th:block th:switch="${fieldClasses[__${field}__]}">
                             <th:block th:case="'image'">
@@ -75,21 +75,17 @@
                             </th:block>
                         </th:block>
                     </td>
-
                     <td class="text-center">
-                        <a th:href="@{'detail/' + ${item.id}}" class="btn btn-info">
-                            <i class="bi bi-eye-fill"></i>
-                        </a>
-                        <a th:href="@{'edit/' + ${item.id}}" class="btn btn-warning">
-                            <i class="bi bi-pencil-fill"></i>
+                        <a th:href="@{resend-email/{id}(id=${item.id})}" class="btn btn-info">
+                            <i class="bi bi-envelope-arrow-up" style="font-size: 20px"></i>
+                            <span>Gửi lại lời mời</span>
                         </a>
                     </td>
-
                 </tr>
                 </tbody>
             </table>
         </div>
-        <div th:replace="fragments/pagination :: pagination(${users})"></div>
+        <div th:replace="fragments/pagination :: pagination(${waiters})"></div>
     </div>
 
     <script>
@@ -117,9 +113,6 @@
             }
             form.submit();
         }
-
-
-
     </script>
 </section>
 </body>
