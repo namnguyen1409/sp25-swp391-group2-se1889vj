@@ -21,7 +21,11 @@ public class UserDTO extends BaseDTO{
     private Boolean gender;
     private LocalDate birthday;
     private String address;
+    private Long warehouseId;
     private RoleType role;
-    private boolean isLocked;
+    private boolean locked;
     private String lockReason;
+
+
+
 }
