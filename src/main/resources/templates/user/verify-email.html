@@ -14,11 +14,12 @@
                     <h4 class="card-title">Xác thực Email</h4>
                 </div>
                 <div class="card-body">
-                    <p>Một mã xác thực đã được gửi đến email <strong th:text="${pendingEmail}"></strong>.</p>
+                    <p>Một mã xác thực đã được gửi đến email <strong th:text="${verificationCode.email}"></strong>.</p>
                     <p>Vui lòng nhập mã vào ô dưới đây:</p>
 
                     <form th:action="@{/users/verify-email}" method="post" th:object="${verificationCode}">
-                        <input type="hidden" th:field="*{email}" th:value="${pendingEmail}">
+                        <input type="hidden" th:field="*{email}" th:value="${verificationCode.email}">
+                        <input type="hidden" th:field="*{id}" th:value="${verificationCode.id}">
 
                         <div class="mb-3">
                             <label for="code" class="form-label">Mã xác thực</label>

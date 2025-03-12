@@ -14,4 +14,7 @@ public interface RegistrationTokenRepository extends JpaRepository<RegistrationT
     RegistrationToken findByToken(String token);
     RegistrationToken findByEmail(String email);
     void deleteByToken(String token);
+
+    void deleteById(Long id);
+    Optional<RegistrationToken> findById(Long id);
 }

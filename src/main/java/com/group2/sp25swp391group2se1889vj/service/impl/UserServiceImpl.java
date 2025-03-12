@@ -3,10 +3,12 @@ package com.group2.sp25swp391group2se1889vj.service.impl;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import com.group2.sp25swp391group2se1889vj.dto.RegisterDTO;
 import com.group2.sp25swp391group2se1889vj.dto.UserDTO;
+import com.group2.sp25swp391group2se1889vj.dto.VerificationCodeDTO;
 import com.group2.sp25swp391group2se1889vj.entity.User;
 import com.group2.sp25swp391group2se1889vj.entity.Warehouse;
 import com.group2.sp25swp391group2se1889vj.enums.RoleType;
 import com.group2.sp25swp391group2se1889vj.exception.InvalidRegistrationTokenException;
+import com.group2.sp25swp391group2se1889vj.exception.NoWarehouseElementException;
 import com.group2.sp25swp391group2se1889vj.exception.UserNoSuchElementException;
 import com.group2.sp25swp391group2se1889vj.mapper.UserMapper;
 import com.group2.sp25swp391group2se1889vj.repository.RegistrationTokenRepository;
@@ -51,13 +53,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<UserDTO> findPaginationUsersCreatedBy(Long id, Pageable pageable) {
-        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
-        Page<User> page = userRepository.findByCreatedByContaining(user, pageable);
-        return page.map(userMapper::mapToUserDTO);
-    }
-
-    @Override
     public Page<UserDTO> findPaginatedUsersByUserName(String username, Pageable pageable) {
         Page<User> page = userRepository.findByUsernameContaining(username, pageable);
         return page.map(userMapper::mapToUserDTO);
@@ -93,6 +88,16 @@ public class UserServiceImpl implements UserService {
         return page.map(userMapper::mapToUserDTO);
     }
 
+    @Override
+    public Page<UserDTO> findPaginatedUsersByWarehouseId(Long id , Pageable pageable) {
+        Optional<Warehouse> warehouse = warehouseRepository.findById(id);
+        if(warehouse.isPresent()) {
+            Page<User> page = userRepository.findAllByWarehouse(warehouse.get(), pageable);
+            return page.map(userMapper::mapToUserDTO);
+        }
+        return null;
+    }
+
     /*
      * Optional<> la mot container thuong dc dung de bao boc 1 doi tuong co the null
      * Khi su dung Optional, ta co the kiem tra xem doi tuong do co null hay khong
@@ -107,6 +112,17 @@ public class UserServiceImpl implements UserService {
             String message = messageSource.getMessage("entity.notfound", new Object[]{id}, null);
             throw new RuntimeException(message);
         }
+    }
+
+    @Override
+    public UserDTO findUserByEmail(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        UserDTO userDTO = new UserDTO();
+        if (userOptional.isPresent()) {
+            userDTO = userMapper.mapToUserDTO(userOptional.get());
+
+        }
+        return userDTO;
     }
 
     @Override
@@ -147,11 +163,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateEmail(String email) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
+    public void updateEmail(Long id, String newEmail) {
+        Optional<User> userOptional = userRepository.findById(id);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            user.setEmail(email);
+            user.setEmail(newEmail);
             userRepository.save(user);
         }
     }
@@ -203,6 +219,7 @@ public class UserServiceImpl implements UserService {
         }
 
         userRepository.save(user);
+        registrationTokenRepository.deleteByToken(registrationToken.getToken());
     }
 
     @Override
@@ -211,13 +228,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Boolean existsByPhoneAndWarehouseIdAndIdNot(String phone, Long warehouseId, Long id) {
-        return userRepository.existsByPhoneAndWarehouseIdAndIdNot(phone, warehouseId, id);
+    public Boolean existsByPhoneAndIdNot(String phone, Long id) {
+        return userRepository.existsByPhoneAndIdNot(phone, id);
     }
 
     @Override
-    public Boolean existsByEmailAndWarehouseIdAndIdNot(String email, Long warehouseId, Long id) {
-        return userRepository.existsByEmailAndWarehouseIdAndIdNot(email, warehouseId, id);
+    public Boolean existsByEmailAndIdNot(String email, Long id) {
+        return userRepository.existsByEmailAndIdNot(email, id);
+    }
+
+    @Override
+    public Boolean existsByEmailAndId(String email, Long id) {
+        return userRepository.existsByEmailAndId(email, id);
     }
 
     @Override

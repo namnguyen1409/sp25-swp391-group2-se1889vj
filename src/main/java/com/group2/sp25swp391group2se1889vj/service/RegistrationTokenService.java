@@ -14,5 +14,7 @@ public interface RegistrationTokenService {
 
     Page<RegistrationTokenDTO> findByEmailContaining(String email, Pageable pageable);
     Page<RegistrationTokenDTO> findByTokenContaining(String token, Pageable pageable);
+
+    void deleteInvitationEmailById(Long id);
 }
 

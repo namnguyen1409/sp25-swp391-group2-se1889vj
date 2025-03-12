@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -110,5 +112,16 @@ public class RegistrationTokenServiceImpl implements RegistrationTokenService {
         Page<RegistrationToken> page = registrationTokenRepository.findByTokenContaining(token, pageable);
         return page.map(mapper::mapToRegistrationTokenDTO);
     }
+
+    @Override
+    public void deleteInvitationEmailById(Long id) {
+        RegistrationToken registrationToken = registrationTokenRepository
+                .findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Không tìm thấy token với ID: " + id));
+
+        registrationTokenRepository.delete(registrationToken); // Xóa token
+    }
+
+
 
 }
