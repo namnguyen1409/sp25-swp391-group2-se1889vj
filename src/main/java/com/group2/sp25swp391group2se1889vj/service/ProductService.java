@@ -23,4 +23,6 @@ public interface ProductService {
     List<ProductDTO> searchProducts(Long warehouseId, String keyword);
 
     void addProduct(ProductDTO productDTO) throws Exception;
+
+    ProductDTO findProductByIdAndWarehouseId(Long id, Long warehouseId);
 }

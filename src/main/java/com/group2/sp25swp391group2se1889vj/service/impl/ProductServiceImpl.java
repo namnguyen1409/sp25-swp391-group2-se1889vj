@@ -122,4 +122,10 @@ public class ProductServiceImpl implements ProductService {
         });
     }
 
+    @Override
+    public ProductDTO findProductByIdAndWarehouseId(Long id, Long warehouseId) {
+        Product product = productRepository.findByIdAndWarehouseId(id, warehouseId);
+        return productMapper.mapToProductDTO(product);
+    }
+
 }

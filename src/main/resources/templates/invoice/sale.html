@@ -1,11 +1,24 @@
 <div class="row">
 
+    <!-- Trạng thái xử lý -->
+    <div class="col-md-12">
+        <div class="d-flex align-items-center gap-2">
+            <strong>Trạng thái hiện tại:</strong>
+            <span class="badge bg-primary px-3 py-2" th:id="'status' + ${tabId}">
+            Đang tạo hóa đơn nhập
+        </span>
+        </div>
+        <p class="mt-2 text-muted" th:id="'message' + ${tabId}"></p>
+    </div>
+
     <!-- Cột trái: Sản phẩm -->
-    <div class="col-md-8">
-        <h4>Danh sách sản phẩm</h4>
-        <div class="col-md-6 position-relative">
+    <div class="col-md-9 mt-3">
+        <h4 class="text-center"
+        >Danh sách sản phẩm</h4>
+        <div class="col-12 position-relative">
             <div class="form-floating">
-                <input type="text" class="form-control" placeholder="Nhập tên sản phẩm" th:id="'productSearch' + ${tabId}">
+                <input autocomplete="off" class="form-control" placeholder="Nhập tên sản phẩm"
+                       th:id="'productSearch' + ${tabId}" type="text">
                 <label th:for="'productSearch' + ${tabId}">Nhập tên sản phẩm</label>
             </div>
             <div class="list-group d-none position-absolute w-100 z-3 bg-body" th:id="'productSuggestion' + ${tabId}">
@@ -13,16 +26,15 @@
             </div>
         </div>
 
-
-        <table class="table mt-2 tb-sm">
+        <table class="table mt-2 table-sm table-bordered mt-3">
             <thead>
             <tr>
                 <th>Tên sản phẩm</th>
                 <th>Hình ảnh</th>
                 <th>Quy cách đóng gói</th>
                 <th>Số lượng</th>
-                <th>Tổng giá</th>
-                <th>Giảm</th>
+                <th>Giá bán đề xuất</th>
+                <th>Giá bán thực</th>
                 <th>Thành tiền</th>
                 <th>Thao tác</th>
             </tr>
@@ -32,29 +44,133 @@
             </tbody>
         </table>
 
+
         <hr>
 
-<!--        tổng-->
+        <div class="row g-2 align-items-center">
+            <!-- Dropdown thanh toán -->
+            <div class="col-auto">
+                <div class="btn-group w-100">
+                    <button aria-expanded="false" class="btn btn-outline-secondary dropdown-toggle"
+                            data-bs-toggle="dropdown" th:id="'paymentDropdown'+ ${tabId}" type="button">
+                        Không thanh toán
+                    </button>
+                    <ul aria-labelledby="paymentDropdown${tabId}" class="dropdown-menu w-100">
+                        <li><a class="dropdown-item" href="#" th:id="'unpaid' + ${tabId}">Không thanh toán</a></li>
+                        <li><a class="dropdown-item" href="#" th:id="'partial' + ${tabId}">
+                            Nhập thủ công
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" th:id="'paid' + ${tabId}">
+                            Tiền hàng
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" th:id="'paidAndDebt' + ${tabId}">
+                            Tiền hàng + tiền nợ
+                        </a></li>
+                    </ul>
+                </div>
+            </div>
 
+            <!-- Tổng tiền -->
+            <div class="col-auto">
+                <div class="form-floating">
+                    <input class="form-control" readonly th:id="'totalPrice' + ${tabId}" type="text">
+                    <label th:for="'totalPrice' + ${tabId}">Tổng tiền</label>
+                </div>
+            </div>
+
+            <!-- Giá sau khi giảm -->
+            <div class="col-auto">
+                <div class="form-floating">
+                    <input class="form-control" readonly th:id="'discount' + ${tabId}" type="text">
+                    <label th:for="'discount' + ${tabId}">Giá sau giảm</label>
+                </div>
+            </div>
+
+            <!-- Thanh toán -->
+            <div class="col-auto">
+                <div class="form-floating">
+                    <input class="form-control" readonly th:id="'payment' + ${tabId}" type="text">
+                    <label th:for="'payment' + ${tabId}">Thanh toán</label>
+                </div>
+            </div>
+
+            <!-- Còn nợ -->
+            <div class="col-auto">
+                <div class="form-floating">
+                    <input class="form-control" readonly th:id="'debt' + ${tabId}" type="text">
+                    <label th:for="'debt' + ${tabId}">Số dư của khách</label>
+                </div>
+            </div>
+
+            <!-- Nút bán hàng -->
+            <div class="col-auto">
+                <button class="btn btn-primary w-100 px-3 py-2" th:id="'btnPurchase' + ${tabId}" type="button">
+                    <i class="bi bi-cart-plus"></i> Bán hàng
+                </button>
+            </div>
+
+            <!-- Thuê người bốc vác -->
+            <div class="col-auto d-flex align-items-center">
+                <div class="form-check">
+                    <input class="form-check-input" th:id="'loadingService' + ${tabId}" type="checkbox">
+                    <label class="form-check-label ms-2" th:for="'loadingService' + ${tabId}">Thuê bốc vác</label>
+                </div>
+            </div>
+
+            <!-- Ghi chú -->
+            <div class="col-12">
+                <div class="form-floating">
+                    <textarea class="form-control" rows="2" th:id="'note' + ${tabId}"></textarea>
+                    <label th:for="'note' + ${tabId}">Ghi chú</label>
+                </div>
+            </div>
+        </div>
 
 
     </div>
 
     <!-- Cột phải: Khách hàng -->
-    <div class="col-md-4">
-        <h4>Thông tin khách hàng</h4>
-        <label>Họ tên:</label>
-        <input type="text" th:id="'customerName' + ${tabId}" class="form-control">
-        <label>Số điện thoại:</label>
-        <input type="text" th:id="'customerPhone' + ${tabId}" class="form-control">
-        <label>Ghi chú:</label>
-        <textarea th:id="'customerNote' + ${tabId}" class="form-control"></textarea>
+    <div class="col-md-3 mt-3">
+        <h4 class="text-center">Thông tin khách hàng</h4>
+        <div class="form-floating mb-3">
+            <input autocomplete="off" class="form-control" placeholder="Số điện thoại khách hàng"
+                   th:id="'customerPhone' + ${tabId}" type="text">
+            <label th:for="'customerPhone' + ${tabId}">Số điện thoại khách hàng</label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input autocomplete="off" class="form-control" placeholder="Tên khách hàng" th:id="'customerName' + ${tabId}"
+                   type="text">
+            <label th:for="'customerName' + ${tabId}">
+                Tên khách hàng
+            </label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input autocomplete="off" class="form-control" placeholder="Địa chỉ khách hàng"
+                   th:id="'customerAddress' + ${tabId}" type="text">
+            <label th:for="'customerAddress' + ${tabId}">
+                Địa chỉ khách hàng
+            </label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input autocomplete="off" class="form-control" placeholder="Số dư khách hàng" readonly
+                   th:id="'customerBalance' + ${tabId}" type="text">
+            <label th:for="'customerBalance' + ${tabId}">
+                Số dư khách hàng
+            </label>
+        </div>
+        <button class="btn btn-primary mt-3 d-none" th:id="'btnCustomer' + ${tabId}" type="button">
+            <i class="bi bi-person-plus-fill"></i> Thêm khách hàng
+        </button>
+
     </div>
 
     <!-- Script riêng cho tab này -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            initSaleEvents("[[${tabId}]]");
+            initSalesEvents("[[${tabId}]]");
         });
     </script>
 </div>

@@ -39,6 +39,13 @@ public class ProductRestController {
         return ResponseEntity.ok(productService.searchProducts(getWarehouseId(), keyword));
     }
 
+    @GetMapping("/get/{id}")
+    public Object getProduct(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(productService.findProductByIdAndWarehouseId(id, getWarehouseId()));
+    }
+
     @PostMapping("/add")
     public ResponseEntity<?> addProduct(
             @Valid @RequestBody ProductDTO productDTO

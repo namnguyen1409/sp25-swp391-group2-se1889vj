@@ -43,4 +43,13 @@ public class InvoiceRestController {
         var result = invoiceService.createInvoice(invoiceDTO);
         return ResponseEntity.ok(result);
     }
+
+    @PostMapping("/sales")
+    public ResponseEntity<Long> createSalesOrder(
+            @RequestBody InvoiceDTO invoiceDTO
+    ) {
+        invoiceDTO.setWarehouseId(getWarehouseId());
+        var result = invoiceService.createInvoice(invoiceDTO);
+        return ResponseEntity.ok(result);
+    }
 }

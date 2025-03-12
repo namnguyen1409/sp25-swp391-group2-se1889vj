@@ -15,6 +15,11 @@ public class WebSocketController {
         InvoiceStatusMessage messageData = new InvoiceStatusMessage(orderId, status, message,createdBy);
         messagingTemplate.convertAndSendToUser(createdBy, "/queue/invoice-status", messageData);
     }
+
+    public void sendInfo(String message, String createdBy) {
+        messagingTemplate.convertAndSendToUser(createdBy, "/queue/info", message);
+    }
+
 }
 
 

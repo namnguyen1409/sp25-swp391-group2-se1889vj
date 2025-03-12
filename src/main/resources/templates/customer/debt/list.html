@@ -6,6 +6,15 @@
 >
 <body>
 <section layout:fragment="content" class="container-fluid h-100">
+    <style>
+        .single-line {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 200px;
+        }
+    </style>
     <h2 class="text-center mt-5">Danh sách bản ghi nợ của khách hàng
         <a th:href="@{'/customer/detail/' + ${customer.id}}" class="btn btn-info">
             <span th:text="${customer.fullName}"> </span>
@@ -93,7 +102,7 @@
                         </select>
                     </td>
                     <td>
-                        <input type="text" class="form-control form-control-sm" id="descriptionField" th:value="*{description}" placeholder="Mô tả">
+                        <input type="text" class="form-control form-control-sm " id="descriptionField" th:value="*{description}" placeholder="Mô tả">
                     </td>
                     <td>
                         <div class="d-flex gap-2" style="max-width: 200px">
@@ -132,7 +141,7 @@
                                 <img th:src="@{'/' + ${item[field]}}" class="img-thumbnail tableImg" width="50" height="50" style="aspect-ratio: 1/1; object-fit: cover; cursor: pointer">
                             </th:block>
                             <th:block th:case="'html'">
-                                <span th:classappend="${fieldClasses[__${field}__]}" th:utext="${item[field]}"></span>
+                                <span class="single-line" th:classappend="${fieldClasses[__${field}__]}" th:utext="${item[field]}"></span>
                             </th:block>
                             <th:block th:case="*">
                                 <span th:classappend="${fieldClasses[__${field}__]}" th:text="${item[field]}"></span>

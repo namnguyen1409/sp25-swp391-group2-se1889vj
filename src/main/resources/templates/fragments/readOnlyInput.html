@@ -16,7 +16,7 @@
                    readonly
                    th:classappend="${#fields.hasErrors('__${name}__')} ? 'is-invalid' : ''"
                    th:field="*{__${name}__}"
-                   th:id="*{__${name}__}" th:placeholder="${label}" th:type="${type}">
+                   th:placeholder="${label}" th:type="${type}">
             <label th:for="*{__${name}__}" class="form-label" th:text="${label}"></label>
         </div>
     </div>
