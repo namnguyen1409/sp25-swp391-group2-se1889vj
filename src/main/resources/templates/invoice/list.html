@@ -80,7 +80,7 @@
                             <i th:class="${invoiceFilterDTO.direction == 'ASC' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"
                                th:if="${invoiceFilterDTO.orderBy} == ${field}"></i>
                         </span>
-                    <th class="text-center" style="min-width: 200px;">Hành động</th>
+                    <th class="text-center" style="min-width: 100px;">Hành động</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -202,14 +202,8 @@
                         </th:block>
                     </td>
                     <td class="text-center">
-                        <a class="btn btn-primary btn-sm" th:href="@{'/customer/' + ${item.id} + '/debt'}">
-                            <i class="bi bi-cash-coin"></i>
-                        </a>
-                        <a class="btn btn-info btn-sm" th:href="@{'/customer/detail/' + ${item.id}}">
+                        <a class="btn btn-info btn-sm" th:href="@{'/invoice/detail/' + ${item.id}}">
                             <i class="bi bi-eye-fill"></i>
-                        </a>
-                        <a class="btn btn-warning btn-sm" th:href="@{'/customer/edit/' + ${item.id}}">
-                            <i class="bi bi-pencil-fill"></i>
                         </a>
                     </td>
                 </tr>

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       lang="en" layout:decorate="template"
-
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 >
 <body>
 <section layout:fragment="content" class="container-fluid h-100">
@@ -62,7 +62,6 @@
                     <th th:each="field : ${fields}"
                         th:data="${field}"
                         style="cursor: pointer; min-width: 80px;"
-
                     >
                         <span>
                             <span th:text="${fieldTitles[__${field}__]}"></span>
@@ -120,6 +119,10 @@
                             </th:block>
                             <th:block th:case="'html'">
                                 <span th:classappend="${fieldClasses[__${field}__]}" th:utext="${item[field]}"></span>
+                            </th:block>
+                            <th:block th:case="'phone'">
+
+                                <span  th:classappend="${fieldClasses[__${field}__]}" th:text="${item[field].substring(0, 3) + '****' + item[field].substring(7)}"></span>
                             </th:block>
                             <th:block th:case="*">
                                 <span th:classappend="${fieldClasses[__${field}__]}" th:text="${item[field]}"></span>

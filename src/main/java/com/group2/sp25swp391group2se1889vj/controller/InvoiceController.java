@@ -82,7 +82,7 @@ public class InvoiceController {
                 : Sort.by(invoiceFilterDTO.getOrderBy()).descending();
 
         List<String> fields = Arrays.asList("type", "totalPrice", "totalDiscount", "customerBalance", "totalPayable", "totalPaid", "totalDebt", "customerFullName", "customerPhone");
-        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Loại", "Tổng niêm yết", "Tổng thực tế", "Số dư khách hàng", "Số tiền phải trả", "Số tiền đã trả", "Số nợ còn lại", "Tên khách hàng", "Số điện thoại"));
+        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Loại", "Tổng niêm yết", "Tổng sau giảm", "Số dư khách hàng", "Số tiền phải trả", "Số tiền đã trả", "Số nợ còn lại", "Tên khách hàng", "Số điện thoại"));
         Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("invoiceType", "price", "price", "price", "price", "price", "price","", ""));
         model.addAttribute("fields", fields);
         model.addAttribute("fieldTitles", fieldTitles);

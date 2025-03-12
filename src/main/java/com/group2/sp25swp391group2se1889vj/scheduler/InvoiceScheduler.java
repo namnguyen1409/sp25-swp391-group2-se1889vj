@@ -81,7 +81,7 @@ public class InvoiceScheduler {
         BigDecimal totalPayable = totalPrice.add(customerBalance);
         invoice.setTotalPayable(totalPayable);
 
-        invoice.setTotalDiscount(totalPayable);
+        invoice.setTotalDiscount(totalPrice);
 
         // 4. Số tiền đã trả thực tế
         BigDecimal totalPaid = invoice.getTotalPaid();

@@ -70,14 +70,33 @@
     </div>
 
     <script>
-        // validate data
-        $('#fullName').on('input', function () {
-            if ($(this).val() === '') {
-                $(this).addClass('is-invalid');
-            } else {
-                $(this).removeClass('is-invalid');
-            }
+
+        $('#totalPrice').val(
+            formatCurrency($('#totalPrice').val())
+        )
+        $('#totalDiscount').val(
+            formatCurrency($('#totalDiscount').val())
+        )
+        $('#customerBalance').val(
+            formatCurrency($('#customerBalance').val())
+        )
+        $('#totalPaid').val(
+            formatCurrency($('#totalPaid').val())
+        )
+        $('#totalDebt').val(
+            formatCurrency($('#totalDebt').val())
+        )
+
+        document.addEventListener('DOMContentLoaded', function() {
+            $('#customerPhone').val(
+                formatPhone($('#customerPhone').val())
+            )
         });
+
+        function formatCurrency(value) {
+            let number = parseInt(value, 10);
+            return isNaN(number) ? "0 VND" : number.toLocaleString("vi-VN", {style: "currency", currency: "VND"});
+        }
     </script>
 
 
