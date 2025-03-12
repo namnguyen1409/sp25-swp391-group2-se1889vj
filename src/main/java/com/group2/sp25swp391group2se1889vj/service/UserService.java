@@ -11,25 +11,29 @@ import org.springframework.transaction.annotation.Transactional;
 public interface  UserService {
 
     Page<UserDTO> findPaginatedUsers(Pageable pageable);
-    Page<UserDTO> findPaginationUsersCreatedBy(Long id, Pageable pageable);
     Page<UserDTO> findPaginatedUsersByUserName(String username, Pageable pageable);
     Page<UserDTO> findPaginatedUsersByFirstName(String firstName, Pageable pageable);
     Page<UserDTO> findPaginatedUsersByLastName(String lastName, Pageable pageable);
     Page<UserDTO> findPaginatedUsersByEmail(String email, Pageable pageable);
     Page<UserDTO> findPaginatedUsersByPhone(String phone, Pageable pageable);
     Page<UserDTO> findPaginatedUsersByAddress(String address, Pageable pageable);
+    Page<UserDTO> findPaginatedUsersByWarehouseId(Long warehouseId, Pageable pageable);
+
     UserDTO findUserById(Long id);
+    UserDTO findUserByEmail(String email);
     User findUserByUsername(String username);
 
     void saveUser(UserDTO userDTO);
     void updateUser(UserDTO userDTO);
     void sendVerificationCode(String email);
-    void updateEmail(String email);
+    void updateEmail(Long id, String newEmail);
     void registerUser(RegisterDTO registerDTO) throws Exception;
 
     boolean existsByEmail(String value);
-    Boolean existsByPhoneAndWarehouseIdAndIdNot(String phone, Long warehouseId, Long id);
-    Boolean existsByEmailAndWarehouseIdAndIdNot(String email, Long warehouseId, Long id);
+    Boolean existsByPhoneAndIdNot(String phone, Long id);
+    Boolean existsByEmailAndIdNot(String email, Long id);
+
+    Boolean existsByEmailAndId(String email, Long id);
 
     public String getStoredVerificationCode(String email);
 }

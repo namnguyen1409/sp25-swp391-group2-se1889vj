@@ -112,7 +112,16 @@ public class UserController {
                 default -> userService.findPaginatedUsers(pageable);
             };
         } else {
-            users = userService.findPaginationUsersCreatedBy(getUser().getId(), pageable);
+            if(getUser().getRole() == RoleType.OWNER) {
+                users = userService.findPaginatedUsersByWarehouseId(getWarehouseId(), pageable);
+//                System.out.println(getWarehouseId());
+//                for(UserDTO user : users) {
+//                    System.out.println(user);
+//                    System.out.println("User warehouse ID: " + user.getWarehouseId());
+//                }
+            } else {
+                users = userService.findPaginatedUsers(pageable);
+            }
         }
         model.addAttribute("users", users);
         model.addAttribute("page", page);
@@ -286,7 +295,7 @@ public class UserController {
         return "user/waiter-list";
     }
 
-    @GetMapping({"", "/", "/resend-email/{id}"})
+    @GetMapping({"/resend-email/{id}"})
     public String resendEmail(@PathVariable("id") Long id,
                               RedirectAttributes redirectAttributes) {
         try{
@@ -298,11 +307,24 @@ public class UserController {
         return "redirect:/users/waiter-list";
     }
 
+    @GetMapping("/delete-email/{id}")
+    public String deleteEmail(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
+        try {
+            registrationTokenService.deleteInvitationEmailById(id);
+            redirectAttributes.addFlashAttribute("success", "Xóa email thành công");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Xóa email thất bại");
+        }
+        return "redirect:/users/waiter-list";  // Quay lại danh sách người dùng
+    }
+
+
+
     @GetMapping("/edit/{id}")
     public String editUser(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
         UserDTO userDTO = userService.findUserById(id);
         if(!Objects.equals(userDTO.getWarehouseId(), getWarehouseId())) {
-            return "redirect:/user/list";
+            return "redirect:/users/list";
         }
         model.addAttribute("user", userDTO);
         return "user/edit";
@@ -311,19 +333,18 @@ public class UserController {
     @PostMapping("/edit")
     public String edit(
             @Validated @ModelAttribute("user") UserDTO userDTO,
-            @RequestParam("email") String email,
-            RedirectAttributes redirectAttributes,
-            BindingResult bindingResult
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
     ) {
-        if(Boolean.TRUE.equals(userService.existsByPhoneAndWarehouseIdAndIdNot(userDTO.getPhone(), getWarehouseId(), userDTO.getId()))) {
+        if(Boolean.TRUE.equals(userService.existsByPhoneAndIdNot(userDTO.getPhone(), userDTO.getId()))) {
             bindingResult.rejectValue("phone", "error.phone", "Số điện thoại đã tồn tại");
         }
-        if(Boolean.TRUE.equals(userService.existsByPhoneAndWarehouseIdAndIdNot(userDTO.getEmail(), getWarehouseId(), userDTO.getId()))) {
+        if(Boolean.TRUE.equals(userService.existsByEmailAndIdNot(userDTO.getEmail(),userDTO.getId()))) {
             bindingResult.rejectValue("email", "error.email", "Email đã tồn tại");
-        }else{
+        }else if(Boolean.FALSE.equals(userService.existsByEmailAndId(userDTO.getEmail(), userDTO.getId()))) {
             userService.sendVerificationCode(userDTO.getEmail());
             redirectAttributes.addFlashAttribute("pendingEmail", userDTO.getEmail());
-            return "redirect:/users/verify-email";
+            return "redirect:/users/verify-email?pendingEmail=" + userDTO.getEmail() + "&userId=" + userDTO.getId();
         }
 
         if (bindingResult.hasErrors()) {
@@ -341,23 +362,35 @@ public class UserController {
 
     @GetMapping("/verify-email")
     public String showEmailVerificationPage(@RequestParam(value = "pendingEmail", required = false)
-                                                String pendingEmail, Model model) {
+                                                String pendingEmail,
+                                            @RequestParam(value = "userId", required = false) Long userId,
+                                            Model model) {
+        VerificationCodeDTO verificationCodeDTO = new VerificationCodeDTO();
         if(pendingEmail != null) {
-            model.addAttribute("pendingEmail", pendingEmail);
+            verificationCodeDTO.setEmail(pendingEmail);
+            verificationCodeDTO.setId(userId);
+            model.addAttribute("verificationCode", verificationCodeDTO);
         }
-        model.addAttribute("verificationCode", new VerificationCodeDTO());
         return "user/verify-email";
     }
 
     @PostMapping("/verify-email")
     public String verifyEmail(@ModelAttribute("verificationCode") VerificationCodeDTO verificationCodeDTO,
                               RedirectAttributes redirectAttributes) {
+        System.out.println(verificationCodeDTO.getEmail());
+
         String storedCode = emailService.getStoredVerificationCode(verificationCodeDTO.getEmail());
+        System.out.println(storedCode);
         if(!verificationCodeDTO.getCode().equals(storedCode)) {
             redirectAttributes.addFlashAttribute("error", "Mã xác thực không chính xác");
             return "redirect:/users/verify-email";
         }
-        userService.updateEmail(verificationCodeDTO.getEmail());
+
+        userService.updateEmail(verificationCodeDTO.getId(), verificationCodeDTO.getEmail());
+        UserDTO userDTO = userService.findUserByEmail(getUser().getEmail());
+        if(userDTO != null) {
+            System.out.println(userDTO.getEmail());
+        }
         return "redirect:/users/list";
     }
 
@@ -369,7 +402,8 @@ public class UserController {
             redirectAttributes.addFlashAttribute("error", "Lỗi thông tin người dùng.");
             return "redirect:/users/list";
         }
-        model.addAttribute("birthday", userDTO.getBirthday().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        System.out.println(userDTO.getBirthday());
+        model.addAttribute("birthday", userDTO.getBirthday().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
         Map<String, Object> userWithLockedStatus = new HashMap<>();
         userWithLockedStatus.putAll(model.asMap());//giu nguyen cac gia tri cua model
         userWithLockedStatus.put("locked", userDTO.isLocked() ? "Đang khóa" : "Đang hoạt động");

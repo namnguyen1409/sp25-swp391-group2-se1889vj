@@ -80,6 +80,10 @@
                             <i class="bi bi-envelope-arrow-up" style="font-size: 20px"></i>
                             <span>Gửi lại lời mời</span>
                         </a>
+                        <a th:href="@{delete-email/{id}(id=${item.id})}" class="btn btn-danger" style="margin-left: 10px;">
+                            <i class="bi bi-trash" style="font-size: 20px"></i>
+                            <span>Xóa</span>
+                        </a>
                     </td>
                 </tr>
                 </tbody>
@@ -112,6 +116,14 @@
                 form.elements['direction'].value = 'ASC';
             }
             form.submit();
+        }
+
+        function confirmDelete(url) {
+            if (confirm("Bạn có chắc chắn muốn xóa email mời này?")) {
+                window.location.href = url;
+            } else {
+                return false;
+            }
         }
     </script>
 </section>
