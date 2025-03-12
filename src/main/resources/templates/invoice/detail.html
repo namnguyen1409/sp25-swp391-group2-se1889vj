@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="en" layout:decorate="template"
+
+>
+<body>
+<section layout:fragment="content" class="container h-100">
+    <div class="row justify-content-center h-100">
+        <div class="col-md-10 col-lg-8 d-flex flex-column nowrap justify-content-center">
+            <div class="card mt-4 mb-4">
+                <div class="card-header">
+                    <h4 class="card-title"> Thông tin đơn hàng </h4>
+                </div>
+                <div class="card-body bd-sidebar">
+                    <form class="p-md-4" th:object="${invoice}">
+                        <!--/*@thymesVar id="currentUser" type="com.hsf302.trialproject.entity.User"*/-->
+                        <div class="mb-3">
+                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('totalPrice', 'text', 'bi-hash', 'Tổng tiền hàng', true)"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('totalDiscount', 'text', 'bi-telephone-fill', 'Tổng tiền thực tế', true)"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('customerBalance', 'text', 'bi-envelope-fill', 'Số dư khách hàng trước', false)"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('totalPaid', 'text', 'bi-house-fill', 'Tổng tiền khách trả cho cửa hàng', false)"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('totalDebt', 'text', 'bi-house-fill', 'Tổng nợ của khách hàng', false)"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('customerFullName', 'text', 'bi-house-fill', 'Họ tên khách', false)"></div>
+                        </div>
+                        <div class="mb-3">
+                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('customerPhone', 'tel', 'bi-house-fill', 'Số điện thoại', false)"></div>
+                        </div>
+                        <th:block th:if="${invoice.description!=null && !invoice.description.isEmpty()}">
+                            <hr>
+                            <div class="mb-3">
+                                <h3 class="text-center">Mô tả</h3>
+                                <div th:utext="${invoice.description}" class="form-control" style="height: 100px">
+                                </div>
+                            </div>
+                        </th:block>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" th:checked="${invoice.isShipped}" disabled>
+                                <label class="form-check-label ms-2" th:for="'isShipped'">Thuê bốc vác</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" th:checked="${invoice.isProcessed}" disabled>
+                                <label class="form-check-label ms-2" th:for="'isProcessed'">Đã xử lý</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" th:checked="${invoice.isSuccess}" disabled>
+                                <label class="form-check-label ms-2" th:for="'isSuccess'">Thành công</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        $('#totalPrice').val(
+            formatCurrency($('#totalPrice').val())
+        )
+        $('#totalDiscount').val(
+            formatCurrency($('#totalDiscount').val())
+        )
+        $('#customerBalance').val(
+            formatCurrency($('#customerBalance').val())
+        )
+        $('#totalPaid').val(
+            formatCurrency($('#totalPaid').val())
+        )
+        $('#totalDebt').val(
+            formatCurrency($('#totalDebt').val())
+        )
+
+        document.addEventListener('DOMContentLoaded', function() {
+            $('#customerPhone').val(
+                formatPhone($('#customerPhone').val())
+            )
+        });
+
+        function formatCurrency(value) {
+            let number = parseInt(value, 10);
+            return isNaN(number) ? "0 VND" : number.toLocaleString("vi-VN", {style: "currency", currency: "VND"});
+        }
+    </script>
+
+
+</section>
+</body>
+</html>
