@@ -3,6 +3,7 @@ package com.group2.sp25swp391group2se1889vj.dto;
 
 import com.group2.sp25swp391group2se1889vj.enums.RoleType;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
@@ -19,6 +20,7 @@ public class UserDTO extends BaseDTO{
     private String email;
     private String phone;
     private Boolean gender;
+    @DateTimeFormat( pattern = "dd/MM/yyyy")
     private LocalDate birthday;
     private String address;
     private Long warehouseId;

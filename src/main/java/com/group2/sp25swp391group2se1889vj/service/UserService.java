@@ -18,7 +18,7 @@ public interface  UserService {
     Page<UserDTO> findPaginatedUsersByPhone(String phone, Pageable pageable);
     Page<UserDTO> findPaginatedUsersByAddress(String address, Pageable pageable);
     Page<UserDTO> findPaginatedUsersByWarehouseId(Long warehouseId, Pageable pageable);
-
+    Page<UserDTO> findPaginatedUsersByAssignedWarehouseId(Long warehouseId, Pageable pageable);
     UserDTO findUserById(Long id);
     UserDTO findUserByEmail(String email);
     User findUserByUsername(String username);

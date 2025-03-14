@@ -98,6 +98,16 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    @Override
+    public Page<UserDTO> findPaginatedUsersByAssignedWarehouseId(Long warehouseId, Pageable pageable) {
+        Optional<Warehouse> warehouse = warehouseRepository.findById(warehouseId);
+        if(warehouse.isPresent()) {
+            Page<User> page = userRepository.findAllByAssignedWarehouseId(warehouseId, pageable);
+            return page.map(userMapper::mapToUserDTO);
+        }
+        return null;
+    }
+
     /*
      * Optional<> la mot container thuong dc dung de bao boc 1 doi tuong co the null
      * Khi su dung Optional, ta co the kiem tra xem doi tuong do co null hay khong
