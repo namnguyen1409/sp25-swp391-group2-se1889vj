@@ -80,10 +80,11 @@
                             <i class="bi bi-envelope-arrow-up" style="font-size: 20px"></i>
                             <span>Gửi lại lời mời</span>
                         </a>
-                        <a th:href="@{delete-email/{id}(id=${item.id})}" class="btn btn-danger" style="margin-left: 10px;">
-                            <i class="bi bi-trash" style="font-size: 20px"></i>
+                        <button class="btn btn-trash delete-btn" th:data-id="${item.id}">
+                            <i class="bi bi-trash" style="font-size: 20px; color: red"></i>
                             <span>Xóa</span>
-                        </a>
+                        </button>
+
                     </td>
                 </tr>
                 </tbody>
@@ -118,13 +119,19 @@
             form.submit();
         }
 
-        function confirmDelete(url) {
-            if (confirm("Bạn có chắc chắn muốn xóa email mời này?")) {
-                window.location.href = url;
-            } else {
-                return false;
-            }
-        }
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll(".delete-btn").forEach(button => {
+                button.addEventListener("click", function () {
+                    let id = this.getAttribute("data-id");
+
+                    if (!confirm("Bạn có chắc chắn muốn xóa?")) {
+                        return;
+                    }
+                    // chuyen huong den trang xoa
+                    window.location.href = "/users/delete-email/" + id;
+                });
+            });
+        });
     </script>
 </section>
 </body>

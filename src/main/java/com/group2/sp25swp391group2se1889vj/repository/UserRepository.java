@@ -26,6 +26,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findByAddressContaining(String address, Pageable pageable);
 
     Page<User> findAllByWarehouse(Warehouse warehouse, Pageable pageable);
+    Page<User> findAllByAssignedWarehouseId(Long warehouseId, Pageable pageable);
     Page<User> findAllByWarehouseId(Long warehouseId, Pageable pageable);
 
     Page<User> findAllByWarehouse_Id(Long warehouseId, Pageable pageable);
