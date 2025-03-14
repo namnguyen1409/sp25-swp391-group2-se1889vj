@@ -12,10 +12,7 @@
     <div class="mt-3">
         <div class="mt-3">
             <form id="searchForm" th:object="${customerFilterDTO}" th:action="@{${'/customer/'}}"  method="post">
-                <input type="hidden" th:field="*{page}">
-                <input type="hidden" th:field="*{orderBy}">
-                <input type="hidden" th:field="*{direction}">
-                <input type="hidden" th:field="*{size}">
+
                 <input type="hidden" th:field="*{fullName}">
                 <input type="hidden" th:field="*{phone}">
                 <input type="hidden" th:field="*{email}">
@@ -103,7 +100,6 @@
                         </button>
                     </td>
                 </tr>
-
 
                 <tr th:if="${customers.totalPages > 0}" th:each="item : ${customers}">
                     <td th:each="field : ${fields}" >
