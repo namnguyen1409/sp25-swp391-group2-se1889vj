@@ -13,5 +13,4 @@ public interface InvoiceService {
 
     InvoiceDetailDTO findInvoiceBywarehouseIdAndId(Long warehouseId, Long invoiceId);
 
-
 }

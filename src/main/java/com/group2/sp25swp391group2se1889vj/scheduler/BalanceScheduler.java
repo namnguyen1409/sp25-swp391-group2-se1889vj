@@ -22,10 +22,9 @@ public class BalanceScheduler {
     private final DebtRepository debtRepository;
     private final WebSocketController webSocketController;
 
-    @Scheduled(cron = "*/10 * * * * *")
+    @Scheduled(cron = "* * * * * *")
     @Transactional
     public void updateBalance() {
-        log.info("Cập nhật số dư khách hàng");
         List<Debt> debts = debtRepository.findDebtsByIsProcessedIsFalse();
         for (Debt debt : debts) {
             BigDecimal amount = debt.getAmount();
