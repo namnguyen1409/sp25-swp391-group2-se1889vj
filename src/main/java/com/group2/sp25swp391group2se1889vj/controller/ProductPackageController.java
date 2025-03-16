@@ -83,7 +83,7 @@ public class ProductPackageController {
                 : Sort.by(productPackageFilterDTO.getOrderBy()).descending();
 
         List<String> fields = Arrays.asList("name", "weight", "createdAt", "updatedAt");
-        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("tên quy cách", "khối lượng", "Ngày tạo", "Ngày cập nhật"));
+        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên quy cách", "Khối lượng", "Ngày tạo", "Ngày cập nhật"));
         Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "weight", "dateTime", "dateTime"));
 
         model.addAttribute("fields", fields);
