@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en" layout:decorate="template">
+<head>
+    <title>Xác thực Email</title>
+</head>
+<body>
+<section layout:fragment="content" class="container h-100">
+    <div class="row justify-content-center h-100">
+        <div class="col-md-6 d-flex flex-column justify-content-center">
+            <div class="card mt-4 mb-4">
+                <div class="card-header">
+                    <h4 class="card-title">Xác thực Email</h4>
+                </div>
+                <div class="card-body">
+                    <p>Một mã xác thực đã được gửi đến email <strong th:text="${verificationCode.email}"></strong>.</p>
+                    <p>Vui lòng nhập mã vào ô dưới đây:</p>
+
+                    <form th:action="@{/users/verify-email}" method="post" th:object="${verificationCode}">
+                        <input type="hidden" th:field="*{email}" th:value="${verificationCode.email}">
+                        <input type="hidden" th:field="*{id}" th:value="${verificationCode.id}">
+
+                        <div class="mb-3">
+                            <label for="code" class="form-label">Mã xác thực</label>
+                            <input type="text" id="code" class="form-control" th:field="*{code}" required>
+                        </div>
+
+                        <p th:text="${error}" class="text-danger"></p>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle"></i> Xác nhận
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

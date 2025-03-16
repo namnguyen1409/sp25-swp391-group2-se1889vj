@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Configuration
@@ -40,8 +42,17 @@ public class ModelMapperConfig {
                 map().setUpdatedAt(source.getUpdatedAt());
                 map().setWarehouseId(source.getWarehouse().getId());
                 map().setProductPackageId(source.getProductPackage().getId());
+                using(ctx -> {
+                    Set<Zone> zones = (Set<Zone>) ctx.getSource();
+                    return zones != null ? zones.stream()
+                            .filter(Objects::nonNull)
+                            .map(zone -> modelMapper.map(zone, ZoneDTO.class)) // Tạo DTO từ Entity
+                            .collect(Collectors.toSet())
+                            : new HashSet<>();
+                }).map(source.getZones(), destination.getZones());
             }
         });
+
 
         modelMapper.addMappings(new PropertyMap<Warehouse, WarehouseDTO>() {
             @Override

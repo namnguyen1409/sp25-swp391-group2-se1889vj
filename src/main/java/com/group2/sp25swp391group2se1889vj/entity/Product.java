@@ -33,7 +33,7 @@ public class Product extends BaseEntity {
     // khối lượng tồn kho của sản phẩm (kg)
     @EqualsAndHashCode.Include
     @Column(name = "stock_quantity", nullable = false, columnDefinition = "int")
-    private int stockQuantity = 0;
+    private Integer stockQuantity = 0;
 
     @ManyToOne
     @JoinColumn(name="product_package_id", nullable = false)

@@ -38,5 +38,9 @@ public class ProductPackageRestController {
         return ResponseEntity.ok(productPackageService.searchProductPackages(getWarehouseId(), keyword));
     }
 
+    @GetMapping("/getAll")
+    public ResponseEntity<?> getAll() {
+        return ResponseEntity.ok(productPackageService.getAllProductPackages(getWarehouseId()));
+    }
 
 }

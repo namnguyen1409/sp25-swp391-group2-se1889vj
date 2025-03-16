@@ -1,9 +1,11 @@
 package com.group2.sp25swp391group2se1889vj.config;
 
 
+import com.group2.sp25swp391group2se1889vj.dto.RegisterDTO;
 import com.group2.sp25swp391group2se1889vj.entity.User;
 import com.group2.sp25swp391group2se1889vj.repository.UserRepository;
 import com.group2.sp25swp391group2se1889vj.enums.RoleType;
+import com.group2.sp25swp391group2se1889vj.service.UserService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -13,6 +15,7 @@ import java.time.LocalDate;
 
 @Component
 public class DataInitializer {
+    private final UserService userService;
     @Value("${admin.username}")
     private String adminUsername;
 
@@ -40,10 +43,12 @@ public class DataInitializer {
     @Value("${admin.address}")
     private String adminAddress;
 
+
     private final UserRepository userRepository;
 
-    public DataInitializer(UserRepository userRepository) {
+    public DataInitializer(UserRepository userRepository, UserService userService) {
         this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     @PostConstruct
@@ -64,7 +69,8 @@ public class DataInitializer {
             admin.setAddress(adminAddress);
             userRepository.save(admin);
             System.out.println("Admin created");
-        } else {
+        }
+        else {
             System.out.println("Admin already exists");
         }
     }

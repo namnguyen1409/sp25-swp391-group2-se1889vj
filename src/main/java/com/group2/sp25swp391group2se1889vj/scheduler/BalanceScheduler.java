@@ -1,5 +1,6 @@
 package com.group2.sp25swp391group2se1889vj.scheduler;
 
+import com.group2.sp25swp391group2se1889vj.controller.WebSocketController;
 import com.group2.sp25swp391group2se1889vj.entity.Debt;
 import com.group2.sp25swp391group2se1889vj.repository.DebtRepository;
 import com.group2.sp25swp391group2se1889vj.service.CustomerService;
@@ -19,8 +20,9 @@ import java.util.List;
 public class BalanceScheduler {
     private final CustomerService customerService;
     private final DebtRepository debtRepository;
+    private final WebSocketController webSocketController;
 
-    @Scheduled(cron = "*/10 * * * * *")
+    @Scheduled(cron = "* * * * * *")
     @Transactional
     public void updateBalance() {
         List<Debt> debts = debtRepository.findDebtsByIsProcessedIsFalse();
@@ -31,7 +33,10 @@ public class BalanceScheduler {
                 case CUSTOMER_REPAY, SHOP_BORROW -> customerService.addBalance(debt.getCustomer().getId(), amount);
             }
             debt.setProcessed(true);
-            debtRepository.save(debt);
+            debt = debtRepository.save(debt);
+            if (debt.getCreatedBy() != null) {
+                webSocketController.sendInfo("Đã thêm bản ghi nợ mới cho khách hàng: " + debt.getCustomer().getFullName(), debt.getCreatedBy().getUsername());
+            }
         }
     }
 }

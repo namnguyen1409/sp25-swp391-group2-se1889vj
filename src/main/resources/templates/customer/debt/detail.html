@@ -23,7 +23,7 @@
                                     <i class="bi bi-cash"></i>
                                 </span>
                                 <div class="form-floating">
-                                    <select class="form-select" th:field="*{type}">
+                                    <select class="form-select" th:field="*{type}" disabled>
                                         <option value="CUSTOMER_BORROW">
                                             Khách hàng nợ cửa hàng
                                         </option>
@@ -36,7 +36,6 @@
                                         <option value="SHOP_REPAY">
                                             Cửa hàng trả nợ khách hàng
                                         </option>
-
                                     </select>
                                     <label th:for="*{type}" class="form-label">Loại giao dịch</label>
                                 </div>
@@ -56,15 +55,18 @@
                         <div class="mb-3">
                             <div th:replace="fragments/readOnlyInput :: customReadonlyInput('updatedAt', 'datetime-local', 'bi-calendar', 'Ngày Cập Nhật', true)"></div>
                         </div>
-                        <th:block th:if="${!debt.description.isEmpty()}">
+                        <th:block th:if="${debt.description!=null && !debt.description.isEmpty()}">
                             <hr>
                             <div class="mb-3">
                                 <h3 class="text-center">Mô tả</h3>
-                                <textarea class="form-control" th:utext="*{description}"></textarea>
+<!--                                <textarea class="form-control" th:utext="*{description}"></textarea>-->
+                                <div th:utext="${debt.description}" class="form-control" style="height: 100px">
+
+                                </div>
                             </div>
                         </th:block>
 
-                        <th:block th:if="${!debt.image.isEmpty()}">
+                        <th:block th:if="${debt.image != null && !debt.image.isEmpty()}">
                             <hr>
                             <div class="mb-3">
                                 <h3 class="text-center">Hình ảnh minh chứng</h3>

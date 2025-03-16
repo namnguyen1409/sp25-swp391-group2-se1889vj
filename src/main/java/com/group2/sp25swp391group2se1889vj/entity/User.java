@@ -59,7 +59,7 @@ public class User extends BaseEntity{
     private String address;
 
     @Column(name = "is_locked", nullable = false, columnDefinition = "bit")
-    private boolean isLocked = false;
+    private boolean locked = false;
 
     @Column(name = "lock_reason", columnDefinition = "nvarchar(255)")
     private String lockReason;
@@ -93,4 +93,13 @@ public class User extends BaseEntity{
 
     @OneToMany(mappedBy = "createdBy")
     private Set<RegistrationToken> registrationTokens = new HashSet<>();
+
+//    public boolean isLocked() {
+//        return locked;
+//    }
+//
+//    public void setLocked(boolean locked) {
+//        this.locked = locked;
+//    }
+
 }

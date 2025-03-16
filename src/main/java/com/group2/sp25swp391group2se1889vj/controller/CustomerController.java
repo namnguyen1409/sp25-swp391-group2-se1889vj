@@ -84,6 +84,7 @@ public class CustomerController {
         Long warehouseId = getWarehouseId();
 
         Page<CustomerDTO> customers = customerService.searchCustomers(warehouseId, customerFilterDTO, pageable);
+        System.out.println(customerFilterDTO);
 
         model.addAttribute("customers", customers);
         model.addAttribute("customerFilterDTO", customerFilterDTO);

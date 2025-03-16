@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log('🔗 Kết nối WebSocket thành công: ' + frame);
 
         // Lắng nghe thông báo từ server
-        stompClient.subscribe('/topic/notifications', function (message) {
+        stompClient.subscribe('/queue/info', function (message) {
             showNotification(message.body);
         });
     });

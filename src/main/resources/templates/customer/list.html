@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       lang="en" layout:decorate="template"
-
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 >
 <body>
 <section layout:fragment="content" class="container-fluid h-100">
@@ -12,10 +12,7 @@
     <div class="mt-3">
         <div class="mt-3">
             <form id="searchForm" th:object="${customerFilterDTO}" th:action="@{${'/customer/'}}"  method="post">
-                <input type="hidden" th:field="*{page}">
-                <input type="hidden" th:field="*{orderBy}">
-                <input type="hidden" th:field="*{direction}">
-                <input type="hidden" th:field="*{size}">
+
                 <input type="hidden" th:field="*{fullName}">
                 <input type="hidden" th:field="*{phone}">
                 <input type="hidden" th:field="*{email}">
@@ -62,7 +59,6 @@
                     <th th:each="field : ${fields}"
                         th:data="${field}"
                         style="cursor: pointer; min-width: 80px;"
-
                     >
                         <span>
                             <span th:text="${fieldTitles[__${field}__]}"></span>
@@ -105,7 +101,6 @@
                     </td>
                 </tr>
 
-
                 <tr th:if="${customers.totalPages > 0}" th:each="item : ${customers}">
                     <td th:each="field : ${fields}" >
                         <th:block th:switch="${fieldClasses[__${field}__]}" >
@@ -120,6 +115,10 @@
                             </th:block>
                             <th:block th:case="'html'">
                                 <span th:classappend="${fieldClasses[__${field}__]}" th:utext="${item[field]}"></span>
+                            </th:block>
+                            <th:block th:case="'phone'">
+
+                                <span  th:classappend="${fieldClasses[__${field}__]}" th:text="${item[field].substring(0, 3) + '****' + item[field].substring(7)}"></span>
                             </th:block>
                             <th:block th:case="*">
                                 <span th:classappend="${fieldClasses[__${field}__]}" th:text="${item[field]}"></span>

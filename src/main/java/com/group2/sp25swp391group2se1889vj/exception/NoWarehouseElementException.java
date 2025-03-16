@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 public class NoWarehouseElementException extends RuntimeException {
     private Long id;
 
-    public NoWarehouseElementException(String message, Long id) {
+    public NoWarehouseElementException(String message) {
         super(message);
         this.id = id;
     }

@@ -75,17 +75,16 @@
                             </th:block>
                         </th:block>
                     </td>
+
                     <td class="text-center">
-                        <a th:href="@{'detail/' + ${item.id}}" class="btn btn-info">
+                        <a th:href="@{'/users/detail/' + ${item.id}}" class="btn btn-info">
                             <i class="bi bi-eye-fill"></i>
                         </a>
-                        <a th:href="@{'edit/' + ${item.id}}" class="btn btn-warning">
+                        <a th:href="@{'/users/edit/' + ${item.id}}" class="btn btn-warning">
                             <i class="bi bi-pencil-fill"></i>
                         </a>
-                        <a th:href="@{'delete/' + ${item.id}}" class="btn btn-danger">
-                            <i class="bi bi-trash-fill"></i>
-                        </a>
                     </td>
+
                 </tr>
                 </tbody>
             </table>
@@ -118,6 +117,9 @@
             }
             form.submit();
         }
+
+
+
     </script>
 </section>
 </body>
