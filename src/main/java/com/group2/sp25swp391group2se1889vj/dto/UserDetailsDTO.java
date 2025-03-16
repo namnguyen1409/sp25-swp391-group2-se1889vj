@@ -26,6 +26,7 @@ public class UserDetailsDTO {
     private LocalDate birthday;
     private String address;
     private Long warehouseId;
+    private Long ownerId;
     private RoleType role;
     private boolean locked;
     private String lockReason;

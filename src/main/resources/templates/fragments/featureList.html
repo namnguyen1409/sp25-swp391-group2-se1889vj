@@ -30,7 +30,7 @@
             <i class="bi bi-bounding-box me-2"></i> Quản lý khu vực
         </a>
     </li>
-    <li class="mb-1">
+    <li class="mb-1" sec:authorize="hasRole('OWNER') or hasRole('STAFF')">
         <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/invoice/list}">
             <i class="bi bi-receipt me-2"></i> Quản lý hóa đơn
         </a>
@@ -40,7 +40,7 @@
             <i class="bi bi-person me-2"></i> Quản lý khách hàng
         </a>
     </li>
-    <li class="mb-1">
+    <li class="mb-1" sec:authorize="hasRole('ADMIN') or hasRole('OWNER')">
         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
                 data-bs-toggle="collapse" data-bs-target="#user-collapse" aria-expanded="false">
             <i class="bi bi-person-vcard-fill me-2"></i> Quản lý người dùng

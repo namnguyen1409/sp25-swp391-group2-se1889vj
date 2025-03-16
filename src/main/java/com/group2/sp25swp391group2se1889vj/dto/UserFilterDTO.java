@@ -1,6 +1,5 @@
 package com.group2.sp25swp391group2se1889vj.dto;
 
-
 import com.group2.sp25swp391group2se1889vj.enums.RoleType;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -12,7 +11,7 @@ import java.time.LocalDate;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO extends BaseDTO{
+public class UserFilterDTO extends BaseFilterDTO{
     private String username;
     private String password;
     private String firstName;
@@ -28,7 +27,4 @@ public class UserDTO extends BaseDTO{
     private RoleType role;
     private boolean locked;
     private String lockReason;
-
-
-
 }

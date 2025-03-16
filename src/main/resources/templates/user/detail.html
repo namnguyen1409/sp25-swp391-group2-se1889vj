@@ -76,6 +76,14 @@
                 $(this).removeClass('is-invalid');
             }
         });
+
+        document.addEventListener("DOMContentLoaded", function (){
+            let input = document.querySelector("[name='locked']");
+            if(input){
+                let value = input.value;
+                input.value = value === "true" ? "Đã bị khóa" : "Đang hoạt động";
+            }
+        })
     </script>
 
 

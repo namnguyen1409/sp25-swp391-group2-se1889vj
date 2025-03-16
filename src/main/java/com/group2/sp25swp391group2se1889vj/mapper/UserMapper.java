@@ -13,7 +13,11 @@ public class UserMapper {
     private final ModelMapper modelMapper;
 
     public UserDTO mapToUserDTO(User user) {
-        return modelMapper.map(user, UserDTO.class);
+        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+        if(user.getAssignedWarehouse() != null) {
+            userDTO.setWarehouseId(user.getAssignedWarehouse().getId());
+        }
+        return userDTO;
     }
 
     public User mapToUser(UserDTO userDTO) {

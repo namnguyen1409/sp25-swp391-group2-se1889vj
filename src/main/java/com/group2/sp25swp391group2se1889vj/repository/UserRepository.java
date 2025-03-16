@@ -6,13 +6,14 @@ import com.group2.sp25swp391group2se1889vj.entity.Warehouse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     Optional<User> findByUsername(String username);
     Optional<User> findByEmail(String email);
     Boolean existsByUsername(String username);
@@ -25,14 +26,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Page<User> findByPhoneContaining(String phone, Pageable pageable);
     Page<User> findByAddressContaining(String address, Pageable pageable);
 
-    Page<User> findAllByWarehouse(Warehouse warehouse, Pageable pageable);
     Page<User> findAllByAssignedWarehouseId(Long warehouseId, Pageable pageable);
-    Page<User> findAllByWarehouseId(Long warehouseId, Pageable pageable);
-
-    Page<User> findAllByWarehouse_Id(Long warehouseId, Pageable pageable);
-    Page<User> findUsersByWarehouseId(Long warehouseId, Pageable pageable);
-
-    Page<User> findUsersByWarehouse_Id(Long warehouseId, Pageable pageable);
+    Page<User> findByOwner(User owner, Pageable pageable);
 
     @Query("SELECT u FROM User u WHERE u.createdBy = ?1")
     Page<User> findByCreatedByContaining(User user, Pageable pageable);
