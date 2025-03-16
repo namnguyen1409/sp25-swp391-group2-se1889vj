@@ -2,6 +2,7 @@ package com.group2.sp25swp391group2se1889vj.service.impl;
 
 
 import com.group2.sp25swp391group2se1889vj.dto.ProductDTO;
+import com.group2.sp25swp391group2se1889vj.dto.ProductFilterDTO;
 import com.group2.sp25swp391group2se1889vj.entity.Product;
 import com.group2.sp25swp391group2se1889vj.entity.ProductPackage;
 import com.group2.sp25swp391group2se1889vj.entity.Zone;
@@ -11,11 +12,13 @@ import com.group2.sp25swp391group2se1889vj.repository.ProductPackageRepository;
 import com.group2.sp25swp391group2se1889vj.repository.ProductRepository;
 import com.group2.sp25swp391group2se1889vj.repository.ZoneRepository;
 import com.group2.sp25swp391group2se1889vj.service.ProductService;
+import com.group2.sp25swp391group2se1889vj.specification.ProductSpecification;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -100,6 +103,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductDTO> searchProducts(Long warehouseId, String keyword) {
         return productRepository.findAllByNameContainingAndWarehouseId(keyword, warehouseId).stream().map(productMapper::mapToProductDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<ProductDTO> searchProducts(Long warehouseId, ProductFilterDTO productFilterDTO, Pageable pageable) {
+        Specification<Product> specification = ProductSpecification.filterProducts(warehouseId, productFilterDTO);
+        Page<Product> page = productRepository.findAll(specification, pageable);
+        return page.map(productMapper::mapToProductDTO);
     }
 
     @Override

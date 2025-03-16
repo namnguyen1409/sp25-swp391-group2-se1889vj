@@ -1,6 +1,9 @@
 package com.group2.sp25swp391group2se1889vj.controller;
 
 import com.group2.sp25swp391group2se1889vj.dto.ProductDTO;
+import com.group2.sp25swp391group2se1889vj.dto.ProductFilterDTO;
+import com.group2.sp25swp391group2se1889vj.dto.ZoneDTO;
+import com.group2.sp25swp391group2se1889vj.dto.ZoneFilterDTO;
 import com.group2.sp25swp391group2se1889vj.entity.ProductPackage;
 import com.group2.sp25swp391group2se1889vj.entity.User;
 import com.group2.sp25swp391group2se1889vj.enums.RoleType;
@@ -107,63 +110,104 @@ public class ProductController {
         return "redirect:/product/list";
     }
 
+//    @GetMapping({"", "/", "/list"})
+//    public String listProduct(
+//            Model model,
+//            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+//            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+//            @RequestParam(value = "search", required = false) String search,
+//            @RequestParam(value = "searchBy", required = false, defaultValue = "name") String searchBy,
+//            @RequestParam(value = "orderBy", required = false, defaultValue = "createdAt") String orderBy,
+//            @RequestParam(value = "direction", required = false, defaultValue = "desc") String direction
+//    ) {
+//        List<String> fields = Arrays.asList("image", "name",PRICE);
+//        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Hình ảnh", "Tên", "Giá"));
+//        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("image", "",PRICE));
+//        List<String> searchAbleFields = Arrays.asList("name", "description");
+//
+//        model.addAttribute("fields", fields);
+//        model.addAttribute("fieldTitles", fieldTitles);
+//        model.addAttribute("fieldClasses", fieldClasses);
+//        model.addAttribute("searchAbleFields", searchAbleFields);
+//
+//        if (!fields.contains(searchBy)) {
+//            searchBy = "name";
+//        }
+//
+//        if (!fields.contains(orderBy)) {
+//            orderBy = "id";
+//        }
+//
+//        Sort sortDirection = "asc".equalsIgnoreCase(direction)
+//                ? Sort.by(orderBy).ascending()
+//                : Sort.by(orderBy).descending();
+//        Pageable pageable = PageRequest.of(page - 1, size, sortDirection);
+//
+//        Page<ProductDTO> products;
+//        if (search != null && !search.isEmpty()) {
+//             switch (searchBy) {
+//                case "name" :
+//                    products = productService.findPaginatedProductsByOwnerIdAndNameContaining(getUser().getId(), search, pageable);
+//                    break;
+//                case "description":
+//                    products = productService.findPaginatedProductsByOwnerIdAndDescriptionContaining(getUser().getId(), search, pageable);
+//                    break;
+//                default:
+//                    products = productService.findPaginatedProductsByOwnerId(getUser().getId(), pageable);
+//            }
+//        } else {
+//            products = productService.findPaginatedProductsByOwnerId(getUser().getId(), pageable);
+//        }
+//
+//        model.addAttribute("products", products);
+//        model.addAttribute("page", page);
+//        model.addAttribute("size", size);
+//        model.addAttribute("search", search);
+//        model.addAttribute("orderBy", orderBy);
+//        model.addAttribute("searchBy", searchBy);
+//        model.addAttribute("direction", direction);
+//        return "product/list";
+//    }
+
     @GetMapping({"", "/", "/list"})
-    public String listProduct(
+    public String list(
             Model model,
-            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
-            @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "searchBy", required = false, defaultValue = "name") String searchBy,
-            @RequestParam(value = "orderBy", required = false, defaultValue = "createdAt") String orderBy,
-            @RequestParam(value = "direction", required = false, defaultValue = "desc") String direction
+            @ModelAttribute(value = "productFilterDTO", binding = false) ProductFilterDTO productFilterDTO
     ) {
-        List<String> fields = Arrays.asList("image", "name",PRICE);
-        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Hình ảnh", "Tên", "Giá"));
-        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("image", "",PRICE));
-        List<String> searchAbleFields = Arrays.asList("name", "description");
+        if(productFilterDTO == null) {
+            productFilterDTO = new ProductFilterDTO();
+        }
+
+        Sort sortDirection = "asc".equalsIgnoreCase(productFilterDTO.getDirection())
+                ? Sort.by(productFilterDTO.getOrderBy()).ascending()
+                : Sort.by(productFilterDTO.getOrderBy()).descending();
+
+        List<String> fields = Arrays.asList("image", "name",PRICE, "createdAt");
+        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Hình ảnh", "Tên", "Giá", "Ngày tạo"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("image", "",PRICE, "datetime"));
 
         model.addAttribute("fields", fields);
         model.addAttribute("fieldTitles", fieldTitles);
         model.addAttribute("fieldClasses", fieldClasses);
-        model.addAttribute("searchAbleFields", searchAbleFields);
 
-        if (!fields.contains(searchBy)) {
-            searchBy = "name";
-        }
+        Pageable pageable = PageRequest.of(productFilterDTO.getPage()-1, productFilterDTO.getSize(), sortDirection);
 
-        if (!fields.contains(orderBy)) {
-            orderBy = "id";
-        }
-
-        Sort sortDirection = "asc".equalsIgnoreCase(direction)
-                ? Sort.by(orderBy).ascending()
-                : Sort.by(orderBy).descending();
-        Pageable pageable = PageRequest.of(page - 1, size, sortDirection);
-
-        Page<ProductDTO> products;
-        if (search != null && !search.isEmpty()) {
-             switch (searchBy) {
-                case "name" :
-                    products = productService.findPaginatedProductsByOwnerIdAndNameContaining(getUser().getId(), search, pageable);
-                    break;
-                case "description":
-                    products = productService.findPaginatedProductsByOwnerIdAndDescriptionContaining(getUser().getId(), search, pageable);
-                    break;
-                default:
-                    products = productService.findPaginatedProductsByOwnerId(getUser().getId(), pageable);
-            }
-        } else {
-            products = productService.findPaginatedProductsByOwnerId(getUser().getId(), pageable);
-        }
+        Long warehouseId = getWarehouseId();
+        Page<ProductDTO> products = productService.searchProducts(warehouseId, productFilterDTO, pageable);
 
         model.addAttribute("products", products);
-        model.addAttribute("page", page);
-        model.addAttribute("size", size);
-        model.addAttribute("search", search);
-        model.addAttribute("orderBy", orderBy);
-        model.addAttribute("searchBy", searchBy);
-        model.addAttribute("direction", direction);
+        model.addAttribute("productFilterDTO", productFilterDTO);
+
         return "product/list";
+    }
+
+    @PostMapping({"/list", "", "/"})
+    public String list(
+            @ModelAttribute(value = "productFilterDTO") ProductFilterDTO productFilterDTO,
+            RedirectAttributes redirectAttributes
+    ) {
+        redirectAttributes.addFlashAttribute("productFilterDTO", productFilterDTO);
+        return "redirect:/product";
     }
 
 }
