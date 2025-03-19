@@ -50,6 +50,14 @@ public class ModelMapperConfig {
                             .collect(Collectors.toSet())
                             : new HashSet<>();
                 }).map(source.getZones(), destination.getZones());
+                using(ctx -> {
+                    Set<Zone> zones = (Set<Zone>) ctx.getSource();
+                    return zones != null ? zones.stream()
+                            .filter(Objects::nonNull)
+                            .map(Zone::getId) // Chỉ lấy ID
+                            .collect(Collectors.toSet())
+                            : new HashSet<>();
+                }).map(source.getZones(), destination.getZoneIds());
             }
         });
 

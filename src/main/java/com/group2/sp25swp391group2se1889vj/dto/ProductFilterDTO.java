@@ -14,6 +14,8 @@ public class ProductFilterDTO extends BaseFilterDTO{
     private String name;
     private BigDecimal minPrice;
     private BigDecimal maxPrice;
+    private BigDecimal minQuantity;
+    private BigDecimal maxQuantity;
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime minCreatedAt;
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")

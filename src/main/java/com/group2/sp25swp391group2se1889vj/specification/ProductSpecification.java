@@ -26,6 +26,14 @@ public class ProductSpecification {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("price"), filterDTO.getMaxPrice()));
             }
 
+            if (filterDTO.getMinQuantity() != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("quantity"), filterDTO.getMinQuantity()));
+            }
+
+            if (filterDTO.getMaxQuantity() != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("quantity"), filterDTO.getMaxQuantity()));
+            }
+
             if (filterDTO.getMinCreatedAt() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("createdAt"), filterDTO.getMinCreatedAt()));
             }
