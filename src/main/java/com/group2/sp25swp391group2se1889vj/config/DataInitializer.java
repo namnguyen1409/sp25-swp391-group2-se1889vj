@@ -15,7 +15,6 @@ import java.time.LocalDate;
 
 @Component
 public class DataInitializer {
-    private final UserService userService;
     @Value("${admin.username}")
     private String adminUsername;
 
@@ -48,7 +47,6 @@ public class DataInitializer {
 
     public DataInitializer(UserRepository userRepository, UserService userService) {
         this.userRepository = userRepository;
-        this.userService = userService;
     }
 
     @PostConstruct

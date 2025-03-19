@@ -26,7 +26,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Modifying
     @Query("update Product p set p.stockQuantity = p.stockQuantity + ?2, p.updatedAt = CURRENT_TIMESTAMP where p.id = ?1")
-    void increaseStockQuantity(Long id, Integer quantity);
+    void
+
+
+    increaseStockQuantity(Long id, Integer quantity);
 
     @Modifying
     @Query("update Product p set p.stockQuantity = p.stockQuantity - ?2, p.updatedAt = CURRENT_TIMESTAMP where p.id = ?1 and p.stockQuantity >= ?2")

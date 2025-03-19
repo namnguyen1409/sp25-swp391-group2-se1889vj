@@ -43,6 +43,10 @@ public class InvoiceItem extends BaseEntity {
     private Integer quantity;
 
     @EqualsAndHashCode.Include
+    @Column(name = "weight")
+    private Integer weight; // tổng trọng lượng của sản phẩm
+
+    @EqualsAndHashCode.Include
     @Column(name = "price", nullable = false)
     private BigDecimal price;
 

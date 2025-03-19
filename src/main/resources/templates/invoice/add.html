@@ -8,9 +8,6 @@
 <body>
 <section class="container-fluid h-100" layout:fragment="content">
     <div class="h-100">
-        <h1 class="display-6 fw-bold">Thêm hóa đơn</h1>
-
-        <!-- Danh sách tab -->
         <ul class="nav nav-tabs" id="invoiceTabs">
             <li class="nav-item dropdown">
                 <a
@@ -50,17 +47,14 @@
         let tabCount = 0;
         let invoiceData = {};
         let productPackaging = [];
-
         let csrfToken = $("meta[name='_csrf']").attr("content");
         let csrfHeader = $("meta[name='_csrf_header']").attr("content");
-
         fetch(`/api/product-package/getAll`)
             .then(response => response.json())
             .then(data => {
                 productPackaging = data;
             })
             .catch(error => console.error("Lỗi tải quy cách đóng gói:", error));
-
 
         function addInvoiceTab(type) {
             tabCount++;
@@ -74,7 +68,7 @@
                 status: "NEW",
                 orderId: null,
                 tabId: tabId
-            }; // Khởi tạo dữ liệu
+            };
 
             // Tạo phần tử tab mới
             let tabItem = document.createElement("li");
@@ -90,17 +84,14 @@
             `;
             document.getElementById("invoiceTabs").appendChild(tabItem);
 
-            // Tạo nội dung tab
             let tabContent = document.createElement("div");
             tabContent.className = "tab-pane fade";
             tabContent.id = tabId;
             tabContent.innerHTML = `<p>Đang tải dữ liệu...</p>`;
             document.getElementById("invoiceContent").appendChild(tabContent);
 
-            // Kích hoạt tab mới
             new bootstrap.Tab(document.getElementById(`${tabId}-tab`)).show();
 
-            // Gọi API để lấy nội dung riêng cho từng hóa đơn
             fetch(`/invoice/${type}?tabId=${tabId}`)
                 .then(response => {
                     if (!response.ok) throw new Error("Lỗi kết nối mạng!");
@@ -131,7 +122,7 @@
                 tab.remove();
                 content.remove();
 
-                delete invoiceData[tabId]; // Xóa dữ liệu của tab
+                delete invoiceData[tabId];
 
                 if (isActive) {
                     let nextTab = document.querySelector("#invoiceTabs .nav-link:not(.dropdown-toggle)");
@@ -342,13 +333,11 @@
                 payment.setAttribute("data-raw", "0");
                 updateTotalSale(tabId)
                 payment.setAttribute("readonly", "true");
-                paymentDropdown.innerText = "Không thanh toán";
             });
 
             partial.addEventListener("click", function () {
                 payment.removeAttribute("readonly");
                 payment.focus();
-                paymentDropdown.innerText = "Thanh toán một phần";
             });
 
             paid.addEventListener("click", function () {
@@ -356,20 +345,18 @@
                 payment.setAttribute("data-raw", discount.getAttribute("data-raw"));
                 updateTotalSale(tabId)
                 payment.setAttribute("readonly", "true");
-                paymentDropdown.innerText = "Thanh toán toàn bộ";
             });
 
             paidAndDebt.addEventListener("click", function () {
-                // giả lập chuyển sang không thanh toán
-                unpaid.click();
-
+                payment.value = formatCurrency(0);
+                payment.setAttribute("data-raw", "0");
+                updateTotalSale(tabId)
+                payment.setAttribute("readonly", "true");
                 let debtValue = parseInt(debt.getAttribute("data-raw"), 10)
-
                 payment.value = formatCurrency(0 - debtValue)
                 payment.setAttribute("data-raw", 0 - debtValue);
                 updateTotalSale(tabId)
                 payment.setAttribute("readonly", "true");
-                paymentDropdown.innerText = "Tiền hàng + tiền nợ";
             });
 
 
@@ -392,7 +379,7 @@
                             .then(data => {
                                 productSuggestion.classList.remove("d-none");
                                 productSuggestion.innerHTML = data.map(product => `
-                          <div onclick="addProductToSales('${tabId}', '${product.id}', '${product.name}', '${product.image}', ${product.productPackageId}, ${product.price}, ${product.stockQuantity})"
+                          <div onclick="addProductToSales('${tabId}', '${product.id}', '${product.name}', '${product.zones.map(zone => zone.name).join(', ')}', '${product.image}', ${product.productPackageId}, ${product.price}, ${product.stockQuantity})"
                               class="list-group-item list-group-item-action d-flex align-items-center"
                               style="cursor: pointer"
                               >
@@ -484,7 +471,7 @@
         }
 
 
-        function addProductToSales(tabId, productId, productName, productImage, productPackageId, productPrice, productStockQuantity) {
+        function addProductToSales(tabId, productId, productName, zones, productImage, productPackageId, productPrice, productStockQuantity) {
             let uniqueKey = `${productId}-${productPackageId}-${Date.now()}`;
 
             invoiceData[tabId].items.push({
@@ -495,8 +482,9 @@
                 quantity: 1,
                 productPrice: productPrice,
                 productStockQuantity: productStockQuantity,
-                price: productPrice * (productPackaging.find(pkg => pkg.id === productPackageId).weight), // giá bán đề xuất
-                discount: productPrice * (productPackaging.find(pkg => pkg.id === productPackageId).weight), // giá bán thực
+                weight: (productPackaging.find(pkg => pkg.id === productPackageId).weight), // trọng lượng
+                price: productPrice, // giá bán đề xuất
+                discount: productPrice, // giá bán thực
                 total: productPrice * (productPackaging.find(pkg => pkg.id === productPackageId).weight) // thành tiền
             });
 
@@ -505,12 +493,16 @@
                 let row = document.createElement("tr");
                 row.id = `row-${uniqueKey}`;
                 row.innerHTML = `
-            <td>${productName}</td>
+            <td>
+                ${productName}
+                <br>
+                ${zones}
+            </td>
             <td>
                 <img src="/${productImage}" class="img-thumbnail" width="50" height="50" onclick="showProductInfo('${productId}')">
             </td>
             <td>
-                <select class="form-select" onchange="updateProductPackageSales('${tabId}', '${uniqueKey}', this.value)">
+                <select class="form-select" onchange="updateProductPackageSales('${tabId}', '${uniqueKey}', this.value)" style="max-width: 180px;">
                     <option value="">Chọn quy cách đóng gói</option>
                     ${productPackaging.map(pkg => `
                         <option value="${pkg.id}" ${pkg.id === productPackageId ? 'selected' : ''}>
@@ -519,32 +511,28 @@
                     `).join('')}
                 </select>
             </td>
+
             <td>
                 <input type="number" class="form-control form-control-sm " min="1" value="1" style="max-width: 70px"
                     oninput="updateProductQuantitySales('${tabId}', '${uniqueKey}', this.value)">
             </td>
             <td>
-                <input type="text" class="form-control form-control-sm price-input"
-                data-raw="${productPrice * (productPackaging.find(pkg => pkg.id === productPackageId).weight)}"
-                value="${productPrice * (productPackaging.find(pkg => pkg.id === productPackageId).weight)}"
-                id="price-${uniqueKey}"
-                disabled>
+                <span id="weight-${uniqueKey}">${productPackaging.find(pkg => pkg.id === productPackageId).weight + 'kg'}</span>
             </td>
             <td>
-<!--                giá bán thực-->
+                <span id="price-${uniqueKey}">${formatCurrency(productPrice)}</span>
+            </td>
+            <td>
                 <input type="text" class="form-control form-control-sm price-input"
-                    data-raw="${productPrice * (productPackaging.find(pkg => pkg.id === productPackageId).weight)}"
-                    value="${productPrice * (productPackaging.find(pkg => pkg.id === productPackageId).weight)}"
+                    style="max-width: 100px;"
+                    data-raw="${productPrice}"
+                    value="${productPrice}"
                     oninput="updateProductDiscountSales('${tabId}', '${uniqueKey}', this.value)"
                     id="discount-${uniqueKey}"
                     >
             </td>
             <td>
-<!--            Thành tiền-->
-                <input type="text" id="total-${uniqueKey}" class="form-control form-control-sm price-input"
-                    data-raw="${productPrice * (productPackaging.find(pkg => pkg.id === productPackageId).weight)}"
-                    value="${productPrice * (productPackaging.find(pkg => pkg.id === productPackageId).weight)}"
-                 disabled>
+                <span id="total-${uniqueKey}">${formatCurrency(productPrice * (productPackaging.find(pkg => pkg.id === productPackageId).weight))}</span>
             </td>
             <td>
                 <button class="btn btn-danger" onclick="removeProductFromInvoiceSale('${tabId}', '${uniqueKey}')">Xóa</button>
@@ -630,15 +618,13 @@
         function updateTotalPriceSale(tabId, uniqueKey) {
             let item = invoiceData[tabId].items.find(item => item.uniqueKey === uniqueKey);
             if (item) {
-                let priceInput = document.getElementById(`price-${uniqueKey}`);
+                let weight = document.getElementById(`weight-${uniqueKey}`);
                 let discountInput = document.getElementById(`discount-${uniqueKey}`);
-                let totalInput = document.getElementById(`total-${uniqueKey}`);
-                priceInput.setAttribute("data-raw", item.price);
-                priceInput.value = formatCurrency(item.price)
+                let total = document.getElementById(`total-${uniqueKey}`);
+                weight.innerText = item.weight + " kg";
                 discountInput.setAttribute("data-raw", item.discount);
                 discountInput.value = formatCurrency(item.discount);
-                totalInput.setAttribute("data-raw", item.total);
-                totalInput.value = formatCurrency(item.total);
+                total.innerText = formatCurrency(item.total);
             }
             updateTotalSale(tabId)
         }
@@ -647,11 +633,11 @@
             let item = invoiceData[tabId].items.find(item => item.uniqueKey === uniqueKey);
             let pkid = parseInt(productPackageId);
             if (item) {
-
                 item.productPackageId = pkid
-                item.price = item.productPrice * (productPackaging.find(pkg => pkg.id === pkid).weight);
-                item.discount = item.productPrice * (productPackaging.find(pkg => pkg.id === pkid).weight);
-                item.total = item.productPrice * (productPackaging.find(pkg => pkg.id === pkid).weight) * item.quantity;
+                item.weight = productPackaging.find(pkg => pkg.id === pkid).weight * item.quantity;
+                item.price = item.productPrice;
+                item.discount = item.productPrice;
+                item.total = item.discount * item.weight;
                 updateTotalPriceSale(tabId, uniqueKey);
             }
         }
@@ -661,7 +647,7 @@
             let priceNumber = parseFloat(discount.replace(/\D/g, "")) || 0;
             if (item) {
                 item.discount = priceNumber;
-                item.total = item.discount * item.quantity;
+                item.total = item.discount * item.weight;
                 updateTotalPriceSale(tabId, uniqueKey);
             }
         }
@@ -670,7 +656,8 @@
             let item = invoiceData[tabId].items.find(item => item.uniqueKey === uniqueKey);
             if (item) {
                 item.quantity = parseInt(quantity, 10);
-                item.total = item.discount * item.quantity;
+                item.weight = productPackaging.find(pkg => pkg.id === item.productPackageId).weight * item.quantity;
+                item.total = item.discount * item.weight;
                 updateTotalPriceSale(tabId, uniqueKey);
             }
         }
@@ -709,12 +696,12 @@
             let payment = document.getElementById(`payment${tabId}`);
             let debt = document.getElementById(`debt${tabId}`);
 
-            let total = invoiceData[tabId].items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            let total = invoiceData[tabId].items.reduce((sum, item) => sum + (item.price * item.weight), 0);
             totalPrice.setAttribute("data-raw", total);
             totalPrice.value = formatCurrency(total);
 
             // tổng phải trả = giá bán thực * số lượng
-            let totalDiscount = invoiceData[tabId].items.reduce((sum, item) => sum + (item.discount * item.quantity), 0);
+            let totalDiscount = invoiceData[tabId].items.reduce((sum, item) => sum + (item.discount * item.weight), 0);
             discount.setAttribute("data-raw", totalDiscount);
             discount.value = formatCurrency(totalDiscount);
 
