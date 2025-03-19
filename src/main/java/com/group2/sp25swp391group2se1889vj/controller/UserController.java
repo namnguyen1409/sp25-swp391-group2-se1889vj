@@ -1,9 +1,6 @@
 package com.group2.sp25swp391group2se1889vj.controller;
 
-import com.group2.sp25swp391group2se1889vj.dto.CustomerDTO;
-import com.group2.sp25swp391group2se1889vj.dto.RegistrationTokenDTO;
-import com.group2.sp25swp391group2se1889vj.dto.UserDTO;
-import com.group2.sp25swp391group2se1889vj.dto.VerificationCodeDTO;
+import com.group2.sp25swp391group2se1889vj.dto.*;
 import com.group2.sp25swp391group2se1889vj.entity.User;
 import com.group2.sp25swp391group2se1889vj.enums.RoleType;
 import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
@@ -20,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -29,20 +27,21 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+
 
 @Controller
 @RequestMapping("/users")
 @AllArgsConstructor
 public class UserController {
 
-        private final RegistrationTokenRepository registrationTokenRepository;
-        private final RecaptchaService recaptchaService;
-        private final PasswordEncoder passwordEncoder;
-        private final EmailServiceImpl emailService;
-        private final UserRepository userRepository;
-        private final EncryptionUtil encryptionUtil;
+    private final RegistrationTokenRepository registrationTokenRepository;
+    private final RecaptchaService recaptchaService;
+    private final PasswordEncoder passwordEncoder;
+    private final EmailServiceImpl emailService;
+    private final UserRepository userRepository;
+    private final EncryptionUtil encryptionUtil;
     private final UserService userService;
     private final RegistrationTokenService registrationTokenService;
 
@@ -69,70 +68,64 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
     @GetMapping({"", "/", "/list"})
     public String listUsers(
             Model model,
-            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
-            @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "searchBy", required = false, defaultValue = "name") String searchBy,
-            @RequestParam(value = "orderBy", required = false, defaultValue = "createdAt") String orderBy,
-            @RequestParam(value = "direction", required = false, defaultValue = "desc") String direction
-    ) {
-        List<String> fields = Arrays.asList("username", "firstName","lastName", "email", "phone", "address", "role");
-        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên đăng nhập",  "Họ", "Tên", "Email", "Số điện thoại", "Địa chỉ", "Vai trò"));
-        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("text","text", "text", "email", "text", "text", "select"));
-        List<String> searchAbleFields = Arrays.asList("username", "firstName", "lastName", "email", "phone", "address");
+            @ModelAttribute(value = "userFilterDTO", binding = false)UserFilterDTO userFilterDTO
+            ) {
+        if(userFilterDTO == null){
+            userFilterDTO = new UserFilterDTO();
+        }
+
+        Map<String, RoleType> roleMap = new HashMap<>();
+        roleMap.put("ADMIN", RoleType.ADMIN);
+        roleMap.put("OWNER", RoleType.OWNER);
+        roleMap.put("STAFF", RoleType.STAFF);
+
+        Sort sortDirection = "asc".equalsIgnoreCase(userFilterDTO.getDirection())
+                ? Sort.by(userFilterDTO.getOrderBy()).ascending()
+                : Sort.by(userFilterDTO.getOrderBy()).descending();
+
+
+        List<String> fields = Arrays.asList("username", "firstName","lastName", "phone", "email", "address", "role","createdAt");
+        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên đăng nhập",  "Họ", "Tên", "Số điện thoại", "Email",  "Địa chỉ", "Vai trò", "Ngày tạo"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("text","text", "text", "text","email", "text", "select","dateTime"));
         model.addAttribute("fields", fields);
         model.addAttribute("fieldTitles", fieldTitles);
         model.addAttribute("fieldClasses", fieldClasses);
-        model.addAttribute("searchAbleFields", searchAbleFields);
-        if (!fields.contains(searchBy)) {
-            searchBy = "username";
-        }
-        if (!fields.contains(orderBy)) {
-            orderBy = "id";
-        }
-        Sort sortDirection = "asc".equalsIgnoreCase(direction)
-                ? Sort.by(orderBy).ascending()
-                : Sort.by(orderBy).descending();
-        Pageable pageable = PageRequest.of(page - 1, size, sortDirection);
 
-        Page<UserDTO> users;
-        if (search != null && !search.isEmpty()) {
-            users = switch (searchBy) {
-                case "username" -> userService.findPaginatedUsersByUserName(search, pageable);
-                case "firstName" -> userService.findPaginatedUsersByFirstName(search, pageable);
-                case "lastName" -> userService.findPaginatedUsersByLastName(search, pageable);
-                case "email" -> userService.findPaginatedUsersByEmail(search, pageable);
-                case "phone" -> userService.findPaginatedUsersByPhone(search, pageable);
-                case "address" -> userService.findPaginatedUsersByAddress(search, pageable);
-                default -> userService.findPaginatedUsers(pageable);
-            };
-        } else {
-            if(getUser().getRole() == RoleType.OWNER) {
-                users = userService.findPaginatedUsersByWarehouseId(getWarehouseId(), pageable);
-//                System.out.println(getWarehouseId());
-//                for(UserDTO user : users) {
-//                    System.out.println(user);
-//                    System.out.println("User warehouse ID: " + user.getWarehouseId());
-//                }
-            } else {
-                users = userService.findPaginatedUsers(pageable);
-            }
+        Pageable pageable = PageRequest.of(userFilterDTO.getPage() - 1, userFilterDTO.getSize(), sortDirection);
+
+        Page<UserDTO> users = null;
+        Long ownerId = null;
+        if(getUser().getRole().equals(RoleType.OWNER)) {
+            ownerId = getUser().getId();
+            users = userService.searchUsers(ownerId, userFilterDTO, pageable);
+        }else{
+            users = userService.searchUsersByAdmin(userFilterDTO, pageable);
         }
+        System.out.println(userFilterDTO);
+
         model.addAttribute("users", users);
-        model.addAttribute("page", page);
-        model.addAttribute("size", size);
-        model.addAttribute("search", search);
-        model.addAttribute("orderBy", orderBy);
-        model.addAttribute("searchBy", searchBy);
-        model.addAttribute("direction", direction);
+        model.addAttribute("userFilterDTO", userFilterDTO);
         return "user/list";
     }
 
-        @GetMapping("/add")
-        public String addUser(Model model) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
+    @PostMapping({"/list", "", "/"})
+    public String list(
+            @ModelAttribute("userFilterDTO") UserFilterDTO userFilterDTO,
+            RedirectAttributes redirectAttributes
+    ) {
+        redirectAttributes.addFlashAttribute("userFilterDTO", userFilterDTO);
+        return "redirect:/users/list";
+    }
+
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
+    @GetMapping("/add")
+    public String addUser(Model model) {
             return "user/add";
         }
 
@@ -229,6 +222,7 @@ public class UserController {
         return "user/add";
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
     @GetMapping("/waiter-list")
     public String listWaiter(Model model,
                                 @RequestParam(value = "page", required = false, defaultValue = "1") int page,
@@ -239,16 +233,6 @@ public class UserController {
                                 @RequestParam(value = "direction", required = false, defaultValue = "desc") String direction
 
     ) {
-
-//        List<Map<String, String>> waitersInfo = new ArrayList<>();
-//        for (RegistrationTokenDTO token : waiterPage.getContent()) {
-//            Map<String, String> waiterMap = new HashMap<>();
-//            waiterMap.put("email", token.getEmail());
-//            waiterMap.put("status", (userRepository.findByEmail(token.getEmail()).isPresent()?"Đã kích hoạt":"Chưa kích hoạt"));
-//            waiterMap.put("role", token.getRole().toString());
-//            waitersInfo.add(waiterMap);
-//            System.out.println(waiterMap);
-//        }
 
         List<String> fields = Arrays.asList("email", "token","role");
         Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Email", "Mã đăng kí","Vai trò"));
@@ -282,7 +266,6 @@ public class UserController {
             waiters = registrationTokenService.findPaginationRegisterTokenDTO(pageable);
         }
 
-        // Các tham số phân trang và tìm kiếm
         model.addAttribute("waiters", waiters);
         model.addAttribute("page", page);
         model.addAttribute("size", size);
@@ -293,6 +276,7 @@ public class UserController {
         return "user/waiter-list";
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
     @GetMapping({"/resend-email/{id}"})
     public String resendEmail(@PathVariable("id") Long id,
                               RedirectAttributes redirectAttributes) {
@@ -305,6 +289,7 @@ public class UserController {
         return "redirect:/users/waiter-list";
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
     @GetMapping("/delete-email/{id}")
     public String deleteEmail(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         try {
@@ -318,11 +303,14 @@ public class UserController {
 
 
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
     @GetMapping("/edit/{id}")
     public String editUser(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
         UserDTO userDTO = userService.findUserById(id);
-        if(!Objects.equals(userDTO.getWarehouseId(), getWarehouseId())) {
-            return "redirect:/users/list";
+        if(getUser().getRole().equals(RoleType.OWNER)) {
+            if (!Objects.equals(userDTO.getOwnerId(), getUser().getId())) return "redirect:/users/list";
+        }else{
+            if(userDTO == null) return "redirect:/users/list";
         }
         model.addAttribute("user", userDTO);
         return "user/edit";
@@ -358,6 +346,7 @@ public class UserController {
         return "redirect:/users/list";
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
     @GetMapping("/verify-email")
     public String showEmailVerificationPage(@RequestParam(value = "pendingEmail", required = false)
                                                 String pendingEmail,
@@ -375,24 +364,19 @@ public class UserController {
     @PostMapping("/verify-email")
     public String verifyEmail(@ModelAttribute("verificationCode") VerificationCodeDTO verificationCodeDTO,
                               RedirectAttributes redirectAttributes) {
-        System.out.println(verificationCodeDTO.getEmail());
 
         String storedCode = emailService.getStoredVerificationCode(verificationCodeDTO.getEmail());
-        System.out.println(storedCode);
         if(!verificationCodeDTO.getCode().equals(storedCode)) {
             redirectAttributes.addFlashAttribute("error", "Mã xác thực không chính xác");
-            return "redirect:/users/verify-email";
+            return "redirect:/users/verify-email?pendingEmail=" + verificationCodeDTO.getEmail() + "&userId=" + verificationCodeDTO.getId();
         }
 
         userService.updateEmail(verificationCodeDTO.getId(), verificationCodeDTO.getEmail());
-        UserDTO userDTO = userService.findUserByEmail(getUser().getEmail());
-        if(userDTO != null) {
-            System.out.println(userDTO.getEmail());
-        }
         return "redirect:/users/list";
     }
 
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
     @GetMapping("/detail/{id}")
     public String detailUser(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         UserDTO userDTO = userService.findUserById(id);
@@ -400,14 +384,7 @@ public class UserController {
             redirectAttributes.addFlashAttribute("error", "Lỗi thông tin người dùng.");
             return "redirect:/users/list";
         }
-        System.out.println(userDTO.getBirthday());
-        model.addAttribute("birthday", userDTO.getBirthday().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")));
-        Map<String, Object> userWithLockedStatus = new HashMap<>();
-        userWithLockedStatus.putAll(model.asMap());//giu nguyen cac gia tri cua model
-        userWithLockedStatus.put("locked", userDTO.isLocked() ? "Đang khóa" : "Đang hoạt động");
-
         model.addAttribute("user", userDTO);
         return "user/detail";
     }
-
 }

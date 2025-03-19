@@ -1,9 +1,8 @@
 package com.group2.sp25swp391group2se1889vj.service.impl;
 
 import ch.qos.logback.classic.spi.IThrowableProxy;
-import com.group2.sp25swp391group2se1889vj.dto.RegisterDTO;
-import com.group2.sp25swp391group2se1889vj.dto.UserDTO;
-import com.group2.sp25swp391group2se1889vj.dto.VerificationCodeDTO;
+import com.group2.sp25swp391group2se1889vj.dto.*;
+import com.group2.sp25swp391group2se1889vj.entity.Customer;
 import com.group2.sp25swp391group2se1889vj.entity.User;
 import com.group2.sp25swp391group2se1889vj.entity.Warehouse;
 import com.group2.sp25swp391group2se1889vj.enums.RoleType;
@@ -17,11 +16,14 @@ import com.group2.sp25swp391group2se1889vj.repository.WarehouseRepository;
 import com.group2.sp25swp391group2se1889vj.service.EmailService;
 import com.group2.sp25swp391group2se1889vj.service.MessageService;
 import com.group2.sp25swp391group2se1889vj.service.UserService;
+import com.group2.sp25swp391group2se1889vj.specification.CustomerSpecification;
+import com.group2.sp25swp391group2se1889vj.specification.UserSpecification;
 import com.group2.sp25swp391group2se1889vj.util.EncryptionUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -53,46 +55,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Page<UserDTO> findPaginatedUsersByUserName(String username, Pageable pageable) {
-        Page<User> page = userRepository.findByUsernameContaining(username, pageable);
-        return page.map(userMapper::mapToUserDTO);
-    }
-
-    @Override
-    public Page<UserDTO> findPaginatedUsersByFirstName(String firstName, Pageable pageable) {
-        Page<User> page = userRepository.findByFirstNameContaining(firstName, pageable);
-        return page.map(userMapper::mapToUserDTO);
-    }
-
-    @Override
-    public Page<UserDTO> findPaginatedUsersByLastName(String lastName, Pageable pageable) {
-        Page<User> page = userRepository.findByLastNameContaining(lastName, pageable);
-        return page.map(userMapper::mapToUserDTO);
-    }
-
-    @Override
-    public Page<UserDTO> findPaginatedUsersByEmail(String email, Pageable pageable) {
-        Page<User> page = userRepository.findByEmailContaining(email, pageable);
-        return page.map(userMapper::mapToUserDTO);
-    }
-
-    @Override
-    public Page<UserDTO> findPaginatedUsersByPhone(String phone, Pageable pageable) {
-        Page<User> page = userRepository.findByPhoneContaining(phone, pageable);
-        return page.map(userMapper::mapToUserDTO);
-    }
-
-    @Override
-    public Page<UserDTO> findPaginatedUsersByAddress(String address, Pageable pageable) {
-        Page<User> page = userRepository.findByAddressContaining(address, pageable);
-        return page.map(userMapper::mapToUserDTO);
-    }
-
-    @Override
-    public Page<UserDTO> findPaginatedUsersByWarehouseId(Long id , Pageable pageable) {
-        Optional<Warehouse> warehouse = warehouseRepository.findById(id);
-        if(warehouse.isPresent()) {
-            Page<User> page = userRepository.findAllByWarehouse(warehouse.get(), pageable);
+    public Page<UserDTO> findPaginatedUsersByOwnerId(Long id , Pageable pageable) {
+        Optional<User> owner = userRepository.findById(id);
+        if(owner.isPresent()) {
+            Page<User> page = userRepository.findByOwner(owner.get(), pageable);
             return page.map(userMapper::mapToUserDTO);
         }
         return null;
@@ -106,6 +72,18 @@ public class UserServiceImpl implements UserService {
             return page.map(userMapper::mapToUserDTO);
         }
         return null;
+    }
+
+    @Override
+    public Page<UserDTO> searchUsers(Long ownerId, UserFilterDTO userFilterDTO, Pageable pageable) {
+        Specification<User> spec = UserSpecification.filterUsers(ownerId, userFilterDTO);
+        return userRepository.findAll(spec, pageable).map(userMapper::mapToUserDTO);
+    }
+
+    @Override
+    public Page<UserDTO> searchUsersByAdmin(UserFilterDTO filter, Pageable pageable) {
+        Specification<User> specification = UserSpecification.filterUsersByAdmin(filter);
+        return userRepository.findAll(specification, pageable).map(userMapper::mapToUserDTO);
     }
 
     /*
