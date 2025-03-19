@@ -4,6 +4,7 @@ import com.group2.sp25swp391group2se1889vj.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, Long> {
+public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
     Page<Product> findByNameContaining(String name, Pageable pageable);
     Page<Product> findByCreatedById(Long ownerId, Pageable pageable);
     Page<Product> findByCreatedByIdAndNameContainingIgnoreCase(Long ownerId, String name, Pageable pageable);

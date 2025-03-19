@@ -1,6 +1,7 @@
 package com.group2.sp25swp391group2se1889vj.service;
 
 import com.group2.sp25swp391group2se1889vj.dto.ProductDTO;
+import com.group2.sp25swp391group2se1889vj.dto.ProductFilterDTO;
 import com.group2.sp25swp391group2se1889vj.entity.ProductPackage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +23,10 @@ public interface ProductService {
 
     List<ProductDTO> searchProducts(Long warehouseId, String keyword);
 
+    Page<ProductDTO> searchProducts(Long warehouseId, ProductFilterDTO productFilterDTO, Pageable pageable);
+
     void addProduct(ProductDTO productDTO) throws Exception;
 
+    void updateProduct(Long id, ProductDTO productDTO) throws Exception;
     ProductDTO findProductByIdAndWarehouseId(Long id, Long warehouseId);
 }

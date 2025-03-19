@@ -74,4 +74,9 @@ public class ZoneServiceImpl implements ZoneService {
         zone.setProduct(product);
         zone.setDescription(zoneDTO.getDescription());
     }
+
+    @Override
+    public List<ZoneDTO> findAll() {
+        return zoneRepository.findAll().stream().map(zoneMapper::mapToZoneDTO).collect(Collectors.toList());
+    }
 }

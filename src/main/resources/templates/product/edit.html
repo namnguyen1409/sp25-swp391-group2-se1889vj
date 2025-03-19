@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en"
+      layout:decorate="template"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<section class="container h-100" layout:fragment="content">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <div class="row justify-content-center h-100">
+        <div class="col-md-10 col-lg-8 d-flex flex-column nowrap justify-content-center">
+            <div class="card mt-4 mb-4">
+                <div class="card-header">
+                    <h4 class="card-title">Chỉnh sửa sản phẩm</h4>
+                </div>
+                <div class="card-body">
+                    <form class="p-md-4" th:object="${productDTO}" id="editForm" autocomplete="off">
+                        <input type="hidden" th:field="*{id}"/>
+                        <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+
+                        <div class="mb-3">
+                            <div th:replace="fragments/input :: customInput('name', 'text', 'bi-hash', 'Tên sản phẩm', 'true')"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div th:replace="fragments/input :: customInput('price', 'number', 'bi-cash-coin', 'Giá', '')"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text p-3">
+                                    <i class="bi bi-box-seam-fill"></i>
+                                </span>
+                                <input class="form-control" id="productPackageName" list="productPackageList"
+                                       placeholder="Chọn quy cách đóng gói..." autocomplete="off"
+                                       th:value="${productPackage != null ? productPackage.name + ' (' + productPackage.weight + 'kg)' : ''}">
+                                <datalist id="productPackageList">
+                                    <option th:if="${productPackage != null}"
+                                            th:data-id="${productPackage.id}"
+                                            th:value="${productPackage.name + ' (' + productPackage.weight + 'kg)'}">
+                                    </option>
+                                </datalist>
+                                <input th:field="*{productPackageId}" type="hidden">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div th:replace="fragments/inputImage :: customInputImage('image', 'bi-box-seam-fill', 'Hình ảnh sản phẩm', @{/upload/product})"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div th:replace="fragments/textarea :: customTextarea('description', 'bi-justify', 'Mô tả')"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="zoneIds">Khu vực</label>
+                            <select class="form-control" id="zoneIds" th:field="*{zoneIds}" multiple>
+                                <option th:each="zone : ${zones}" th:value="${zone.id}" th:text="${zone.name}"
+                                        th:selected="${#sets.contains(productDTO.zoneIds, zone.id)}">
+                                </option>
+                            </select>
+                        </div>
+
+<!--                        list zone đã có-->
+                        <div class="mb-3">
+                            <label for="selectedZonesContainer">Khu vực đã chọn</label>
+                            <div id="selectedZonesContainer">
+                                <span class="badge bg-primary me-2 selected-zone" th:each="zoneId : ${productDTO.zoneIds}"
+                                      th:id="'selectedZone-' + ${zoneId}">
+                                    <span th:text="${#strings.substring(zoneId, 0, 5)}"></span>
+                                    <button type="button" class="btn-close btn-close-white ms-1 remove-zone"
+                                            th:data-id="${zoneId}"></button>
+                                </span>
+                            </div>
+                        </div>
+
+                        <p class="text-danger mb-3" th:text="${error}"></p>
+                        <button class="btn btn-primary" type="submit">
+                            <i class="bi bi-save"></i> Cập nhật
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            let csrfToken = $("meta[name='_csrf']").attr("content");
+            let csrfHeader = $("meta[name='_csrf_header']").attr("content");
+
+            $.ajaxSetup({
+                beforeSend: function (xhr) {
+                    if (csrfToken && csrfHeader) {
+                        xhr.setRequestHeader(csrfHeader, csrfToken);
+                    }
+                }
+            });
+
+
+            function debounce(fn, delay) {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(fn, delay);
+            }
+
+            // Tìm kiếm quy cách đóng gói
+            $("#productPackageName").on("input", function () {
+                let searchTerm = $(this).val().trim();
+                if (searchTerm.length < 2) return;
+
+                debounce(() => {
+                    $.getJSON("/api/product-package/search", { name: searchTerm }, function (data) {
+                        let options = data.map(pkg =>
+                            `<option data-id="${pkg.id}" value="${pkg.name} (${pkg.weight}kg)"></option>`
+                        ).join("");
+                        $("#productPackageList").html(options);
+                    });
+                }, 300);
+            });
+
+            // Cập nhật ID sản phẩm khi chọn
+            $("#productPackageName").on("change", function () {
+                let selectedOption = $("#productPackageList option[value='" + $(this).val() + "']");
+                $("#productPackageId").val(selectedOption.length ? selectedOption.data("id") : "");
+            });
+
+            // Tìm kiếm Zone
+            $("#zoneSearch").on("input", function () {
+                let searchTerm = $(this).val().trim();
+                if (searchTerm.length < 1) return;
+
+                debounce(() => {
+                    $.getJSON("/api/zone/search", { name: searchTerm }, function (zones) {
+                        let dropdown = $("#zoneDropdown");
+                        if (dropdown.length === 0) {
+                            $("#zoneSearch").after('<div id="zoneDropdown" class="dropdown-menu show"></div>');
+                            dropdown = $("#zoneDropdown");
+                        }
+                        dropdown.empty();
+
+                        zones.forEach(zone => {
+                            dropdown.append(`<button type="button" class="dropdown-item select-zone"
+                                            data-id="${zone.id}" data-name="${zone.name}">
+                                         ${zone.name}
+                                      </button>`);
+                        });
+                    });
+                }, 300);
+            });
+
+            // Chọn Zone
+            $(document).on("click", ".select-zone", function () {
+                let zoneId = $(this).data("id");
+                let zoneName = $(this).data("name");
+
+                if ($(`#selectedZone-${zoneId}`).length === 0) {
+                    $("#selectedZonesContainer").append(`
+                <span class="badge bg-primary me-2 selected-zone" id="selectedZone-${zoneId}">
+                    ${zoneName}
+                    <button type="button" class="btn-close btn-close-white ms-1 remove-zone" data-id="${zoneId}"></button>
+                </span>
+            `);
+                }
+
+                updateZoneIds();
+                $("#zoneDropdown").remove();
+            });
+
+            // Xóa Zone đã chọn
+            $(document).on("click", ".remove-zone", function () {
+                $(`#selectedZone-${$(this).data("id")}`).remove();
+                updateZoneIds();
+            });
+
+            // Cập nhật danh sách Zone ID
+            function updateZoneIds() {
+                let selectedIds = $(".selected-zone").map(function () {
+                    return $(this).attr("id").replace("selectedZone-", "");
+                }).get();
+
+                $("#selectedZoneIds").val(selectedIds.join(","));
+            }
+
+            $("#editForm").on("submit", function (event) {
+                event.preventDefault();
+
+                let formData = {
+                    id: $("#id").val(),
+                    name: $("#name").val(),
+                    price: parseFloat($("#price").val()),
+                    image: $("#image").val(),
+                    productPackageId: $("#productPackageId").val() ? parseInt($("#productPackageId").val()) : null,
+                    description: $("#description").val(),
+                    zoneIds: $("#zoneIds").val() ? $("#zoneIds").val().map(id => parseInt(id)) : []
+                };
+
+                $.ajax({
+                    url: "/api/product/edit/" + $("#id").val(),
+                    type: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(formData),
+                    success: function (response) {
+                        alert("Chỉnh sửa sản phẩm thành công!");
+                        window.location.href = "/product/list";
+                    },
+                    error: function (xhr) {
+                        alert("Lỗi: " + xhr.responseJSON.message);
+                    }
+                });
+            });
+        });
+
+    </script>
+</section>
+</body>
+</html>
