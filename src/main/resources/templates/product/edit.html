@@ -58,23 +58,11 @@
                             <label for="zoneIds">Khu vực</label>
                             <select class="form-control" id="zoneIds" th:field="*{zoneIds}" multiple>
                                 <option th:each="zone : ${zones}" th:value="${zone.id}" th:text="${zone.name}"
-                                        th:selected="${#sets.contains(productDTO.zoneIds, zone.id)}">
+                                        th:selected="${#sets.contains(productDTO.zones, zone)}">
                                 </option>
                             </select>
                         </div>
 
-<!--                        list zone đã có-->
-                        <div class="mb-3">
-                            <label for="selectedZonesContainer">Khu vực đã chọn</label>
-                            <div id="selectedZonesContainer">
-                                <span class="badge bg-primary me-2 selected-zone" th:each="zoneId : ${productDTO.zoneIds}"
-                                      th:id="'selectedZone-' + ${zoneId}">
-                                    <span th:text="${#strings.substring(zoneId, 0, 5)}"></span>
-                                    <button type="button" class="btn-close btn-close-white ms-1 remove-zone"
-                                            th:data-id="${zoneId}"></button>
-                                </span>
-                            </div>
-                        </div>
 
                         <p class="text-danger mb-3" th:text="${error}"></p>
                         <button class="btn btn-primary" type="submit">
@@ -98,6 +86,7 @@
                 }
             });
 
+            let debounceTimer;
 
             function debounce(fn, delay) {
                 clearTimeout(debounceTimer);

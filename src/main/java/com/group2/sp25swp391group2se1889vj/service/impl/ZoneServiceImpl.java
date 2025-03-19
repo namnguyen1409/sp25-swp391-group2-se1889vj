@@ -79,4 +79,10 @@ public class ZoneServiceImpl implements ZoneService {
     public List<ZoneDTO> findAll() {
         return zoneRepository.findAll().stream().map(zoneMapper::mapToZoneDTO).collect(Collectors.toList());
     }
+
+    @Override
+    public List<ZoneDTO> findAllByWarehouseId(Long warehouseId) {
+        return zoneRepository.findAllByWarehouseId(warehouseId).stream().map(zoneMapper::mapToZoneDTO).collect(Collectors.toList());
+
+    }
 }

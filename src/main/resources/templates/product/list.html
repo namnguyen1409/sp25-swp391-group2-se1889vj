@@ -17,6 +17,8 @@
                 <input type="hidden" th:field="*{direction}">
                 <input type="hidden" th:field="*{size}">
                 <input type="hidden" th:field="*{name}">
+                <input type="hidden" th:field="*{minQuantity}">
+                <input type="hidden" th:field="*{maxQuantity}">
                 <input type="hidden" th:field="*{minPrice}">
                 <input type="hidden" th:field="*{maxPrice}">
                 <input type="hidden" th:field="*{minCreatedAt}">
@@ -50,7 +52,7 @@
                             </div>
                             <div class="col-md-4 text-end">
                                 <a th:href="@{'/product/add'}" class="btn btn-secondary">
-                                    <i class="bi bi-plus-circle"></i> Thêm kho hàng
+                                    <i class="bi bi-plus-circle"></i> Thêm sản phẩm
                                 </a>
                             </div>
                         </div>
@@ -81,6 +83,12 @@
                         <div class="d-flex gap-2">
                             <input type="text" class="form-control form-control-sm currency-input" th:value="*{minPrice}" id="minPriceField" placeholder="Giá tối thiểu" style="max-width: 120px;">
                             <input type="text" class="form-control form-control-sm currency-input" th:value="*{maxPrice}" id="maxPriceField" placeholder="Giá tối đa" style="max-width: 120px;">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <input type="text" class="form-control form-control-sm currency-input" th:value="*{minQuantity}" id="minQuantityField" placeholder="Số lượng tối thiểu" style="max-width: 120px;">
+                            <input type="text" class="form-control form-control-sm currency-input" th:value="*{maxQuantity}" id="maxQuantityField" placeholder="Số lượng tối đa" style="max-width: 120px;">
                         </div>
                     </td>
                     <td>
@@ -170,6 +178,8 @@
             form.elements['name'].value = '';
             form.elements['minPrice'].value = '';
             form.elements['maxPrice'].value = '';
+            form.elements['minQuantity'].value = '';
+            form.elements['maxQuantity'].value = '';
             form.elements['minCreatedAt'].value = '';
             form.elements['maxCreatedAt'].value = '';
             form.elements['page'].value = 1;
@@ -182,10 +192,11 @@
             form.elements['name'].value = document.getElementById('nameField').value;
             form.elements['minPrice'].value = document.getElementById('minPriceField').value;
             form.elements['maxPrice'].value = document.getElementById('maxPriceField').value;
+            form.elements['minQuantity'].value = document.getElementById('minQuantityField').value;
+            form.elements['maxQuantity'].value = document.getElementById('maxQuantityField').value;
             form.elements['minCreatedAt'].value = document.getElementById('minCreatedAtField').value;
             form.elements['maxCreatedAt'].value = document.getElementById('maxCreatedAtField').value;
             form.elements['size'].value = document.getElementById('sizeField').value;
-
             form.submit();
         }
 

@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 @Repository
@@ -21,4 +22,9 @@ public interface ZoneRepository extends JpaRepository<Zone, Long>, JpaSpecificat
     @Override
     @EntityGraph(attributePaths = {"product"})
     Page<Zone> findAll(Specification<Zone> spec, Pageable pageable);
+
+    List<Zone> findAllByWarehouseId(Long warehouseId);
+
+    List<Zone> findAllByProductIdAndWarehouseId(Long id, Long warehouseId);
 }
+

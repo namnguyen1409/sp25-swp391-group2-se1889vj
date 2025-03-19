@@ -148,6 +148,14 @@ public class ProductServiceImpl implements ProductService {
         product.setPrice(productDTO.getPrice());
         product.setProductPackage(productPackageRepository.findByIdAndWarehouseId(productDTO.getProductPackageId(), productDTO.getWarehouseId()));
         productRepository.save(product);
+
+        // hủy liên kết sản phẩm với các khu vực cũ
+        List<Zone> zones = zoneRepository.findAllByProductIdAndWarehouseId(id, productDTO.getWarehouseId());
+        zones.forEach(zone -> {
+            zone.setProduct(null);
+            zoneRepository.save(zone);
+        });
+
         productDTO.getZoneIds().forEach(zoneId -> {
             Zone zone = zoneRepository.findByIdAndWarehouseId(zoneId, productDTO.getWarehouseId());
             if (zone != null) {

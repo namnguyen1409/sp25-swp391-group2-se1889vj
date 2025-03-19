@@ -40,7 +40,6 @@ public class ProductController {
     private final XSSProtectedUtil xssProtectedUtil;
     private final StorageService storageService;
 
-    private static final String PRICE = "price";
     private final ProductPackageService productPackageService;
     private final ZoneService zoneService;
 
@@ -125,9 +124,9 @@ public class ProductController {
                 ? Sort.by(productFilterDTO.getOrderBy()).ascending()
                 : Sort.by(productFilterDTO.getOrderBy()).descending();
 
-        List<String> fields = Arrays.asList("image", "name",PRICE, "createdAt");
-        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Hình ảnh", "Tên", "Giá", "Ngày tạo"));
-        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("image", "",PRICE, "datetime"));
+        List<String> fields = Arrays.asList("image", "name", "price", "stockQuantity" ,"createdAt");
+        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Hình ảnh", "Tên", "Giá", "Số lượng", "Ngày tạo"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("image", "", "price", "", "datetime"));
 
         model.addAttribute("fields", fields);
         model.addAttribute("fieldTitles", fieldTitles);
@@ -170,7 +169,7 @@ public class ProductController {
         if (product == null) {
             return "redirect:/product";
         }
-        List<ZoneDTO> zones = zoneService.findAll();
+        List<ZoneDTO> zones = zoneService.findAllByWarehouseId(getWarehouseId());
         model.addAttribute("zones", zones);
         model.addAttribute("productPackage", productPackageService.findProductPackageById(product.getProductPackageId()));
         model.addAttribute("productDTO", product);
