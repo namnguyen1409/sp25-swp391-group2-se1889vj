@@ -2,9 +2,11 @@ package com.group2.sp25swp391group2se1889vj.controller;
 
 import com.group2.sp25swp391group2se1889vj.dto.ProductDTO;
 import com.group2.sp25swp391group2se1889vj.entity.Product;
+import com.group2.sp25swp391group2se1889vj.entity.ProductPackage;
 import com.group2.sp25swp391group2se1889vj.entity.User;
 import com.group2.sp25swp391group2se1889vj.enums.RoleType;
 import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
+import com.group2.sp25swp391group2se1889vj.service.ProductPackageService;
 import com.group2.sp25swp391group2se1889vj.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -15,9 +17,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api/product")
 public class ProductRestController {
     private final ProductService productService;
+    private final ProductPackageService productPackageService;
 
-    public ProductRestController(ProductService productService) {
+    public ProductRestController(ProductService productService, ProductPackageService productPackageService) {
         this.productService = productService;
+        this.productPackageService = productPackageService;
     }
 
     private User getUser() {
@@ -58,5 +62,17 @@ public class ProductRestController {
             return ResponseEntity.badRequest().body("Lỗi khi thêm sản phẩm: " + e.getMessage());
         }
     }
+
+    @PostMapping("/edit/{id}")
+    public ResponseEntity<?> editProduct(
+            @PathVariable Long id,
+            @Valid @RequestBody ProductDTO productDTO
+    ) throws Exception {
+        System.out.println("Dữ liệu nhận từ frontend: " + productDTO);
+        productDTO.setWarehouseId(getWarehouseId());
+        productService.updateProduct(id, productDTO);
+        return ResponseEntity.ok("{\"message\": \"Sửa sản phẩm thành công\"}");
+    }
+
 
 }

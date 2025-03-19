@@ -15,4 +15,6 @@ public interface ZoneService {
     List<ZoneDTO> searchZones(Long warehouseId, String keyword);
 
     void updateZone(ZoneDTO zone);
+
+    List<ZoneDTO> findAll();
 }

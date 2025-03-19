@@ -5,13 +5,16 @@ import com.group2.sp25swp391group2se1889vj.dto.ProductDTO;
 import com.group2.sp25swp391group2se1889vj.dto.ProductFilterDTO;
 import com.group2.sp25swp391group2se1889vj.entity.Product;
 import com.group2.sp25swp391group2se1889vj.entity.ProductPackage;
+import com.group2.sp25swp391group2se1889vj.entity.Warehouse;
 import com.group2.sp25swp391group2se1889vj.entity.Zone;
 import com.group2.sp25swp391group2se1889vj.exception.ProductNoSuchElementException;
 import com.group2.sp25swp391group2se1889vj.mapper.ProductMapper;
 import com.group2.sp25swp391group2se1889vj.repository.ProductPackageRepository;
 import com.group2.sp25swp391group2se1889vj.repository.ProductRepository;
+import com.group2.sp25swp391group2se1889vj.repository.WarehouseRepository;
 import com.group2.sp25swp391group2se1889vj.repository.ZoneRepository;
 import com.group2.sp25swp391group2se1889vj.service.ProductService;
+import com.group2.sp25swp391group2se1889vj.service.WarehouseService;
 import com.group2.sp25swp391group2se1889vj.specification.ProductSpecification;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
@@ -32,6 +35,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
+    private final WarehouseService warehouseService;
+    private final WarehouseRepository warehouseRepository;
     private ProductRepository productRepository;
     private ProductMapper productMapper;
     private MessageSource messageSource;
@@ -81,7 +86,6 @@ public class ProductServiceImpl implements ProductService {
     }
 
 
-
     @Override
     public void deleteProductById(Long id) {
         productRepository.deleteById(id);
@@ -122,6 +126,27 @@ public class ProductServiceImpl implements ProductService {
         ProductPackage productPackage = productPackageRepository.findByIdAndWarehouseId(productDTO.getProductPackageId(), productDTO.getWarehouseId());
         if (productPackage == null) throw new Exception("Không tìm thấy quy cách đóng gói");
         product.setProductPackage(productPackage);
+        productRepository.save(product);
+        productDTO.getZoneIds().forEach(zoneId -> {
+            Zone zone = zoneRepository.findByIdAndWarehouseId(zoneId, productDTO.getWarehouseId());
+            if (zone != null) {
+                zone.setProduct(product);
+                zoneRepository.save(zone);
+            }
+        });
+    }
+
+    @Override
+    @Transactional
+    public void updateProduct(Long id, ProductDTO productDTO) throws Exception {
+        Product product = productRepository.findByIdAndWarehouseId(id, productDTO.getWarehouseId());
+        if (product == null) {
+            throw new Exception("Không tìm thấy sản phẩm");
+        }
+        product.setName(productDTO.getName());
+        product.setDescription(productDTO.getDescription());
+        product.setPrice(productDTO.getPrice());
+        product.setProductPackage(productPackageRepository.findByIdAndWarehouseId(productDTO.getProductPackageId(), productDTO.getWarehouseId()));
         productRepository.save(product);
         productDTO.getZoneIds().forEach(zoneId -> {
             Zone zone = zoneRepository.findByIdAndWarehouseId(zoneId, productDTO.getWarehouseId());

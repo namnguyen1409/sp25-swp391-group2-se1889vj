@@ -27,5 +27,6 @@ public interface ProductService {
 
     void addProduct(ProductDTO productDTO) throws Exception;
 
+    void updateProduct(Long id, ProductDTO productDTO) throws Exception;
     ProductDTO findProductByIdAndWarehouseId(Long id, Long warehouseId);
 }

@@ -3,15 +3,16 @@ package com.group2.sp25swp391group2se1889vj.controller;
 import com.group2.sp25swp391group2se1889vj.dto.ProductDTO;
 import com.group2.sp25swp391group2se1889vj.dto.ProductFilterDTO;
 import com.group2.sp25swp391group2se1889vj.dto.ZoneDTO;
-import com.group2.sp25swp391group2se1889vj.dto.ZoneFilterDTO;
 import com.group2.sp25swp391group2se1889vj.entity.ProductPackage;
 import com.group2.sp25swp391group2se1889vj.entity.User;
 import com.group2.sp25swp391group2se1889vj.enums.RoleType;
+import com.group2.sp25swp391group2se1889vj.mapper.ZoneMapper;
 import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
 import com.group2.sp25swp391group2se1889vj.security.RecaptchaService;
 import com.group2.sp25swp391group2se1889vj.service.ProductPackageService;
 import com.group2.sp25swp391group2se1889vj.service.ProductService;
 import com.group2.sp25swp391group2se1889vj.service.StorageService;
+import com.group2.sp25swp391group2se1889vj.service.ZoneService;
 import com.group2.sp25swp391group2se1889vj.util.XSSProtectedUtil;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -41,6 +42,7 @@ public class ProductController {
 
     private static final String PRICE = "price";
     private final ProductPackageService productPackageService;
+    private final ZoneService zoneService;
 
     private User getUser() {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
@@ -162,4 +164,51 @@ public class ProductController {
         return "product/detail";
     }
 
+    @GetMapping("/edit/{id}")
+    public String editProduct(@PathVariable Long id, Model model) {
+        ProductDTO product = productService.findProductByIdAndWarehouseId(id, getWarehouseId());
+        if (product == null) {
+            return "redirect:/product";
+        }
+        List<ZoneDTO> zones = zoneService.findAll();
+        model.addAttribute("zones", zones);
+        model.addAttribute("productPackage", productPackageService.findProductPackageById(product.getProductPackageId()));
+        model.addAttribute("productDTO", product);
+        return "product/edit";
+    }
+
+    @PostMapping("/edit/{id}")
+    public String editProduct(
+            @PathVariable Long id,
+            @Validated @ModelAttribute("productDTO") ProductDTO productDTO,
+            BindingResult bindingResult,
+            RedirectAttributes redirectAttributes
+    ) {
+        try {
+            ProductDTO product = productService.findProductByIdAndWarehouseId(id, getWarehouseId());
+            if (product == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy sản phẩm");
+                return "redirect:/product/list";
+            }
+
+            product.setName(productDTO.getName());
+            product.setDescription(productDTO.getDescription());
+            product.setPrice(productDTO.getPrice());
+            product.setProductPackageId(productDTO.getProductPackageId());
+            product.setZoneIds(productDTO.getZoneIds());
+
+            ProductPackage productPackage = productPackageService.findByIdAndWarehouseId(productDTO.getProductPackageId(), getWarehouseId());
+            if (productPackage == null) {
+                redirectAttributes.addFlashAttribute("error", "Quy cách đóng gói không hợp lệ");
+                return "redirect:/product/edit/" + id;
+            }
+
+            productService.updateProduct(id, product);
+            redirectAttributes.addFlashAttribute("success", "Sửa sản phẩm thành công");
+            return "redirect:/product/list";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi sửa sản phẩm: " + e.getMessage());
+            return "redirect:/product/edit/" + id;
+        }
+    }
 }
