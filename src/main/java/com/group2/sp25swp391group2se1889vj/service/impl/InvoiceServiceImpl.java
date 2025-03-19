@@ -126,22 +126,28 @@ public class InvoiceServiceImpl implements InvoiceService {
 
             Invoice finalInvoice = invoice;
             invoiceDTO.getItems().forEach(item -> {
+
+
+
                 InvoiceItem invoiceItem = new InvoiceItem();
-                invoiceItem.setInvoice(finalInvoice);
-                invoiceItem.setPrice(item.getPrice()); // giá đề xuất
-                invoiceItem.setQuantity(item.getQuantity()); // số lượng
-                invoiceItem.setDiscount(item.getDiscount()); // giá thương lượng
-                invoiceItem.setPayable(item.getDiscount().multiply(BigDecimal.valueOf(item.getQuantity())));
-                ProductPackage productPackage = productPackageRepository.findByIdAndWarehouseId(item.getProductPackageId(), invoiceDTO.getWarehouseId());
-                if (productPackage == null) {
-                    throw new RuntimeException("Product package not found");
-                }
-                invoiceItem.setProductPackage(productPackage);
                 Product product = productRepository.getProductByIdAndWarehouseId(item.getProductId(), invoiceDTO.getWarehouseId());
                 if (product == null) {
                     throw new RuntimeException("Product not found");
                 }
                 invoiceItem.setProduct(product);
+
+                ProductPackage productPackage = productPackageRepository.findByIdAndWarehouseId(item.getProductPackageId(), invoiceDTO.getWarehouseId());
+                if (productPackage == null) {
+                    throw new RuntimeException("Product package not found");
+                }
+                invoiceItem.setProductPackage(productPackage);
+
+                invoiceItem.setInvoice(finalInvoice);
+                invoiceItem.setPrice(product.getPrice()); // giá đề xuất
+                invoiceItem.setQuantity(item.getQuantity()); // số lượng
+                invoiceItem.setWeight(item.getQuantity() * productPackage.getWeight());
+                invoiceItem.setDiscount(item.getDiscount()); // giá thương lượng
+                invoiceItem.setPayable(item.getDiscount().multiply(BigDecimal.valueOf((long) item.getQuantity() * productPackage.getWeight())));
                 invoiceItem.setProductSnapshotDTO(ProductSnapshotDTO.builder().id(product.getId())
                         .name(product.getName())
                         .price(product.getPrice())

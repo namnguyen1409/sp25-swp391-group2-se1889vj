@@ -25,6 +25,7 @@ public class RegisterDTO {
 
     @NotBlank(message = "Họ không được để trống")
     @Size(min = 1, max = 50, message = "Họ phải từ 1 đến 50 ký tự")
+    @Pattern(regexp = "^[^!@#$%^&*()_+=\\[\\]{}|,;:'\"<>?/\\\\~`]*$", message = "Họ không được chứa ký tự đặc biệt")
     private String firstName;
 
     @NotBlank(message = "Tên không được để trống")
