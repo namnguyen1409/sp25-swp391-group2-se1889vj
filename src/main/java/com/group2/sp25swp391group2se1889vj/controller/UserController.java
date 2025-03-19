@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -28,17 +29,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.*;
 
+
+
 @Controller
 @RequestMapping("/users")
 @AllArgsConstructor
 public class UserController {
 
-        private final RegistrationTokenRepository registrationTokenRepository;
-        private final RecaptchaService recaptchaService;
-        private final PasswordEncoder passwordEncoder;
-        private final EmailServiceImpl emailService;
-        private final UserRepository userRepository;
-        private final EncryptionUtil encryptionUtil;
+    private final RegistrationTokenRepository registrationTokenRepository;
+    private final RecaptchaService recaptchaService;
+    private final PasswordEncoder passwordEncoder;
+    private final EmailServiceImpl emailService;
+    private final UserRepository userRepository;
+    private final EncryptionUtil encryptionUtil;
     private final UserService userService;
     private final RegistrationTokenService registrationTokenService;
 
@@ -65,6 +68,7 @@ public class UserController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
     @GetMapping({"", "/", "/list"})
     public String listUsers(
             Model model,
@@ -108,6 +112,7 @@ public class UserController {
         return "user/list";
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
     @PostMapping({"/list", "", "/"})
     public String list(
             @ModelAttribute("userFilterDTO") UserFilterDTO userFilterDTO,
@@ -118,8 +123,9 @@ public class UserController {
     }
 
 
-        @GetMapping("/add")
-        public String addUser(Model model) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
+    @GetMapping("/add")
+    public String addUser(Model model) {
             return "user/add";
         }
 
@@ -216,6 +222,7 @@ public class UserController {
         return "user/add";
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
     @GetMapping("/waiter-list")
     public String listWaiter(Model model,
                                 @RequestParam(value = "page", required = false, defaultValue = "1") int page,
@@ -259,7 +266,6 @@ public class UserController {
             waiters = registrationTokenService.findPaginationRegisterTokenDTO(pageable);
         }
 
-        // Các tham số phân trang và tìm kiếm
         model.addAttribute("waiters", waiters);
         model.addAttribute("page", page);
         model.addAttribute("size", size);
@@ -270,6 +276,7 @@ public class UserController {
         return "user/waiter-list";
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
     @GetMapping({"/resend-email/{id}"})
     public String resendEmail(@PathVariable("id") Long id,
                               RedirectAttributes redirectAttributes) {
@@ -282,6 +289,7 @@ public class UserController {
         return "redirect:/users/waiter-list";
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
     @GetMapping("/delete-email/{id}")
     public String deleteEmail(@PathVariable("id") Long id, RedirectAttributes redirectAttributes) {
         try {
@@ -295,6 +303,7 @@ public class UserController {
 
 
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
     @GetMapping("/edit/{id}")
     public String editUser(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes) {
         UserDTO userDTO = userService.findUserById(id);
@@ -337,6 +346,7 @@ public class UserController {
         return "redirect:/users/list";
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
     @GetMapping("/verify-email")
     public String showEmailVerificationPage(@RequestParam(value = "pendingEmail", required = false)
                                                 String pendingEmail,
@@ -366,6 +376,7 @@ public class UserController {
     }
 
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'OWNER')")
     @GetMapping("/detail/{id}")
     public String detailUser(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         UserDTO userDTO = userService.findUserById(id);
@@ -376,5 +387,4 @@ public class UserController {
         model.addAttribute("user", userDTO);
         return "user/detail";
     }
-
 }
