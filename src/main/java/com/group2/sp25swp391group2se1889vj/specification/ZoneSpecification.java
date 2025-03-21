@@ -25,6 +25,12 @@ public class ZoneSpecification {
             if (zoneFilterDTO.getMaxCreatedAt() != null) {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createAt"), zoneFilterDTO.getMaxCreatedAt()));
             }
+            if (zoneFilterDTO.getMinUpdateAt() != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("updatedAt"), zoneFilterDTO.getMinUpdateAt()));
+            }
+            if (zoneFilterDTO.getMaxUpdateAt() != null) {
+                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("updatedAt"), zoneFilterDTO.getMaxUpdateAt()));
+            }
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }

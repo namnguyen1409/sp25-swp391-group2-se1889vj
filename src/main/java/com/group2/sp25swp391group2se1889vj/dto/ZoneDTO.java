@@ -12,7 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 public class ZoneDTO extends BaseDTO {
     @NotBlank(message = "Tên khu vực không được để trống")
-    @Size(min = 6, max = 50, message = "Tên khu vực phải có từ 6 đến 50 ký tự")
+    @Size(min = 1, max = 50, message = "Tên khu vực phải có từ 1 đến 50 ký tự")
     @Pattern(regexp = "^[^!@#$%^&*()_+=\\[\\]{}|,;:'\"<>?/\\\\~`]*$", message = "Tên khu vực không được chứa ký tự đặc biệt")
     private String name;
     private String description;
