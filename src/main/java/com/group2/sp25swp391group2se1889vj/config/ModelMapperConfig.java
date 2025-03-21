@@ -4,6 +4,7 @@ package com.group2.sp25swp391group2se1889vj.config;
 import com.group2.sp25swp391group2se1889vj.dto.*;
 import com.group2.sp25swp391group2se1889vj.entity.*;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.Converter;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.context.annotation.Bean;
@@ -116,7 +117,41 @@ public class ModelMapperConfig {
             }
         });
 
+        modelMapper.addMappings(
+                new PropertyMap<InvoiceItem, InvoiceItemDTO>() {
+                    @Override
+                    protected void configure() {
+                        map().setCreatedBy(source.getCreatedBy().getId());
+                        map().setCreatedAt(source.getCreatedAt());
+                        map().setUpdatedBy(source.getUpdatedBy().getId());
+                        map().setUpdatedAt(source.getUpdatedAt());
+                        map().setProductId(source.getProduct().getId());
+                        using(ctx -> ProductPackageDTO.builder()
+                                .name(((InvoiceItem) ctx.getSource()).getProductPackage().getName())
+                                .weight(((InvoiceItem) ctx.getSource()).getProductPackage().getWeight())
+                                .build()
+                        ).map(source, destination.getProductPackage());
+
+                    }
+                }
+        );
+
+        modelMapper.addMappings(
+                new PropertyMap<Invoice, InvoiceDataDTO>() {
+                    @Override
+                    protected void configure() {
+                        map().setCreatedBy(source.getCreatedBy().getId());
+                        map().setCreatedAt(source.getCreatedAt());
+                        map().setUpdatedBy(source.getUpdatedBy().getId());
+                        map().setUpdatedAt(source.getUpdatedAt());
+                        map().setCreatedByUsername(source.getCreatedBy().getUsername());
+                        map().setCustomerBalance(source.getCustomerBalance());
+                    }
+                }
+        );
+
         modelMapper.getConfiguration().setAmbiguityIgnored(true);
+        modelMapper.getConfiguration().setPropertyCondition(context -> context.getSource() != null);
         return modelMapper;
     }
 

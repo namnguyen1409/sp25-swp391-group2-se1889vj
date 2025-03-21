@@ -8,4 +8,5 @@ import org.springframework.data.domain.Pageable;
 public interface WarehouseService {
     WarehouseDTO findWarehouseByOwnerId(Long ownerId);
     void updateWarehouse(WarehouseDTO warehouseDTO);
+    WarehouseDTO findById(Long warehouseId);
 }

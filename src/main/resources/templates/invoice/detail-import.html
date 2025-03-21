@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en" layout:decorate="template"
+
+>
+<body>
+<section layout:fragment="content" class="container h-100">
+    <style>
+        body {
+            font-family: "Arial", sans-serif;
+            background-color: #f8f9fa;
+        }
+        .invoice-container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .invoice-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .invoice-header h2 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .info-section {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .table th, .table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+        .total-section {
+            font-size: 18px;
+            font-weight: bold;
+            text-align: right;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 5px;
+        }
+        .invoice-footer {
+            text-align: center;
+            margin-top: 20px;
+            font-style: italic;
+            color: #777;
+        }
+
+    </style>
+    <div id="invoicePrint" class="invoice-container mt-5 mb-5">
+        <div class="invoice-header row">
+            <div class="col-6">
+                <h2 th:text="${invoice.warehouse.name}"></h2>
+                <p th:text="${invoice.warehouse.location}"></p>
+            </div>
+            <div>
+                <h2>HÓA ĐƠN NHẬP KHO</h2>
+                <p><strong>Ngày nhập:</strong> <span class="dateTime" th:text="${invoice.createdAt}"></span></p>
+                <p><strong>Người lập:</strong> <span th:text="${invoice.createdByUsername}"></span></p>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h5>Thông tin nhà cung cấp</h5>
+            <p><strong>Tên nhà cung cấp:</strong> <span th:text="${invoice.customer.fullName}"></span></p>
+            <p><strong>Số điện thoại:</strong> <span th:text="${invoice.customer.phone}"></span></p>
+            <p><strong>Số dư:</strong> <span class="price" th:text="${invoice.customerBalance}"></span></p>
+        </div>
+
+        <table class="table table-bordered">
+            <thead class="table-secondary">
+            <tr>
+                <th>STT<br>A</th>
+                <th>Tên sản phẩm<br>B</th>
+                <th>Quy cách<br>C</th>
+                <th>Số lượng<br>1</th>
+                <th>Khối lượng<br>2</th>
+                <th>Giá nhập<br>3</th>
+                <th>Thành tiền<br>4 = 2 * 3</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item, iterStat : ${invoice.items}">
+                <td th:text="${iterStat.count}"></td>
+                <td th:text="${item.product.name}"></td>
+                <td th:text="${item.productPackage.name}"></td>
+                <td th:text="${item.quantity}"></td>
+                <td th:text="${item.weight}"></td>
+                <td class="price" th:text="${item.price}"></td>
+                <td class="price" th:text="${item.payable}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="total-section mt-3">
+            <p>Tổng giá trị nhập kho: <span  class="price" th:text="${invoice.totalPrice}"></span></p>
+            <p>Đã thanh toán: <span  class="price" th:text="${invoice.totalPaid}"></span></p>
+            <p style="color: red;">Số tiền còn nợ: <span class="price" th:text="${invoice.totalDebt}"></span></p>
+        </div>
+        <div class="info-section mt-3">
+            <h5>Trạng thái đơn hàng</h5>
+            <p>Thuê bốc vác: <strong th:text="${invoice.isShipped} ? 'Có' : 'Không'"></strong></p>
+            <p>Đã xử lý: <strong th:text="${invoice.isProcessed} ? 'Có' : 'Chưa'"></strong></p>
+            <p>Trạng thái:
+                <span th:if="${invoice.isSuccess}" class="text-success">Thành công</span>
+                <span th:unless="${invoice.isSuccess}" class="text-danger">Chưa hoàn thành</span>
+            </p>
+        </div>
+
+        <th:block th:if="${invoice.description!=null && !invoice.description.isEmpty()}">
+            <div class="info-section">
+                <h5>Ghi chú</h5>
+                <p th:utext="${invoice.description}"></p>
+            </div>
+        </th:block>
+
+        <div class="d-flex justify-content-between mt-4 mb-5">
+            <div>
+                <p><strong>Người lập hóa đơn</strong></p>
+                <p>(Ký, ghi rõ họ tên)</p>
+            </div>
+            <div>
+                <p><strong>Nhà cung cấp</strong></p>
+                <p>(Ký, ghi rõ họ tên)</p>
+            </div>
+        </div>
+
+        <div class="invoice-footer mt-5">
+            <p>Cảm ơn quý đối tác đã hợp tác!</p>
+            <p th:utext="${invoice.warehouse.description}"></p>
+        </div>
+    </div>
+
+    <div class="text-center mt-4 mb-5">
+        <a th:href="@{/invoice/detail/import/print/{id}(id=${invoice.id})}" class="btn btn-primary" target="_blank">In hóa đơn</a>
+    </div>
+
+</section>
+</body>
+</html>

@@ -30,6 +30,7 @@ public class Sp25Swp391Group2Se1889vjApplication {
 			storageService.init();
 		};
 	}
+
 	@EventListener(ApplicationReadyEvent.class)
 	public void doSomethingAfterStartup() {
 

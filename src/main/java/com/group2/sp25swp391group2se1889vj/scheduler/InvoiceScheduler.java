@@ -2,10 +2,7 @@ package com.group2.sp25swp391group2se1889vj.scheduler;
 
 import com.group2.sp25swp391group2se1889vj.controller.InvoiceRestController;
 import com.group2.sp25swp391group2se1889vj.controller.WebSocketController;
-import com.group2.sp25swp391group2se1889vj.entity.Customer;
-import com.group2.sp25swp391group2se1889vj.entity.Debt;
-import com.group2.sp25swp391group2se1889vj.entity.Invoice;
-import com.group2.sp25swp391group2se1889vj.entity.InvoiceItem;
+import com.group2.sp25swp391group2se1889vj.entity.*;
 import com.group2.sp25swp391group2se1889vj.enums.DebtType;
 import com.group2.sp25swp391group2se1889vj.enums.InvoiceType;
 import com.group2.sp25swp391group2se1889vj.repository.DebtRepository;
@@ -36,7 +33,6 @@ public class InvoiceScheduler {
     public void processInvoice() {
         Long invoiceId;
         if (isProcessing) {
-            // log.info("Đang xử lý hóa đơn, không thể xử lý thêm");
             return;
         }
         while ((invoiceId = InvoiceRestController.invoiceQueue.poll()) != null) {
@@ -44,17 +40,15 @@ public class InvoiceScheduler {
             var invoice = invoiceRepository.findById(invoiceId).orElse(null);
             try {
                 if (invoice.getType() == InvoiceType.PURCHASE) {
-                    // log.info("Đang xử lý hóa đơn nhập hàng: {}", invoice.getId());
                     processInvoicePurchase(invoice);
                     invoice.setProcessed(true);
                     invoice.setSuccess(Boolean.TRUE);
                     invoiceRepository.save(invoice);
                     webSocketController.sendInvoiceStatus(invoice.getId(), "SUCCESS", "Hóa đơn nhập hàng đã xử lý", invoice.getCreatedBy().getUsername());
                 } else if (invoice.getType() == InvoiceType.SALES) {
-                    // log.info("Đang xử lý hóa đơn bán hàng: {}", invoice.getId());
-                    // Xử lý hóa đơn bán hàng
                     processInvoiceSale(invoice);
                     invoice.setProcessed(true);
+                    invoice.setSuccess(Boolean.TRUE);
                     invoiceRepository.save(invoice);
                     webSocketController.sendInvoiceStatus(invoice.getId(), "SUCCESS", "Hóa đơn bán hàng đã xử lý", invoice.getCreatedBy().getUsername());
                 }
@@ -78,6 +72,8 @@ public class InvoiceScheduler {
                 .map(InvoiceItem::getPayable)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         invoice.setTotalPrice(totalPrice);
+
+        invoice.setTotalDiscount(totalPrice); // không có giảm giá khi nhập hàng
 
         // 2. Lấy thông tin khách hàng và số dư hiện tại
         Customer customer = invoice.getCustomer();
@@ -189,54 +185,44 @@ public class InvoiceScheduler {
                     createDebt(invoice, DebtType.SHOP_BORROW, totalPaid.add(totalPrice).subtract(customerBalance.abs()), "Cửa hàng nợ khách sau nhập hàng");
                 }
             }
-
         }
-
-
     }
 
     @Transactional
     protected void processInvoiceSale(Invoice invoice) {
-        // 1. Tính tổng tiền hàng khách mua
         BigDecimal totalPrice = invoice.getInvoiceItems().stream()
-                .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .map(item -> {
+                    ProductPackage productPackage = item.getProductPackage();
+                    BigDecimal price = item.getProduct().getPrice();
+                    int weight = productPackage.getWeight();
+                    return price.multiply(BigDecimal.valueOf(weight)).multiply(BigDecimal.valueOf(item.getQuantity()));
+                })
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         invoice.setTotalPrice(totalPrice);
 
-        // 2. Tính tổng tiền hàng sau giảm giá
         BigDecimal totalDiscount = invoice.getInvoiceItems().stream()
                 .map(InvoiceItem::getPayable)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         invoice.setTotalDiscount(totalDiscount);
 
-        // 3. Lấy thông tin khách hàng và số dư hiện tại
         Customer customer = invoice.getCustomer();
         BigDecimal customerBalance = customer.getBalance();
         invoice.setCustomerBalance(customerBalance);
 
-        // 4. Tổng tiền khách phải trả bao gồm số dư trước đó
         BigDecimal totalPayable = totalDiscount.subtract(customerBalance);
         invoice.setTotalPayable(totalPayable);
 
-        // 5. Số tiền đã trả thực tế
         BigDecimal totalPaid = invoice.getTotalPaid();
 
-        // 6. Tính tổng nợ còn lại của khách cho cửa hàng
         BigDecimal totalDebt = totalPayable.subtract(totalPaid);
         invoice.setTotalDebt(totalDebt);
 
-
-        // cập nhật số lượng sản phẩm
         for (InvoiceItem item : invoice.getInvoiceItems()) {
-            // log.info("Cập nhật số lượng sản phẩm: {} - {}", item.getProduct().getName(), item.getQuantity());
-            // lưu ý trừ số lượng sản phẩm không được phép xuống dưới 0
             int row = productRepository.decreaseStockQuantity(item.getProduct().getId(), item.getQuantity() * item.getProductPackage().getWeight());
             if (row == 0) {
                 throw new RuntimeException("Sản phẩm  không đủ hàng trong kho");
             }
         }
-
-        // 7. Xử lý công nợ theo từng trường hợp
         if (customerBalance.compareTo(BigDecimal.ZERO) == 0) {
             // log.info("Số dư khách hàng = 0");
             if (totalPaid.compareTo(totalDiscount) < 0) {

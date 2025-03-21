@@ -11,7 +11,7 @@
 
     <div class="mt-3">
         <div class="mt-3">
-            <form id="searchForm" method="post" th:action="@{${'/invoice/'}}" th:object="${invoiceFilterDTO}">
+            <form id="searchForm" method="post" th:action="@{${'/invoice/export'}}" th:object="${invoiceFilterDTO}">
                 <input th:field="*{page}" type="hidden">
                 <input th:field="*{orderBy}" type="hidden">
                 <input th:field="*{direction}" type="hidden">
@@ -86,19 +86,6 @@
                 <tbody>
                 <tr th:object="${invoiceFilterDTO}">
                     <td>
-                        <select class="form-select form-select-sm" id="typeField" onchange="updateField()">
-                            <option value="">Tất cả</option>
-                            <option th:selected="${invoiceFilterDTO.type != null and invoiceFilterDTO.type.name() == 'PURCHASE'}"
-                                    value="PURCHASE">
-                                Nhập hàng
-                            </option>
-                            <option th:selected="${invoiceFilterDTO.type != null and invoiceFilterDTO.type.name() == 'SALES'}"
-                                    value="SALES">
-                                Bán hàng
-                            </option>
-                        </select>
-                    </td>
-                    <td>
                         <div class="d-flex gap-2" style="max-width: 200px">
                             <input class="form-control form-control-sm currency-input" id="totalPriceFromField"
                                    placeholder="Số tiền từ" th:attr="data-raw=*{totalPriceFrom}"
@@ -166,6 +153,16 @@
                         <input class="form-control form-control-sm" id="customerPhoneField" placeholder="Số điện thoại"
                                th:value="*{customerPhone}" type="text">
                     </td>
+                    <td>
+                        <div class="d-flex gap-2" style="max-width: 200px">
+                            <input type="datetime-local" class="form-control form-control-sm" th:value="*{minCreatedAt}" id="minCreatedAtField" placeholder="Ngày tạo tối thiểu" style="max-width: 80px;">
+                            <input type="datetime-local" class="form-control form-control-sm" th:value="*{maxCreatedAt}" id="maxCreatedAtField" placeholder="Ngày tạo tối đa" style="max-width: 80px;">
+                        </div>
+                    </td>
+                    <td>
+                        <input class="form-control form-control-sm" id="createdByUsernameField" placeholder="Số điện thoại"
+                               th:value="*{createdByUsername}" type="text">
+                    </td>
                     <td class="text-center">
                         <button class="btn btn-primary btn-sm" id="btnSubmit" type="button">
                             <i class="bi bi-search"></i> Tìm kiếm
@@ -179,16 +176,6 @@
                 <tr th:each="item : ${invoices}" th:if="${invoices.totalPages > 0}">
                     <td th:each="field : ${fields}">
                         <th:block th:switch="${fieldClasses[__${field}__]}">
-                            <th:block th:case="'invoiceType'">
-                                <span th:classappend="${fieldClasses[__${field}__]}"
-                                      th:if="${item[field]?.name() == 'PURCHASE'}">
-                                    Nhập hàng
-                                </span>
-                                <span th:classappend="${fieldClasses[__${field}__]}"
-                                      th:if="${item[field]?.name() == 'SALES'}">
-                                    Bán hàng
-                                </span>
-                            </th:block>
                             <th:block th:case="'image'">
                                 <img class="img-thumbnail tableImg" height="50" style="aspect-ratio: 1/1; object-fit: cover; cursor: pointer"
                                      th:src="@{'/' + ${item[field]}}" width="50">
@@ -202,7 +189,7 @@
                         </th:block>
                     </td>
                     <td class="text-center">
-                        <a class="btn btn-info btn-sm" th:href="@{'/invoice/detail/' + ${item.id}}">
+                        <a class="btn btn-info btn-sm" th:href="@{'/invoice/detail/export/' + ${item.id}}">
                             <i class="bi bi-eye-fill"></i>
                         </a>
                     </td>
@@ -269,6 +256,9 @@
             form.elements['totalDebtTo'].value = '';
             form.elements['customerFullName'].value = '';
             form.elements['customerPhone'].value = '';
+            form.elements['minCreatedAt'].value = '';
+            form.elements['maxCreatedAt'].value = '';
+            form.elements['createdByUsername'].value = '';
             form.elements['page'].value = 1;
             form.elements['size'].value = 10;
             form.submit();
@@ -331,7 +321,6 @@
 
         function updateField() {
             let form = document.getElementById('searchForm');
-            form.elements['type'].value = document.getElementById('typeField').value;
             form.elements['totalPriceFrom'].value = document.getElementById('totalPriceFromField').getAttribute('data-raw');
             form.elements['totalPriceTo'].value = document.getElementById('totalPriceToField').getAttribute('data-raw');
             form.elements['totalDiscountFrom'].value = document.getElementById('totalDiscountFromField').getAttribute('data-raw');

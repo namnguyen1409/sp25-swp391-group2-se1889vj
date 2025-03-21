@@ -34,4 +34,10 @@ public class WarehouseServiceImpl implements WarehouseService {
         warehouse.setDescription(warehouseDTO.getDescription());
         warehouseRepository.save(warehouse);
     }
+
+    @Override
+    public WarehouseDTO findById(Long warehouseId) {
+        return warehouseMapper.mapToWarehouseDTO(warehouseRepository.findById(warehouseId)
+                .orElseThrow(() -> new RuntimeException(messageService.getMessage("warehouse.not.found"))));
+    }
 }

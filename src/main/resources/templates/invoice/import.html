@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en"
+      layout:decorate="template"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:th="http://www.thymeleaf.org"
+
+>
+<body>
+<section class="container-fluid h-100" layout:fragment="content">
+
+    <h2 class="text-center mt-3">Danh sách hóa đơn</h2>
+
+    <div class="mt-3">
+        <div class="mt-3">
+            <form id="searchForm" method="post" th:action="@{${'/invoice/import'}}" th:object="${invoiceFilterDTO}">
+                <input th:field="*{page}" type="hidden">
+                <input th:field="*{orderBy}" type="hidden">
+                <input th:field="*{direction}" type="hidden">
+                <input th:field="*{size}" type="hidden">
+                <input th:field="*{type}" type="hidden">
+                <input th:field="*{totalPriceFrom}" type="hidden">
+                <input th:field="*{totalPriceTo}" type="hidden">
+                <input th:field="*{totalDiscountFrom}" type="hidden">
+                <input th:field="*{totalDiscountTo}" type="hidden">
+                <input th:field="*{customerBalanceFrom}" type="hidden">
+                <input th:field="*{customerBalanceTo}" type="hidden">
+                <input th:field="*{totalPayableFrom}" type="hidden">
+                <input th:field="*{totalPayableTo}" type="hidden">
+                <input th:field="*{totalPaidFrom}" type="hidden">
+                <input th:field="*{totalPaidTo}" type="hidden">
+                <input th:field="*{totalDebtFrom}" type="hidden">
+                <input th:field="*{totalDebtTo}" type="hidden">
+                <input th:field="*{customerFullName}" type="hidden">
+                <input th:field="*{customerPhone}" type="hidden">
+                <input th:field="*{minCreatedAt}" type="hidden">
+                <input th:field="*{maxCreatedAt}" type="hidden">
+                <input th:field="*{createdByUsername}" type="hidden">
+            </form>
+        </div>
+    </div>
+    <div>
+        <div class="table-responsive">
+            <table class="table table-container table-striped table-bordered table-sm table-hover mt-5">
+                <caption>
+                    <div class="container-fluid">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                Đang hiển thị <span th:text="${invoiceFilterDTO.size}"></span>/<span
+                                    th:text="${invoices.totalPages * invoices.size}"></span> bản ghi
+                            </div>
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <label class="input-group-text" for="sizeField">Hiển thị</label>
+                                    <input class="form-control" id="sizeField" list="size-options"
+                                           style="max-width: 80px;" th:value="${invoiceFilterDTO.size}">
+                                    <datalist id="size-options">
+                                        <option value="5"></option>
+                                        <option value="10"></option>
+                                        <option value="20"></option>
+                                        <option value="50"></option>
+                                    </datalist>
+                                    <label class="input-group-text" for="sizeField">kết quả/trang</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <a class="btn btn-secondary" th:href="@{'/invoice/add'}">
+                                    <i class="bi bi-plus-circle"></i> Thêm hóa đơn mới
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </caption>
+                <thead>
+                <tr>
+                    <th style="cursor: pointer; min-width: 120px;"
+                        th:data="${field}"
+                        th:each="field : ${fields}"
+
+                    >
+                        <span>
+                            <span th:text="${fieldTitles[__${field}__]}"></span>
+                            <i th:class="${invoiceFilterDTO.direction == 'ASC' ? 'bi bi-caret-up-fill' : 'bi bi-caret-down-fill'}"
+                               th:if="${invoiceFilterDTO.orderBy} == ${field}"></i>
+                        </span>
+                    <th class="text-center" style="min-width: 100px;">Hành động</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:object="${invoiceFilterDTO}">
+                    <td>
+                        <div class="d-flex gap-2" style="max-width: 200px">
+                            <input class="form-control form-control-sm currency-input" id="totalPriceFromField"
+                                   placeholder="Số tiền từ" th:attr="data-raw=*{totalPriceFrom}"
+                                   th:value="*{totalPriceFrom}" type="text" style="max-width: 100px">
+                            <input class="form-control form-control-sm currency-input" id="totalPriceToField"
+                                   placeholder="Số tiền đến" th:attr="data-raw=*{totalPriceTo}" th:value="*{totalPriceTo}"
+                                   type="text" style="max-width: 100px">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2" style="max-width: 200px">
+                            <input class="form-control form-control-sm currency-input" id="customerBalanceFromField"
+                                   placeholder="Số tiền từ" th:attr="data-raw=*{customerBalanceFrom}"
+                                   th:value="*{customerBalanceFrom}" type="text" style="max-width: 100px">
+                            <input class="form-control form-control-sm currency-input" id="customerBalanceToField"
+                                   placeholder="Số tiền đến" th:attr="data-raw=*{customerBalanceTo}"
+                                   th:value="*{customerBalanceTo}" type="text" style="max-width: 100px">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2" style="max-width: 200px">
+                            <input class="form-control form-control-sm currency-input" id="totalPayableFromField"
+                                   placeholder="Số tiền từ" th:attr="data-raw=*{totalPayableFrom}"
+                                   th:value="*{totalPayableFrom}" type="text" style="max-width: 100px">
+                            <input class="form-control form-control-sm currency-input" id="totalPayableToField"
+                                   placeholder="Số tiền đến" th:attr="data-raw=*{totalPayableTo}"
+                                   th:value="*{totalPayableTo}" type="text" style="max-width: 100px">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2" style="max-width: 200px">
+                            <input class="form-control form-control-sm currency-input" id="totalPaidFromField"
+                                   placeholder="Số tiền từ" th:attr="data-raw=*{totalPaidFrom}"
+                                   th:value="*{totalPaidFrom}" type="text" style="max-width: 100px">
+                            <input class="form-control form-control-sm currency-input" id="totalPaidToField" placeholder="Số tiền đến"
+                                   th:attr="data-raw=*{totalPaidTo}" th:value="*{totalPaidTo}"
+                                   type="text" style="max-width: 100px">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2" style="max-width: 200px">
+                            <input class="form-control form-control-sm currency-input" id="totalDebtFromField"
+                                   placeholder="Số tiền từ" th:attr="data-raw=*{totalDebtFrom}"
+                                   th:value="*{totalDebtFrom}" type="text" style="max-width: 100px">
+                            <input class="form-control form-control-sm currency-input" id="totalDebtToField" placeholder="Số tiền đến"
+                                   th:attr="data-raw=*{totalDebtTo}" th:value="*{totalDebtTo}"
+                                   type="text" style="max-width: 100px">
+                        </div>
+                    </td>
+                    <td>
+                        <input class="form-control form-control-sm" id="customerFullNameField" placeholder="Họ và tên"
+                               th:value="*{customerFullName}" type="text">
+                    </td>
+                    <td>
+                        <input class="form-control form-control-sm" id="customerPhoneField" placeholder="Số điện thoại"
+                               th:value="*{customerPhone}" type="text">
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2" style="max-width: 200px">
+                            <input type="datetime-local" class="form-control form-control-sm" th:value="*{minCreatedAt}" id="minCreatedAtField" placeholder="Ngày tạo tối thiểu" style="max-width: 80px;">
+                            <input type="datetime-local" class="form-control form-control-sm" th:value="*{maxCreatedAt}" id="maxCreatedAtField" placeholder="Ngày tạo tối đa" style="max-width: 80px;">
+                        </div>
+                    </td>
+                    <td>
+                        <input class="form-control form-control-sm" id="createdByUsernameField" placeholder="Số điện thoại"
+                               th:value="*{createdByUsername}" type="text">
+                    </td>
+
+                    <td class="text-center">
+                        <button class="btn btn-primary btn-sm" id="btnSubmit" type="button">
+                            <i class="bi bi-search"></i> Tìm kiếm
+                        </button>
+                    </td>
+                </tr>
+                <tr th:each="item : ${invoices}" th:if="${invoices.totalPages > 0}">
+                    <td th:each="field : ${fields}">
+                        <th:block th:switch="${fieldClasses[__${field}__]}">
+                            <th:block th:case="'image'">
+                                <img class="img-thumbnail tableImg" height="50" style="aspect-ratio: 1/1; object-fit: cover; cursor: pointer"
+                                     th:src="@{'/' + ${item[field]}}" width="50">
+                            </th:block>
+                            <th:block th:case="'html'">
+                                <span th:classappend="${fieldClasses[__${field}__]}" th:utext="${item[field]}"></span>
+                            </th:block>
+                            <th:block th:case="*">
+                                <span th:classappend="${fieldClasses[__${field}__]}" th:text="${item[field]}"></span>
+                            </th:block>
+                        </th:block>
+                    </td>
+                    <td class="text-center">
+                        <a class="btn btn-info btn-sm" th:href="@{'/invoice/detail/import/' + ${item.id}}">
+                            <i class="bi bi-eye-fill"></i>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <th:block th:if="${invoices.totalPages == 0}">
+            <div class="alert alert-warning text-center mt-5">
+                Không có bản ghi nào, thử <a class="alert-link" href="javascript:void(0);" onclick="resetField()"> đặt
+                lại bộ lọc </a> hoặc thêm mới bản ghi
+            </div>
+        </th:block>
+        <th:block th:if="${invoices.totalPages > 0}">
+            <div th:replace="fragments/pagination :: pagination(${invoices})"></div>
+        </th:block>
+    </div>
+
+    <script>
+        function goToPage(page) {
+            document.getElementById('searchForm').elements['page'].value = page;
+            document.getElementById('searchForm').submit();
+        }
+
+        document.querySelectorAll('th').forEach(th => {
+            if (!th.getAttribute('data')) return;
+            th.addEventListener('click', () => {
+                updateOrder(th.getAttribute('data'));
+            });
+        });
+
+        function updateOrder(field) {
+            let form = document.getElementById('searchForm');
+            let orderBy = form.elements['orderBy'].value;
+            let direction = form.elements['direction'].value;
+            if (orderBy === field) {
+                form.elements['direction'].value = direction === 'ASC' ? 'DESC' : 'ASC';
+            } else {
+                form.elements['orderBy'].value = field;
+                form.elements['direction'].value = 'ASC';
+            }
+            updateField();
+        }
+
+        document.getElementById('btnSubmit').addEventListener('click', () => {
+            updateField();
+        });
+
+
+        function resetField() {
+            let form = document.getElementById('searchForm');
+            form.elements['type'].value = '';
+            form.elements['totalPriceFrom'].value = '';
+            form.elements['totalPriceTo'].value = '';
+            form.elements['totalDiscountFrom'].value = '';
+            form.elements['totalDiscountTo'].value = '';
+            form.elements['customerBalanceFrom'].value = '';
+            form.elements['customerBalanceTo'].value = '';
+            form.elements['totalPayableFrom'].value = '';
+            form.elements['totalPayableTo'].value = '';
+            form.elements['totalPaidFrom'].value = '';
+            form.elements['totalPaidTo'].value = '';
+            form.elements['totalDebtFrom'].value = '';
+            form.elements['totalDebtTo'].value = '';
+            form.elements['customerFullName'].value = '';
+            form.elements['customerPhone'].value = '';
+            form.elements['minCreatedAt'].value = '';
+            form.elements['maxCreatedAt'].value = '';
+            form.elements['createdByUsername'].value = '';
+            form.elements['page'].value = 1;
+            form.elements['size'].value = 10;
+            form.submit();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.currency-input').forEach(input => {
+                input.addEventListener('keydown', function (event) {
+                    let rawValue = this.getAttribute('data-raw') || '';
+
+                    // Cho phép nhập dấu "-" chỉ khi nó là ký tự đầu tiên
+                    if (event.key === '-' && rawValue.length === 0) {
+                        this.setAttribute('data-raw', '-');
+                        this.value = '-';
+                        event.preventDefault();
+                        return;
+                    }
+
+                    if (event.key === 'Backspace') {
+                        event.preventDefault();
+                        if (rawValue.length > 1) {
+                            rawValue = rawValue.slice(0, -1);
+                            this.setAttribute('data-raw', rawValue);
+                            this.value = formatCurrency(rawValue);
+                        } else {
+                            this.setAttribute('data-raw', '');
+                            this.value = '';
+                        }
+                    }
+                });
+
+                input.addEventListener('input', function () {
+                    let rawValue = this.value.replace(/[^0-9-]/g, '');
+
+                    if (rawValue.includes('-')) {
+                        rawValue = '-' + rawValue.replace(/-/g, '');
+                    }
+
+                    if (rawValue !== '-' && rawValue !== '-0') {
+                        rawValue = rawValue.replace(/^(-?)0+/, '$1') || '0';
+                    }
+
+                    this.setAttribute('data-raw', rawValue);
+                    this.value = formatCurrency(rawValue);
+                });
+
+                input.value = formatCurrency(input.getAttribute('data-raw') || '');
+            });
+        });
+
+        function formatCurrency(value) {
+            if (!value) return '';
+
+            let isNegative = value.startsWith('-');
+            let number = value.replace(/[^0-9]/g, '');
+
+            let formatted = Number(number).toLocaleString();
+            return isNegative ? '-' + formatted : formatted;
+        }
+
+        function updateField() {
+            let form = document.getElementById('searchForm');
+            form.elements['totalPriceFrom'].value = document.getElementById('totalPriceFromField').getAttribute('data-raw');
+            form.elements['totalPriceTo'].value = document.getElementById('totalPriceToField').getAttribute('data-raw');
+            form.elements['customerBalanceFrom'].value = document.getElementById('customerBalanceFromField').getAttribute('data-raw');
+            form.elements['customerBalanceTo'].value = document.getElementById('customerBalanceToField').getAttribute('data-raw');
+            form.elements['totalPayableFrom'].value = document.getElementById('totalPayableFromField').getAttribute('data-raw');
+            form.elements['totalPayableTo'].value = document.getElementById('totalPayableToField').getAttribute('data-raw');
+            form.elements['totalPaidFrom'].value = document.getElementById('totalPaidFromField').getAttribute('data-raw');
+            form.elements['totalPaidTo'].value = document.getElementById('totalPaidToField').getAttribute('data-raw');
+            form.elements['totalDebtFrom'].value = document.getElementById('totalDebtFromField').getAttribute('data-raw');
+            form.elements['totalDebtTo'].value = document.getElementById('totalDebtToField').getAttribute('data-raw');
+            form.elements['customerFullName'].value = document.getElementById('customerFullNameField').value;
+            form.elements['customerPhone'].value = document.getElementById('customerPhoneField').value;
+            form.elements['minCreatedAt'].value = document.getElementById('minCreatedAtField').value;
+            form.elements['maxCreatedAt'].value = document.getElementById('maxCreatedAtField').value;
+            form.elements['createdByUsername'].value = document.getElementById('createdByUsernameField').value;
+            form.elements['size'].value = document.getElementById('sizeField').value;
+            form.submit();
+        }
+
+        document.querySelectorAll('input[id$="Field"]').forEach(input => {
+            input.addEventListener('keydown', event => {
+                if (event.key === 'Enter') {
+                    updateField();
+                }
+            });
+        });
+
+    </script>
+</section>
+</body>
+</html>

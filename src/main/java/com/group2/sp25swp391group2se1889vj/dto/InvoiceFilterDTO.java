@@ -37,4 +37,6 @@ public class InvoiceFilterDTO extends BaseFilterDTO {
 
     private String description;
 
+    private String createdByUsername;
+
 }

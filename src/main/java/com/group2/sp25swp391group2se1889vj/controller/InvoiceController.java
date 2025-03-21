@@ -1,12 +1,14 @@
 package com.group2.sp25swp391group2se1889vj.controller;
 
-import com.group2.sp25swp391group2se1889vj.dto.InvoiceFilterDTO;
-import com.group2.sp25swp391group2se1889vj.dto.InvoiceDetailDTO;
+import com.group2.sp25swp391group2se1889vj.dto.*;
 import com.group2.sp25swp391group2se1889vj.entity.User;
+import com.group2.sp25swp391group2se1889vj.enums.InvoiceType;
 import com.group2.sp25swp391group2se1889vj.enums.RoleType;
 import com.group2.sp25swp391group2se1889vj.exception.Http404;
 import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
+import com.group2.sp25swp391group2se1889vj.service.InvoiceItemService;
 import com.group2.sp25swp391group2se1889vj.service.InvoiceService;
+import com.group2.sp25swp391group2se1889vj.service.WarehouseService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +29,9 @@ import java.util.Map;
 @RequestMapping("/invoice")
 @AllArgsConstructor
 public class InvoiceController {
+
+    private final InvoiceItemService invoiceItemService;
+    private final WarehouseService warehouseService;
 
     private User getUser() {
         CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
@@ -69,55 +74,115 @@ public class InvoiceController {
         }
     }
 
-    @GetMapping({"/list", "", "/"})
-    public String list(
-            Model model,
-            @ModelAttribute(value = "invoiceFilterDTO", binding = false) InvoiceFilterDTO invoiceFilterDTO
-    ) {
+    @GetMapping("/import")
+    public String importInvoice(
+            @ModelAttribute(value = "invoiceFilterDTO", binding = false) InvoiceFilterDTO invoiceFilterDTO,
+            Model model
+    ){
         if (invoiceFilterDTO == null) {
             invoiceFilterDTO = new InvoiceFilterDTO();
         }
         Sort sortDirection = "asc".equalsIgnoreCase(invoiceFilterDTO.getDirection())
                 ? Sort.by(invoiceFilterDTO.getOrderBy()).ascending()
                 : Sort.by(invoiceFilterDTO.getOrderBy()).descending();
-
-        List<String> fields = Arrays.asList("type", "totalPrice", "totalDiscount", "customerBalance", "totalPayable", "totalPaid", "totalDebt", "customerFullName", "customerPhone");
-        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Loại", "Tổng niêm yết", "Tổng sau giảm", "Số dư khách hàng", "Số tiền phải trả", "Số tiền đã trả", "Số nợ còn lại", "Tên khách hàng", "Số điện thoại"));
-        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("invoiceType", "price", "price", "price", "price", "price", "price","", ""));
+        List<String> fields = Arrays.asList("totalPrice", "customerBalance", "totalPayable", "totalPaid", "totalDebt", "customerFullName", "customerPhone", "createdAt", "createdByUsername");
+        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tổng tiền", "Số dư khách hàng", "Tổng phải trả", "Tổng đã trả", "Tổng nợ khách", "Tên khách hàng", "Số điện thoại", "Ngày tạo", "Người tạo"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("price", "price", "price", "price", "price", "", "", "date", ""));
         model.addAttribute("fields", fields);
         model.addAttribute("fieldTitles", fieldTitles);
         model.addAttribute("fieldClasses", fieldClasses);
-
         Pageable pageable = PageRequest.of(invoiceFilterDTO.getPage() - 1, invoiceFilterDTO.getSize(), sortDirection);
-
         Long warehouseId = getWarehouseId();
-
+        invoiceFilterDTO.setType(InvoiceType.PURCHASE);
         Page<InvoiceDetailDTO> invoices = invoiceService.searchInvoices(warehouseId, invoiceFilterDTO, pageable);
-
         model.addAttribute("invoices", invoices);
         model.addAttribute("invoiceFilterDTO", invoiceFilterDTO);
-        return "invoice/list";
+        return "invoice/import";
     }
 
-    @PostMapping({"/list", "", "/"})
-    public String list(
+    @PostMapping("/import")
+    public String importInvoice(
             @ModelAttribute(value = "invoiceFilterDTO") InvoiceFilterDTO invoiceFilterDTO,
             RedirectAttributes redirectAttributes
     ) {
         redirectAttributes.addFlashAttribute("invoiceFilterDTO", invoiceFilterDTO);
-        return "redirect:/invoice/list";
+        return "redirect:/invoice/import";
+    }
+
+    @GetMapping("/export")
+    public String exportInvoice(
+            @ModelAttribute(value = "invoiceFilterDTO", binding = false) InvoiceFilterDTO invoiceFilterDTO,
+            Model model
+    ){
+        if (invoiceFilterDTO == null) {
+            invoiceFilterDTO = new InvoiceFilterDTO();
+        }
+        Sort sortDirection = "asc".equalsIgnoreCase(invoiceFilterDTO.getDirection())
+                ? Sort.by(invoiceFilterDTO.getOrderBy()).ascending()
+                : Sort.by(invoiceFilterDTO.getOrderBy()).descending();
+        List<String> fields = Arrays.asList("totalPrice", "totalDiscount","customerBalance", "totalPayable", "totalPaid", "totalDebt", "customerFullName", "customerPhone", "createdAt", "createdByUsername");
+        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tổng tiền đề xuất", "Tổng tiền thực","Số dư khách hàng", "Tổng phải trả", "Tổng đã trả", "Tổng khách nợ", "Tên khách hàng", "Số điện thoại", "Ngày tạo", "Người tạo"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("price", "price","price", "price", "price", "price", "", "", "date", ""));
+        model.addAttribute("fields", fields);
+        model.addAttribute("fieldTitles", fieldTitles);
+        model.addAttribute("fieldClasses", fieldClasses);
+        Pageable pageable = PageRequest.of(invoiceFilterDTO.getPage() - 1, invoiceFilterDTO.getSize(), sortDirection);
+        Long warehouseId = getWarehouseId();
+        invoiceFilterDTO.setType(InvoiceType.SALES);
+        Page<InvoiceDetailDTO> invoices = invoiceService.searchInvoices(warehouseId, invoiceFilterDTO, pageable);
+        model.addAttribute("invoices", invoices);
+        model.addAttribute("invoiceFilterDTO", invoiceFilterDTO);
+        return "invoice/export";
+    }
+
+    @PostMapping("/export")
+    public String exportInvoice(
+            @ModelAttribute(value = "invoiceFilterDTO") InvoiceFilterDTO invoiceFilterDTO,
+            RedirectAttributes redirectAttributes
+    ) {
+        redirectAttributes.addFlashAttribute("invoiceFilterDTO", invoiceFilterDTO);
+        return "redirect:/invoice/export";
     }
 
 
-    @GetMapping("/detail/{id}")
+    @GetMapping("/detail/import/{id}")
     public String detail(@PathVariable Long id, Model model) {
-        InvoiceDetailDTO invoice = invoiceService.findInvoiceBywarehouseIdAndId(getWarehouseId(), id);
+        InvoiceDataDTO invoice = invoiceService.findInvoiceDataBywarehouseIdAndId(getWarehouseId(), id);
         if (invoice == null) {
             throw new Http404("Không tìm thấy hóa đơn");
         }
         model.addAttribute("invoice", invoice);
-        return "invoice/detail";
+        return "invoice/detail-import";
     }
 
+    @GetMapping("/detail/import/print/{id}")
+    public String printDetail(@PathVariable Long id, Model model) {
+        InvoiceDataDTO invoice = invoiceService.findInvoiceDataBywarehouseIdAndId(getWarehouseId(), id);
+        if (invoice == null) {
+            throw new Http404("Không tìm thấy hóa đơn");
+        }
+        model.addAttribute("invoice", invoice);
+        return "invoice/invoice-import-print";
+    }
+
+    @GetMapping("/detail/export/{id}")
+    public String detailExport(@PathVariable Long id, Model model) {
+        InvoiceDataDTO invoice = invoiceService.findInvoiceDataBywarehouseIdAndId(getWarehouseId(), id);
+        if (invoice == null) {
+            throw new Http404("Không tìm thấy hóa đơn");
+        }
+        model.addAttribute("invoice", invoice);
+        return "invoice/detail-export";
+    }
+
+    @GetMapping("/detail/export/print/{id}")
+    public String printDetailExport(@PathVariable Long id, Model model) {
+        InvoiceDataDTO invoice = invoiceService.findInvoiceDataBywarehouseIdAndId(getWarehouseId(), id);
+        if (invoice == null) {
+            throw new Http404("Không tìm thấy hóa đơn");
+        }
+        model.addAttribute("invoice", invoice);
+        return "invoice/invoice-export-print";
+    }
 
 }

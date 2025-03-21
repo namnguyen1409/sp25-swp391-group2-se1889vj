@@ -193,3 +193,19 @@ footer {
     max-height: 100vh;
     overflow: hidden;
 }
+
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #invoicePrint, #invoicePrint * {
+        visibility: visible;
+    }
+    #invoicePrint {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+}
