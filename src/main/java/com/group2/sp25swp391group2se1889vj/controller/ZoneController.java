@@ -117,9 +117,9 @@ public class ZoneController {
                 ? Sort.by(zoneFilterDTO.getOrderBy()).ascending()
                 : Sort.by(zoneFilterDTO.getOrderBy()).descending();
 
-        List<String> fields = Arrays.asList("name", "productName", "productImage", "createdAt");
-        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên khu vực", "Tên sản phẩm", "Hình ảnh sản phẩm", "Ngày tạo"));
-        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "", "image", "dateTime"));
+        List<String> fields = Arrays.asList("name", "productName", "productImage", "createdAt", "updateAt");
+        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên khu vực", "Tên sản phẩm", "Hình ảnh sản phẩm", "Ngày tạo", "Ngày cập nhật"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "", "image", "dateTime", "dateTime"));
 
         model.addAttribute("fields", fields);
         model.addAttribute("fieldTitles", fieldTitles);
