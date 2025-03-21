@@ -31,14 +31,35 @@
         </a>
     </li>
     <li class="mb-1" sec:authorize="hasRole('OWNER') or hasRole('STAFF')">
-        <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/invoice/list}">
-            <i class="bi bi-receipt me-2"></i> Quản lý hóa đơn
-        </a>
-    </li>
-    <li class="mb-1" sec:authorize="hasRole('OWNER') or hasRole('STAFF')">
         <a class="btn d-inline-flex align-items-center rounded border-0 fw-bold" th:href="@{/customer/list}">
             <i class="bi bi-person me-2"></i> Quản lý khách hàng
         </a>
+    </li>
+    <li class="mb-1" sec:authorize="hasRole('OWNER') or hasRole('STAFF')">
+        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
+                data-bs-toggle="collapse" data-bs-target="#invoice-collapse" aria-expanded="false">
+            <i class="bi bi-receipt me-2"></i> Quản lý hóa đơn
+        </button>
+
+        <div class="collapse" id="invoice-collapse">
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                <li>
+                    <a th:href="@{/invoice/import}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
+                        <i class="bi bi-box-arrow-in-down me-2"></i> Hóa đơn nhập
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/invoice/export}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
+                        <i class="bi bi-box-arrow-up me-2"></i> Hóa đơn xuất
+                    </a>
+                </li>
+                <li sec:authorize="hasRole('OWNER')">
+                    <a th:href="@{/invoice/add}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">
+                        <i class="bi bi-plus-circle me-2"></i> Thêm hóa đơn
+                    </a>
+                </li>
+            </ul>
+        </div>
     </li>
     <li class="mb-1" sec:authorize="hasRole('ADMIN') or hasRole('OWNER')">
         <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"

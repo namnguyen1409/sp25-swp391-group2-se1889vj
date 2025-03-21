@@ -148,10 +148,8 @@
 
             let totalPrice = document.getElementById(`totalPrice${tabId}`);
             let payment = document.getElementById(`payment${tabId}`);
-            let paymentDropdown = document.getElementById(`paymentDropdown${tabId}`)
             let unpaid = document.getElementById(`unpaid${tabId}`);
 
-            let partial = document.getElementById(`partial${tabId}`);
             let paid = document.getElementById(`paid${tabId}`);
             let paidAndDebt = document.getElementById(`paidAndDebt${tabId}`);
 
@@ -163,37 +161,23 @@
                 payment.value = formatCurrency(0);
                 payment.setAttribute("data-raw", "0");
                 updateTotal(tabId)
-                payment.setAttribute("readonly", "true");
-                paymentDropdown.innerText = "Không thanh toán";
-            });
-
-            partial.addEventListener("click", function () {
-                payment.removeAttribute("readonly");
-                payment.focus();
-                paymentDropdown.innerText = "Thanh toán một phần";
             });
 
             paid.addEventListener("click", function () {
-                payment.value = totalPrice.value;
+                payment.value = formatCurrency(parseInt(totalPrice.getAttribute("data-raw"), 10));
                 payment.setAttribute("data-raw", totalPrice.getAttribute("data-raw"));
                 updateTotal(tabId)
-                payment.setAttribute("readonly", "true");
-                paymentDropdown.innerText = "Thanh toán toàn bộ";
             });
 
             paidAndDebt.addEventListener("click", function () {
-                // giả lập chuyển sang không thanh toán
-                unpaid.click();
-
-                payment.value = debt.value;
+                payment.value = formatCurrency(0);
+                payment.setAttribute("data-raw", "0");
+                updateTotal(tabId)
+                payment.value = formatCurrency(parseInt(debt.getAttribute("data-raw"), 10));
                 payment.setAttribute("data-raw", debt.getAttribute("data-raw"));
                 updateTotal(tabId)
-                payment.setAttribute("readonly", "true");
-                paymentDropdown.innerText = "Tiền hàng + tiền nợ";
             });
 
-
-            // Hàm debounce: Chỉ gọi API sau khi người dùng ngừng nhập trong 300ms
             function debounce(func, delay) {
                 let timeout;
                 return function (...args) {
@@ -202,7 +186,6 @@
                 };
             }
 
-            // Gợi ý sản phẩm theo tên với debounce
             if (searchInput) {
                 searchInput.addEventListener("input", debounce(function () {
                     let keyword = this.value.trim();
@@ -212,7 +195,7 @@
                             .then(data => {
                                 productSuggestion.classList.remove("d-none");
                                 productSuggestion.innerHTML = data.map(product => `
-                          <div onclick="addProductToPurchase('${tabId}', '${product.id}', '${product.name}', '${product.image}', ${product.productPackageId})"
+                          <div onclick="addProductToPurchase('${tabId}', '${product.id}', '${product.name}', '${product.image}', ${product.productPackageId}, ${product.price}, '${product.zones.map(zone => zone.name).join(', ')}')"
                               class="list-group-item list-group-item-action d-flex align-items-center"
                               style="cursor: pointer"
                               >
@@ -231,10 +214,9 @@
                     } else {
                         productSuggestion.innerHTML = "";
                     }
-                }, 150)); // Độ trễ 150ms
+                }, 100));
             }
 
-            // Tự động điền thông tin khách hàng theo số điện thoại
             customerPhone.addEventListener("input", function () {
                 let phone = this.value.trim();
                 if (phone.length === 10) {
@@ -249,7 +231,7 @@
                             if (data) {
                                 customerName.value = data.fullName;
                                 customerAddress.value = data.address;
-                                customerBalance.value = formatCurrency(data.balance);
+                                customerBalance.innerText = formatCurrency(data.balance);
                                 customerBalance.setAttribute("data-raw", data.balance);
                                 invoiceData[tabId].customer = data;
                                 updateTotal(tabId);
@@ -263,8 +245,6 @@
                 }
             });
 
-
-            // Thêm khách hàng mới
             btnCustomer.addEventListener("click", function () {
                 fetch(`/api/customer/add`, {
                     method: "POST",
@@ -280,7 +260,7 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        customerBalance.value = formatCurrency(data.balance);
+                        customerBalance.innerText = formatCurrency(data.balance);
                         customerBalance.setAttribute("data-raw", data.balance);
                         invoiceData[tabId].customer = data;
                         updateTotal(tabId)
@@ -292,8 +272,6 @@
                     });
             })
 
-
-            // Xử lý sự kiện thanh toán
             btnPurchase.addEventListener("click", function () {
                 submitPurchase(tabId);
             });
@@ -332,19 +310,13 @@
                 payment.value = formatCurrency(0);
                 payment.setAttribute("data-raw", "0");
                 updateTotalSale(tabId)
-                payment.setAttribute("readonly", "true");
             });
 
-            partial.addEventListener("click", function () {
-                payment.removeAttribute("readonly");
-                payment.focus();
-            });
-
+            // tiền hàng
             paid.addEventListener("click", function () {
-                payment.value = discount.value;
+                payment.value = formatCurrency(parseInt(discount.getAttribute("data-raw"), 10))
                 payment.setAttribute("data-raw", discount.getAttribute("data-raw"));
                 updateTotalSale(tabId)
-                payment.setAttribute("readonly", "true");
             });
 
             paidAndDebt.addEventListener("click", function () {
@@ -356,7 +328,6 @@
                 payment.value = formatCurrency(0 - debtValue)
                 payment.setAttribute("data-raw", 0 - debtValue);
                 updateTotalSale(tabId)
-                payment.setAttribute("readonly", "true");
             });
 
 
@@ -416,7 +387,7 @@
                             if (data) {
                                 customerName.value = data.fullName;
                                 customerAddress.value = data.address;
-                                customerBalance.value = formatCurrency(data.balance);
+                                customerBalance.innerText = formatCurrency(data.balance);
                                 customerBalance.setAttribute("data-raw", data.balance);
                                 invoiceData[tabId].customer = data;
                                 updateTotalSale(tabId);
@@ -430,7 +401,6 @@
                 }
             });
 
-            // Thêm khách hàng mới
             btnCustomer.addEventListener("click", function () {
                 fetch(`/api/customer/add`, {
                     method: "POST",
@@ -446,7 +416,7 @@
                 })
                     .then(response => response.json())
                     .then(data => {
-                        customerBalance.value = formatCurrency(data.balance);
+                        customerBalance.innerText = formatCurrency(data.balance);
                         customerBalance.setAttribute("data-raw", data.balance);
                         invoiceData[tabId].customer = data;
                         updateTotalSale(tabId)
@@ -458,7 +428,6 @@
                     });
             })
 
-            // Xử lý sự kiện thanh toán
             btnPurchase.addEventListener("click", function () {
                 submitSale(tabId);
             });
@@ -698,22 +667,19 @@
 
             let total = invoiceData[tabId].items.reduce((sum, item) => sum + (item.price * item.weight), 0);
             totalPrice.setAttribute("data-raw", total);
-            totalPrice.value = formatCurrency(total);
+            totalPrice.innerText = formatCurrency(total);
 
-            // tổng phải trả = giá bán thực * số lượng
             let totalDiscount = invoiceData[tabId].items.reduce((sum, item) => sum + (item.discount * item.weight), 0);
             discount.setAttribute("data-raw", totalDiscount);
-            discount.value = formatCurrency(totalDiscount);
+            discount.innerText = formatCurrency(totalDiscount);
 
-            // tổng thanh toán
             let balance = parseInt(customerBalance.getAttribute("data-raw") || "0", 10);
             let payAmount = parseInt(payment.getAttribute("data-raw") || "0", 10);
 
-            // khách còn nợ cửa hàng
             let remainingDebt = balance + payAmount - totalDiscount;
 
             debt.setAttribute("data-raw", remainingDebt);
-            debt.value = formatCurrency(remainingDebt);
+            debt.innerText = formatCurrency(remainingDebt);
         }
 
         function formatCurrency(value) {
@@ -721,7 +687,7 @@
             return isNaN(number) ? "0 VND" : number.toLocaleString("vi-VN", {style: "currency", currency: "VND"});
         }
 
-        function addProductToPurchase(tabId, productId, productName, productImage, productPackageId) {
+        function addProductToPurchase(tabId, productId, productName, productImage, productPackageId, productPrice, zones) {
             if (!productPackageId) {
                 alert("Vui lòng chọn quy cách đóng gói!");
                 return;
@@ -735,6 +701,8 @@
                 name: productName,
                 productPackageId: productPackageId,
                 quantity: 1,
+                weight: productPackaging.find(pkg => pkg.id === productPackageId).weight,
+                priceSale: productPrice,
                 price: 0,
                 total: 0
             });
@@ -744,12 +712,16 @@
                 let row = document.createElement("tr");
                 row.id = `row-${uniqueKey}`;
                 row.innerHTML = `
-            <td>${productName}</td>
+            <td>
+                ${productName}
+                <br>
+                ${zones}
+            </td>
             <td>
                 <img src="/${productImage}" class="img-thumbnail" width="50" height="50" onclick="showProductInfo('${productId}')">
             </td>
             <td>
-                <select class="form-select" onchange="updateProductPackage('${tabId}', '${uniqueKey}', this.value)">
+                <select class="form-select" onchange="updateProductPackage('${tabId}', '${uniqueKey}', this.value)" style="max-width: 180px;">
                     <option value="">Chọn quy cách đóng gói</option>
                     ${productPackaging.map(pkg => `
                         <option value="${pkg.id}" ${pkg.id === productPackageId ? 'selected' : ''}>
@@ -763,12 +735,17 @@
                     oninput="updateProductQuantity('${tabId}', '${uniqueKey}', this.value)">
             </td>
             <td>
+                <span id="weight-${uniqueKey}">${productPackaging.find(pkg => pkg.id === productPackageId).weight + 'kg'}</span>
+            </td>
+            <td>
+                <span id="price-${uniqueKey}">${formatCurrency(productPrice)}</span>
+            </td>
+            <td>
                 <input type="text" class="form-control form-control-sm price-input" data-raw="0"
                     oninput="updateProductPrice('${tabId}', '${uniqueKey}', this.value)">
             </td>
             <td>
-                <input type="text" id="total-${uniqueKey}" class="form-control form-control-sm price-input" data-raw="0"
-                 disabled>
+                <span id="total-${uniqueKey}">${formatCurrency(0)}</span>
             </td>
             <td>
                 <button class="btn btn-danger" onclick="removeProductFromInvoice('${tabId}', '${uniqueKey}')">Xóa</button>
@@ -788,9 +765,13 @@
         }
 
         function updateProductPackage(tabId, uniqueKey, productPackageId) {
-            let item = invoiceData[tabId].items.find(item => item.uniqueKey === uniqueKey);
+            let item = invoiceData[tabId].items.find(item => item.uniqueKey === uniqueKey)
+            let pkid = parseInt(productPackageId);
             if (item) {
                 item.productPackageId = productPackageId;
+                item.weight = productPackaging.find(pkg => pkg.id === pkid).weight * item.quantity;
+                item.total = item.price * item.weight;
+                updateTotalPrice(tabId, uniqueKey);
             }
         }
 
@@ -798,6 +779,8 @@
             let item = invoiceData[tabId].items.find(item => item.uniqueKey === uniqueKey);
             if (item) {
                 item.quantity = parseInt(quantity);
+                item.weight = productPackaging.find(pkg => pkg.id === item.productPackageId).weight * item.quantity;
+                item.total = item.price * item.weight;
                 updateTotalPrice(tabId, uniqueKey);
             }
 
@@ -808,16 +791,16 @@
             let priceNumber = parseFloat(price.replace(/\D/g, "")) || 0;
             if (item) {
                 item.price = priceNumber;
+                item.total = item.price * item.weight;
                 updateTotalPrice(tabId, uniqueKey);
-                updateTotal(tabId)
             }
         }
 
         function updateTotalPrice(tabId, uniqueKey) {
             let item = invoiceData[tabId].items.find(item => item.uniqueKey === uniqueKey);
             if (item) {
-                item.total = item.quantity * item.price;
-                document.getElementById(`total-${uniqueKey}`).value = formatCurrency(item.total);
+                document.getElementById(`weight-${uniqueKey}`).innerText = item.weight + " kg";
+                document.getElementById(`total-${uniqueKey}`).innerText = formatCurrency(item.total);
             }
             updateTotal(tabId)
         }
@@ -840,14 +823,14 @@
 
             let total = invoiceData[tabId].items.reduce((sum, item) => sum + item.total, 0);
             totalPrice.setAttribute("data-raw", total);
-            totalPrice.value = formatCurrency(total);
+            totalPrice.innerText = formatCurrency(total);
 
             let balance = parseInt(customerBalance.getAttribute("data-raw") || "0", 10);
             let payAmount = parseInt(payment.getAttribute("data-raw") || "0", 10);
 
             let remainingDebt = balance + total - payAmount;
             debt.setAttribute("data-raw", remainingDebt);
-            debt.value = formatCurrency(remainingDebt);
+            debt.innerText = formatCurrency(remainingDebt);
         }
 
         function handleCurrencyInput(input, tabId) {
@@ -877,18 +860,17 @@
             updateTotal(tabId);
         }
 
-
         function submitPurchase(tabId) {
             document.getElementById(`btnPurchase${tabId}`).classList.add("d-none");
             let data = invoiceData[tabId];
 
             let payload = {
                 type: 'PURCHASE',
-                totalPrice: document.getElementById(`totalPrice${tabId}`).getAttribute("data-raw"),
+                totalPrice: 0,
                 totalDiscount: 0,
-                totalPayable: document.getElementById(`totalPrice${tabId}`).getAttribute("data-raw"),
+                totalPayable: 0,
                 totalPaid: document.getElementById(`payment${tabId}`).getAttribute("data-raw") || 0,
-                totalDebt: document.getElementById(`debt${tabId}`).getAttribute("data-raw"),
+                totalDebt: 0,
                 customerBalance: data.customer.balance,
                 customerId: data.customer.id,
                 isShipped: document.getElementById(`loadingService${tabId}`).checked ? true : false,
@@ -927,7 +909,6 @@
                 })
                 .then(data => {
                     const orderId = parseInt(data, 10);
-                    // thêm trạng thái đang chờ xử lý lên tab
                     const tab = document.getElementById(tabId + "-tab");
                     tab.setAttribute("data-orderId", orderId);
                     invoiceData[tabId].status = "PENDING";
@@ -938,6 +919,7 @@
                     const statusElement = document.getElementById(`status${tabId}`);
                     statusElement.classList.add("bg-warning")
                     statusElement.innerHTML = 'Đang xử lý';
+                    disableAllInputs(tabId);
                 })
                 .catch(error => {
                     document.getElementById(`btnPurchase${tabId}`).removeAttribute("disabled");
@@ -953,14 +935,14 @@
 
             let payload = {
                 type: 'SALES',
-                totalPrice: document.getElementById(`totalPrice${tabId}`).getAttribute("data-raw"),
-                totalDiscount: document.getElementById(`discount${tabId}`).getAttribute("data-raw"),
-                totalPayable: document.getElementById(`discount${tabId}`).getAttribute("data-raw"),
+                totalPrice: 0,
+                totalDiscount: 0,
+                totalPayable: 0,
                 totalPaid: document.getElementById(`payment${tabId}`).getAttribute("data-raw") || 0,
-                totalDebt: document.getElementById(`debt${tabId}`).getAttribute("data-raw"),
+                totalDebt: 0,
                 customerBalance: data.customer.balance,
                 customerId: data.customer.id,
-                isShipped: document.getElementById(`loadingService${tabId}`).checked ? true : false,
+                isShipped: !!document.getElementById(`loadingService${tabId}`).checked,
                 description: document.getElementById(`note${tabId}`).value,
                 items: data.items.map(item => ({
                     productId: item.id,
@@ -996,7 +978,6 @@
                 })
                 .then(data => {
                     const orderId = parseInt(data, 10);
-                    // thêm trạng thái đang chờ xử lý lên tab
                     const tab = document.getElementById(tabId + "-tab");
                     tab.setAttribute("data-orderId", orderId);
                     invoiceData[tabId].status = "PENDING";
@@ -1007,8 +988,10 @@
                     const statusElement = document.getElementById(`status${tabId}`);
                     statusElement.classList.add("bg-warning")
                     statusElement.innerHTML = 'Đang xử lý';
+                    disableAllInputs(tabId);
                 })
                 .catch(error => {
+                    console.log(error)
                     document.getElementById(`btnPurchase${tabId}`).removeAttribute("disabled");
                     showModal("Modal", Context.DANGER, "Lỗi hóa đơn!", "Vui lòng thử lại sau");
                 });
@@ -1025,7 +1008,6 @@
             return invoice.items.every(item => item.productId && item.productPackageId && item.quantity > 0 && item.discount >= 0 && item.payable >= 0);
         }
 
-        // kiểm tra dữ liệu trước khi submit
         function validateInvoice(invoice) {
             if (!invoice.type || !invoice.customerId) {
                 return false;
@@ -1044,18 +1026,13 @@
         const socket = new SockJS('/ws');
         const stompClient = Stomp.over(socket);
 
-        // Kết nối tới WebSocket
         stompClient.connect({}, function (frame) {
             console.log("✅ WebSocket Connected: ", frame);
-
-            // Chỉ subscribe sau khi kết nối thành công
             stompClient.subscribe('/user/queue/invoice-status', function (message) {
                 const data = JSON.parse(message.body);
                 console.log("📩 Nhận tin nhắn:", data);
-
                 updateUIWithInvoiceStatus(data);
             });
-
         }, function (error) {
             console.error("🔴 Lỗi kết nối WebSocket:", error);
         });
@@ -1069,10 +1046,8 @@
             const foundTab = Object.entries(invoiceData).find(
                 ([key, value]) => value.orderId === orderId
             );
-
             console.log(orderId, foundTab, invoiceData);
 
-            // tìm tab chứa orderId
             const tabId = foundTab ? foundTab[1].tabId : null;
             console.log("TabId:", tabId);
             if (tabId) {
@@ -1102,6 +1077,22 @@
             }
 
         }
+
+
+        function disableAllInputs(tabId) {
+            const inputs = document.querySelectorAll(`#${tabId} input, #${tabId} select, #${tabId} textarea`);
+            inputs.forEach(input => {
+                input.setAttribute("disabled", "true");
+            });
+
+            // ẩn nút xóa sản phẩm
+            const removeButtons = document.querySelectorAll(`#${tabId} button`);
+            removeButtons.forEach(button => {
+                button.classList.add("d-none");
+            });
+
+        }
+
 
     </script>
 

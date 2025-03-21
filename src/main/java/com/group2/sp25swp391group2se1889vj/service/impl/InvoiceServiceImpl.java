@@ -1,9 +1,6 @@
 package com.group2.sp25swp391group2se1889vj.service.impl;
 
-import com.group2.sp25swp391group2se1889vj.dto.InvoiceDTO;
-import com.group2.sp25swp391group2se1889vj.dto.InvoiceFilterDTO;
-import com.group2.sp25swp391group2se1889vj.dto.ProductSnapshotDTO;
-import com.group2.sp25swp391group2se1889vj.dto.InvoiceDetailDTO;
+import com.group2.sp25swp391group2se1889vj.dto.*;
 import com.group2.sp25swp391group2se1889vj.entity.*;
 import com.group2.sp25swp391group2se1889vj.enums.InvoiceType;
 import com.group2.sp25swp391group2se1889vj.mapper.ProductMapper;
@@ -12,6 +9,7 @@ import com.group2.sp25swp391group2se1889vj.service.InvoiceService;
 import com.group2.sp25swp391group2se1889vj.specification.InvoiceSpecification;
 import com.group2.sp25swp391group2se1889vj.util.XSSProtectedUtil;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -34,6 +33,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     private final ProductPackageRepository productPackageRepository;
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
+    private final ModelMapper modelMapper;
 
 
     @Transactional
@@ -70,21 +70,23 @@ public class InvoiceServiceImpl implements InvoiceService {
             Invoice finalInvoice = invoice;
             invoiceDTO.getItems().forEach(item -> {
                 InvoiceItem invoiceItem = new InvoiceItem();
-                invoiceItem.setInvoice(finalInvoice);
-                invoiceItem.setPrice(item.getPrice());
-                invoiceItem.setQuantity(item.getQuantity());
-                invoiceItem.setDiscount(BigDecimal.ZERO);
-                invoiceItem.setPayable(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
-                ProductPackage productPackage = productPackageRepository.findByIdAndWarehouseId(item.getProductPackageId(), invoiceDTO.getWarehouseId());
-                if (productPackage == null) {
-                    throw new RuntimeException("Product package not found");
-                }
-                invoiceItem.setProductPackage(productPackage);
                 Product product = productRepository.getProductByIdAndWarehouseId(item.getProductId(), invoiceDTO.getWarehouseId());
                 if (product == null) {
                     throw new RuntimeException("Product not found");
                 }
                 invoiceItem.setProduct(product);
+                ProductPackage productPackage = productPackageRepository.findByIdAndWarehouseId(item.getProductPackageId(), invoiceDTO.getWarehouseId());
+                if (productPackage == null) {
+                    throw new RuntimeException("Product package not found");
+                }
+                invoiceItem.setProductPackage(productPackage);
+
+                invoiceItem.setInvoice(finalInvoice);
+                invoiceItem.setPrice(item.getPrice());
+                invoiceItem.setQuantity(item.getQuantity());
+                invoiceItem.setWeight(item.getQuantity() * productPackage.getWeight());
+                invoiceItem.setDiscount(BigDecimal.ZERO);
+                invoiceItem.setPayable(item.getPrice().multiply(BigDecimal.valueOf((long) item.getQuantity() * productPackage.getWeight())));
                 invoiceItem.setProductSnapshotDTO(ProductSnapshotDTO.builder().id(product.getId())
                         .name(product.getName())
                         .price(product.getPrice())
@@ -100,7 +102,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             Invoice invoice = new Invoice();
             invoice.setType(InvoiceType.SALES); // loại hóa đơn
             invoice.setTotalPrice(BigDecimal.ZERO); // Tổng tiền hàng, xử lý sau
-            invoice.setTotalDiscount(BigDecimal.ZERO); // Tổng giảm giá: 0 khi nhập kho
+            invoice.setTotalDiscount(BigDecimal.ZERO); // Tổng sau giảm giá
             invoice.setCustomerBalance(null); // số dư khách hàng, xử lý sau
             invoice.setTotalPayable(null); // tổng tiền phải trả, xử lý sau
             invoice.setTotalPaid(invoiceDTO.getTotalPaid()); // tổng tiền đã trả
@@ -126,9 +128,6 @@ public class InvoiceServiceImpl implements InvoiceService {
 
             Invoice finalInvoice = invoice;
             invoiceDTO.getItems().forEach(item -> {
-
-
-
                 InvoiceItem invoiceItem = new InvoiceItem();
                 Product product = productRepository.getProductByIdAndWarehouseId(item.getProductId(), invoiceDTO.getWarehouseId());
                 if (product == null) {
@@ -143,10 +142,10 @@ public class InvoiceServiceImpl implements InvoiceService {
                 invoiceItem.setProductPackage(productPackage);
 
                 invoiceItem.setInvoice(finalInvoice);
-                invoiceItem.setPrice(product.getPrice()); // giá đề xuất
-                invoiceItem.setQuantity(item.getQuantity()); // số lượng
+                invoiceItem.setPrice(product.getPrice());
+                invoiceItem.setQuantity(item.getQuantity());
                 invoiceItem.setWeight(item.getQuantity() * productPackage.getWeight());
-                invoiceItem.setDiscount(item.getDiscount()); // giá thương lượng
+                invoiceItem.setDiscount(item.getDiscount());
                 invoiceItem.setPayable(item.getDiscount().multiply(BigDecimal.valueOf((long) item.getQuantity() * productPackage.getWeight())));
                 invoiceItem.setProductSnapshotDTO(ProductSnapshotDTO.builder().id(product.getId())
                         .name(product.getName())
@@ -178,6 +177,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .customerPhone(invoice.getCustomer().getPhone())
                 .createdAt(invoice.getCreatedAt())
                 .updatedAt(invoice.getUpdatedAt())
+                .createdByUsername(invoice.getCreatedBy().getUsername())
                 .build()
         );
     }
@@ -202,7 +202,18 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .createdAt(invoice.getCreatedAt())
                 .createdBy(invoice.getCreatedBy().getId())
                 .updatedAt(invoice.getUpdatedAt())
+                .createdByUsername(invoice.getCreatedBy().getUsername())
                 .build()
         ).orElse(null);
+    }
+
+    @Override
+    public InvoiceDataDTO findInvoiceDataBywarehouseIdAndId(Long warehouseId, Long id) {
+        return invoiceRepository.findByIdAndWarehouseId(id, warehouseId).map((element) -> modelMapper.map(element, InvoiceDataDTO.class)).orElseThrow();
+    }
+
+    @Override
+    public List<Long> findInvoiceIdsByIsProcessedIsFalse() {
+        return invoiceRepository.findIdsByIsProcessedIsFalse();
     }
 }

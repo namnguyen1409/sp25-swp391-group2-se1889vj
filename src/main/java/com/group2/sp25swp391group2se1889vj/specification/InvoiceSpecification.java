@@ -64,6 +64,9 @@ public class InvoiceSpecification {
             if (invoiceFilterDTO.getMaxCreatedAt() != null) {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("createdAt"), invoiceFilterDTO.getMaxCreatedAt()));
             }
+            if (invoiceFilterDTO.getCreatedByUsername() != null) {
+                predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("createdBy").get("username")), "%" + invoiceFilterDTO.getCreatedByUsername().toLowerCase() + "%"));
+            }
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
