@@ -38,7 +38,6 @@ public class UserController {
 
     private final RegistrationTokenRepository registrationTokenRepository;
     private final RecaptchaService recaptchaService;
-    private final PasswordEncoder passwordEncoder;
     private final EmailServiceImpl emailService;
     private final UserRepository userRepository;
     private final EncryptionUtil encryptionUtil;

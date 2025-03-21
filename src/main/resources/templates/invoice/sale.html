@@ -1,19 +1,5 @@
-<div class="row">
-
-    <!-- Trạng thái xử lý -->
-<!--    <div class="col-md-12">-->
-<!--        <div class="d-flex align-items-center gap-2">-->
-<!--            <strong>Trạng thái hiện tại:</strong>-->
-<!--            <span class="badge bg-primary px-3 py-2" th:id="'status' + ${tabId}">-->
-<!--            Đang tạo hóa đơn nhập-->
-<!--        </span>-->
-<!--        </div>-->
-<!--        <p class="mt-2 text-muted" th:id="'message' + ${tabId}"></p>-->
-<!--    </div>-->
-
-    <!-- Cột trái: Sản phẩm -->
+<div class="row mb-5">
     <div class="col-md-9 mt-3">
-<!--        <h4 class="text-center">Danh sách sản phẩm</h4>-->
         <div class="col-12 position-relative">
             <div class="form-floating">
                 <input autocomplete="off" class="form-control" placeholder="Nhập tên sản phẩm"
@@ -42,80 +28,25 @@
             <tbody th:id="'productList' + ${tabId}">
             </tbody>
         </table>
-
-
         <hr>
-
         <div class="row g-2 align-items-center">
-<!--            &lt;!&ndash; Dropdown thanh toán &ndash;&gt;-->
-<!--            <div class="col-auto">-->
-<!--                <div class="btn-group w-100">-->
-<!--                    <button aria-expanded="false" class="btn btn-outline-secondary dropdown-toggle"-->
-<!--                            data-bs-toggle="dropdown" th:id="'paymentDropdown'+ ${tabId}" type="button">-->
-<!--                        Không thanh toán-->
-<!--                    </button>-->
-<!--                    <ul aria-labelledby="paymentDropdown${tabId}" class="dropdown-menu w-100">-->
-<!--                        <li><a class="dropdown-item" href="#" th:id="'unpaid' + ${tabId}">Không thanh toán</a></li>-->
-<!--                        <li><a class="dropdown-item" href="#" th:id="'partial' + ${tabId}">-->
-<!--                            Nhập thủ công-->
-<!--                        </a></li>-->
-<!--                        <li><a class="dropdown-item" href="#" th:id="'paid' + ${tabId}">-->
-<!--                            Tiền hàng-->
-<!--                        </a></li>-->
-<!--                        <li><a class="dropdown-item" href="#" th:id="'paidAndDebt' + ${tabId}">-->
-<!--                            Tiền hàng + tiền nợ-->
-<!--                        </a></li>-->
-<!--                    </ul>-->
-<!--                </div>-->
-<!--            </div>-->
 
-            <div class="col-auto">
-                <div class="form-floating">
-                    <input class="form-control" readonly th:id="'totalPrice' + ${tabId}" type="text">
-                    <label th:for="'totalPrice' + ${tabId}">Tổng tiền</label>
+            <div class="col-md-12">
+                <div class="d-flex align-items-center gap-2">
+                    <strong>Trạng thái hiện tại:</strong>
+                    <span class="badge bg-primary px-3 py-2" th:id="'status' + ${tabId}">
+                Đang tạo hóa đơn nhập
+            </span>
                 </div>
+                <p class="mt-2 d-none" th:id="'message' + ${tabId}"></p>
             </div>
 
-            <!-- Giá sau khi giảm -->
-<!--            <div class="col-auto">-->
-<!--                <div class="form-floating">-->
-<!--                    <input class="form-control" readonly th:id="'discount' + ${tabId}" type="text">-->
-<!--                    <label th:for="'discount' + ${tabId}">Giá sau giảm</label>-->
-<!--                </div>-->
-<!--            </div>-->
-
-            <!-- Thanh toán -->
-<!--            <div class="col-auto">-->
-<!--                <div class="form-floating">-->
-<!--                    <input class="form-control" readonly th:id="'payment' + ${tabId}" type="text">-->
-<!--                    <label th:for="'payment' + ${tabId}">Thanh toán</label>-->
-<!--                </div>-->
-<!--            </div>-->
-
-            <!-- Còn nợ -->
-<!--            <div class="col-auto">-->
-<!--                <div class="form-floating">-->
-<!--                    <input class="form-control" readonly th:id="'debt' + ${tabId}" type="text">-->
-<!--                    <label th:for="'debt' + ${tabId}">Số dư của khách</label>-->
-<!--                </div>-->
-<!--            </div>-->
-
-<!--            &lt;!&ndash; Nút bán hàng &ndash;&gt;-->
-<!--            <div class="col-auto">-->
-<!--                <button class="btn btn-primary w-100 px-3 py-2" th:id="'btnPurchase' + ${tabId}" type="button">-->
-<!--                    <i class="bi bi-cart-plus"></i> Bán hàng-->
-<!--                </button>-->
-<!--            </div>-->
-
-            <!-- Thuê người bốc vác -->
-<!--            <div class="col-auto d-flex align-items-center">-->
-<!--                <div class="form-check">-->
-<!--                    <input class="form-check-input" th:id="'loadingService' + ${tabId}" type="checkbox">-->
-<!--                    <label class="form-check-label ms-2" th:for="'loadingService' + ${tabId}">Thuê bốc vác</label>-->
-<!--                </div>-->
-<!--            </div>-->
-
-            <!-- Ghi chú -->
+            <div class="col-12">
+                <h5 class="text-left">Tổng tiền đề xuất: <span th:id="'totalPrice' + ${tabId}" data-raw="0"> 0 </span></h5>
+            </div>
+            <div class="col-12">
+                <h5 class="text-left">Tổng tiền thực tế: <span th:id="'discount' + ${tabId}" data-raw="0">0</span></h5>
+            </div>
             <div class="col-12">
                 <div class="form-floating">
                     <textarea class="form-control" rows="2" th:id="'note' + ${tabId}"></textarea>
@@ -123,18 +54,16 @@
                 </div>
             </div>
         </div>
-
-
     </div>
 
     <div class="col-md-3 mt-3">
-        <div class="form-floating mb-3">
+        <div class="form-floating mb-2">
             <input autocomplete="off" class="form-control" placeholder="Số điện thoại khách hàng"
                    th:id="'customerPhone' + ${tabId}" type="text">
             <label th:for="'customerPhone' + ${tabId}">Số điện thoại khách hàng</label>
         </div>
 
-        <div class="form-floating mb-3">
+        <div class="form-floating mb-2">
             <input autocomplete="off" class="form-control" placeholder="Tên khách hàng" th:id="'customerName' + ${tabId}"
                    type="text">
             <label th:for="'customerName' + ${tabId}">
@@ -142,7 +71,7 @@
             </label>
         </div>
 
-        <div class="form-floating mb-3">
+        <div class="form-floating mb-2">
             <input autocomplete="off" class="form-control" placeholder="Địa chỉ khách hàng"
                    th:id="'customerAddress' + ${tabId}" type="text">
             <label th:for="'customerAddress' + ${tabId}">
@@ -150,12 +79,10 @@
             </label>
         </div>
 
-        <div class="form-floating mb-3">
-            <input autocomplete="off" class="form-control" placeholder="Số dư khách hàng" readonly
-                   th:id="'customerBalance' + ${tabId}" type="text">
-            <label th:for="'customerBalance' + ${tabId}">
-                Số dư khách hàng
-            </label>
+        <div class="form-floating mb-2">
+            <p class="text-muted">Số dư khách hàng
+                <span th:id="'customerBalance' + ${tabId}">0</span>
+            </p>
         </div>
         <button class="btn btn-primary mt-3 d-none" th:id="'btnCustomer' + ${tabId}" type="button">
             <i class="bi bi-person-plus-fill"></i> Thêm khách hàng
@@ -163,42 +90,29 @@
 
         <hr>
 
-        <div class="d-flex flex-column">
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="paymentMethod" th:id="'unpaid' + ${tabId}" checked>
-                <label class="form-check-label" th:for="'unpaid' + ${tabId}">Không thanh toán</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="paymentMethod" th:id="'partial' + ${tabId}">
-                <label class="form-check-label" th:for="'partial' + ${tabId}">Nhập thủ công</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="paymentMethod" th:id="'paid' + ${tabId}">
-                <label class="form-check-label" th:for="'paid' + ${tabId}">Tiền hàng</label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="paymentMethod" th:id="'paidAndDebt' + ${tabId}">
-                <label class="form-check-label" th:for="'paidAndDebt' + ${tabId}">Tiền hàng + tiền nợ</label>
+        <div class="row">
+            <div class="d-flex flex-wrap" role="group" aria-label="Chọn phương thức thanh toán">
+                <input type="radio" class="btn-check mb-1" name="paymentMethod" th:id="'unpaid' + ${tabId}" checked>
+                <label class="btn btn-outline-primary p-1 mb-1 w-100" th:for="'unpaid' + ${tabId}">Nợ</label>
+
+                <input type="radio" class="btn-check mb-1" name="paymentMethod" th:id="'paid' + ${tabId}">
+                <label class="btn btn-outline-success p-1 mb-1 w-100" th:for="'paid' + ${tabId}">Tiền hàng</label>
+
+                <input type="radio" class="btn-check mb-1" name="paymentMethod" th:id="'paidAndDebt' + ${tabId}">
+                <label class="btn btn-outline-warning p-1 mb-1 w-100" th:for="'paidAndDebt' + ${tabId}">Tiền hàng + tiền nợ</label>
             </div>
         </div>
 
-        <div class="col-auto">
+        <div class="col-auto mb-2">
             <div class="form-floating">
-                <input class="form-control" readonly th:id="'discount' + ${tabId}" type="text">
-                <label th:for="'discount' + ${tabId}">Tổng tiền sản phẩm</label>
-            </div>
-        </div>
-        <div class="col-auto">
-            <div class="form-floating">
-                <input class="form-control" readonly th:id="'payment' + ${tabId}" type="text">
+                <input class="form-control" th:id="'payment' + ${tabId}" type="text">
                 <label th:for="'payment' + ${tabId}">Đã thanh toán</label>
             </div>
         </div>
-        <div class="col-auto">
-            <div class="form-floating">
-                <input class="form-control" readonly th:id="'debt' + ${tabId}" type="text">
-                <label th:for="'debt' + ${tabId}">Số dư khách</label>
-            </div>
+        <div class="col-auto mb-2">
+            <p class="text-muted">Số dư khách hàng
+                <span th:id="'debt' + ${tabId}">0</span>
+            </p>
         </div>
 
         <div class="col-auto d-flex align-items-center">
@@ -216,7 +130,6 @@
 
     </div>
 
-    <!-- Script riêng cho tab này -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             initSalesEvents("[[${tabId}]]");

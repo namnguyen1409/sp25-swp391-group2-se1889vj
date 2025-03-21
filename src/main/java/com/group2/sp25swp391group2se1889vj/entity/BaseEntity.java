@@ -39,7 +39,7 @@ public abstract class BaseEntity {
 
     @EqualsAndHashCode.Exclude
     @CreatedBy
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", updatable = false)
     private User createdBy;
 
