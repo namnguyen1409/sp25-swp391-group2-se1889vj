@@ -80,6 +80,13 @@
 
     <hr>
 
+    <div class="total-section mt-3">
+        <p>Tổng giá trị nhập kho: <span  class="format-price" th:text="${invoice.totalPrice}"></span></p>
+        <p>Đã thanh toán: <span  class="format-price" th:text="${invoice.totalPaid}"></span></p>
+        <p style="color: red;">Số tiền còn nợ: <span class="format-price" th:text="${invoice.totalDebt}"></span></p>
+    </div>
+    <hr>
+
     <div class="invoice-footer">
         <p>Cảm ơn quý đối tác đã hợp tác!</p>
         <p th:utext="${invoice.warehouse.description}"></p>
