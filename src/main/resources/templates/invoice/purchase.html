@@ -55,6 +55,13 @@
                     <label th:for="'note' + ${tabId}">Ghi chú</label>
                 </div>
             </div>
+
+            <div class="col-12 d-none" th:id="'printInvoice' + ${tabId}">
+                <a class="btn btn-primary w-100" th:id="'printInvoiceBtn' + ${tabId}">
+                    <i class="bi bi-printer"></i> In hóa đơn
+                </a>
+            </div>
+
         </div>
 
 

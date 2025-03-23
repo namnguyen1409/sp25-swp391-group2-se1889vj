@@ -946,12 +946,31 @@
                 description: document.getElementById(`note${tabId}`).value,
                 items: data.items.map(item => ({
                     productId: item.id,
+                    productName: item.name,
                     productPackageId: item.productPackageId,
+                    productStockQuantity: item.productStockQuantity,
                     quantity: item.quantity,
+                    weight: item.weight,
                     price: item.price,
                     discount: item.discount,
                     payable: item.total
                 }))
+            }
+
+            let totalWeightByProduct = payload.items.reduce((acc, item) => {
+                let productId = String(item.productId);
+                acc[productId] = (acc[productId] || 0) + item.weight;
+                return acc;
+            }, {});
+
+            for (let item of payload.items) {
+                let productId = String(item.productId);
+                if (totalWeightByProduct[productId] > item.productStockQuantity) {
+                    document.getElementById(`btnPurchase${tabId}`).classList.remove("d-none");
+                    showModal("Modal", Context.DANGER, "Khối lượng sản phẩm không hợp lệ!",
+                        `Sản phẩm ${item.productName} vượt quá tồn kho (${totalWeightByProduct[productId]}kg / ${item.productStockQuantity}kg)`);
+                    return;
+                }
             }
 
             if (!validateSaleInvoice(payload)) {
@@ -1005,6 +1024,7 @@
             if (!invoice.items || invoice.items.length === 0) {
                 return false;
             }
+
             return invoice.items.every(item => item.productId && item.productPackageId && item.quantity > 0 && item.discount >= 0 && item.payable >= 0);
         }
 
@@ -1016,6 +1036,8 @@
             if (!invoice.items || invoice.items.length === 0) {
                 return false;
             }
+
+
 
             return invoice.items.every(item => item.productId && item.productPackageId && item.quantity > 0 && item.price >= 0 && item.payable >= 0);
         }
@@ -1043,12 +1065,14 @@
             const status = data.status;
             const message = data.message;
 
+
             const foundTab = Object.entries(invoiceData).find(
                 ([key, value]) => value.orderId === orderId
             );
             console.log(orderId, foundTab, invoiceData);
 
             const tabId = foundTab ? foundTab[1].tabId : null;
+            const type = foundTab ? foundTab[1].type : null;
             console.log("TabId:", tabId);
             if (tabId) {
                 const tab = document.getElementById(tabId + "-tab");
@@ -1064,6 +1088,19 @@
                         statusElement.classList.add("bg-success");
                         statusElement.classList.remove("bg-warning");
                         tabStatus.classList.add("text-success");
+
+                        const printInvoice = document.getElementById(`printInvoice${tabId}`);
+                        printInvoice.classList.remove("d-none");
+                        const printInvoiceBtn = document.getElementById(`printInvoiceBtn${tabId}`);
+
+                        if (type === 'purchase') {
+                            printInvoiceBtn.href = `/invoice/detail/import/print/${orderId}`;
+                            printInvoiceBtn.target = "_blank";
+                        } else {
+                            printInvoiceBtn.href = `/invoice/detail/export/print/${orderId}`;
+                            printInvoiceBtn.target = "_blank";
+                        }
+
                     } else {
                         statusElement.innerHTML = "Đã xảy ra lỗi khi xử lý";
                         statusElement.classList.add("bg-danger");
