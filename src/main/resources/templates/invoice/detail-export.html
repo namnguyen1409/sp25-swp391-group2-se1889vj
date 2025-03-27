@@ -69,7 +69,7 @@
             <h5>Thông tin khách hàng</h5>
             <p><strong>Họ tên:</strong> <span th:text="${invoice.customer.fullName}"></span></p>
             <p><strong>Số điện thoại:</strong> <span th:text="${invoice.customer.phone}"></span></p>
-            <p><strong>Số dư khách hàng:</strong> <span th:text="${invoice.customerBalance}"></span> VNĐ</p>
+            <p><strong>Số dư khách hàng:</strong> <span class="price" th:text="${invoice.customerBalance}"></span></p>
         </div>
 
         <table class="table table-bordered">
@@ -100,7 +100,7 @@
         </table>
         <div class="total-section mt-3">
             <p>Tổng tiền đề xuất: <span class="price" th:text="${invoice.totalPrice}"></span></p>
-            <p>Tổng tiền thực tế <span class="price" th:text="${invoice.totalPayable}"></span></p>
+            <p>Tổng tiền thực tế <span class="price" th:text="${invoice.totalDiscount}"></span></p>
             <p>Đã thanh toán: <span  class="price" th:text="${invoice.totalPaid}"></span></p>
             <p style="color: red;">Số tiền còn nợ cửa hàng: <span class="price" th:text="${invoice.totalDebt}"></span></p>
         </div>

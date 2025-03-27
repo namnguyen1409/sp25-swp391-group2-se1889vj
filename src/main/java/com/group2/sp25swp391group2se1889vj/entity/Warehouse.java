@@ -29,6 +29,10 @@ public class Warehouse extends BaseEntity{
     @Column(name = "description", nullable = true, columnDefinition = "nvarchar(max)")
     private String description;
 
+    @EqualsAndHashCode.Include
+    @Column(name = "max_discount")
+    private Integer maxDiscount;
+
     @OneToOne
     @JoinColumn(name="owner_id", referencedColumnName = "id")
     private User owner;
