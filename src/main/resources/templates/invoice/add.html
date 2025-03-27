@@ -38,12 +38,13 @@
                 </ul>
             </li>
         </ul>
-
-        <!-- Nội dung tab -->
         <div class="tab-content mt-3" id="invoiceContent"></div>
     </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+
+        let maxDiscount = [[${warehouse.maxDiscount}]];
+
         let tabCount = 0;
         let invoiceData = {};
         let productPackaging = [];
@@ -170,12 +171,20 @@
             });
 
             paidAndDebt.addEventListener("click", function () {
-                payment.value = formatCurrency(0);
-                payment.setAttribute("data-raw", "0");
-                updateTotal(tabId)
-                payment.value = formatCurrency(parseInt(debt.getAttribute("data-raw"), 10));
-                payment.setAttribute("data-raw", debt.getAttribute("data-raw"));
-                updateTotal(tabId)
+                // payment.value = formatCurrency(0);
+                // payment.setAttribute("data-raw", "0");
+                // updateTotal(tabId)
+                // payment.value = formatCurrency(parseInt(debt.getAttribute("data-raw"), 10));
+                // payment.setAttribute("data-raw", debt.getAttribute("data-raw"));
+                // updateTotal(tabId)
+
+                let balanceValue = parseInt(customerBalance.getAttribute("data-raw"), 10);
+                let totalPriceValue = parseInt(totalPrice.getAttribute("data-raw"), 10);
+                payment.value = formatCurrency(totalPriceValue + balanceValue);
+                payment.setAttribute("data-raw", totalPriceValue + balanceValue);
+                updateTotal(tabId);
+
+
             });
 
             function debounce(func, delay) {
@@ -276,7 +285,7 @@
                 submitPurchase(tabId);
             });
 
-            handleCurrencyInput(payment, tabId);
+            handleCurrencyInputWithNegative(payment, tabId);
             payment.addEventListener("input", function () {
                 updateTotal(tabId)
             })
@@ -320,14 +329,13 @@
             });
 
             paidAndDebt.addEventListener("click", function () {
-                payment.value = formatCurrency(0);
-                payment.setAttribute("data-raw", "0");
-                updateTotalSale(tabId)
-                payment.setAttribute("readonly", "true");
-                let debtValue = parseInt(debt.getAttribute("data-raw"), 10)
-                payment.value = formatCurrency(0 - debtValue)
-                payment.setAttribute("data-raw", 0 - debtValue);
-                updateTotalSale(tabId)
+                let balanceValue = parseInt(customerBalance.getAttribute("data-raw"), 10);
+                let discountValue = parseInt(discount.getAttribute("data-raw"), 10);
+
+                payment.value = formatCurrency(discountValue - balanceValue);
+                payment.setAttribute("data-raw", discountValue - balanceValue);
+
+                updateTotalSale(tabId);
             });
 
 
@@ -432,7 +440,7 @@
                 submitSale(tabId);
             });
 
-            handleCurrencyInput(payment, tabId);
+            handleCurrencyInputWithNegative(payment, tabId);
             payment.addEventListener("input", function () {
                 updateTotalSale(tabId)
             })
@@ -567,10 +575,7 @@
                     console.error(error);
                 }
             )
-
-
         }
-
 
         function removeProductFromInvoiceSale(tabId, uniqueKey) {
             let itemIndex = invoiceData[tabId].items.findIndex(item => item.uniqueKey === uniqueKey);
@@ -833,6 +838,49 @@
             debt.innerText = formatCurrency(remainingDebt);
         }
 
+        function handleCurrencyInputWithNegative(input, tabId) {
+            input.addEventListener('keydown', function (event) {
+                let rawValue = this.getAttribute('data-raw') || '';
+                if (event.key === '-' && rawValue.length === 0) {
+                    this.setAttribute('data-raw', '-');
+                    this.value = '-';
+                    event.preventDefault();
+                    return;
+                }
+
+                if (event.key === 'Backspace') {
+                    event.preventDefault();
+                    if (rawValue.length > 1) {
+                        rawValue = rawValue.slice(0, -1);
+                        this.setAttribute('data-raw', rawValue);
+                        this.value = formatCurrency(rawValue);
+                    } else {
+                        this.setAttribute('data-raw', '');
+                        this.value = '';
+                    }
+                }
+            });
+
+            input.addEventListener('input', function () {
+                let rawValue = this.value.replace(/[^0-9-]/g, '');
+
+                if (rawValue.includes('-')) {
+                    rawValue = '-' + rawValue.replace(/-/g, '');
+                }
+
+                if (rawValue !== '-' && rawValue !== '-0') {
+                    rawValue = rawValue.replace(/^(-?)0+/, '$1') || '0';
+                }
+
+                this.setAttribute('data-raw', rawValue);
+                this.value = formatCurrency(rawValue);
+            });
+
+            input.value = formatCurrency(input.getAttribute('data-raw') || '');
+            updateTotal(tabId);
+        }
+
+
         function handleCurrencyInput(input, tabId) {
             input.addEventListener('keydown', function (event) {
                 let rawValue = this.getAttribute('data-raw') || '';
@@ -929,7 +977,7 @@
 
         }
 
-        function submitSale(tabId) {
+        async function submitSale(tabId) {
             document.getElementById(`btnPurchase${tabId}`).classList.add("d-none");
             let data = invoiceData[tabId];
 
@@ -972,6 +1020,36 @@
                     return;
                 }
             }
+
+
+            // kiểm tra có sản phẩm nào chênh giá thực tế và giá bán đề xuất hơn maxDiscount không
+            for (let item of payload.items) {
+                let discountPercentage = ((item.discount - item.price) / item.price) * 100;
+
+                if (Math.abs(discountPercentage) > maxDiscount) {
+                    document.getElementById(`btnPurchase${tabId}`).classList.remove("d-none");
+
+                    let result = await Swal.fire({
+                        title: "Giá bán không hợp lệ!",
+                        html: `Sản phẩm <b>"${item.productName}"</b> có giá thay đổi quá mức cho phép.<br>
+                       <b>${discountPercentage.toFixed(2)}% > ${maxDiscount}%</b>.<br><br>
+                       Bạn có muốn tiếp tục bán không?`,
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonText: "Tiếp tục bán",
+                        cancelButtonText: "Hủy",
+                        reverseButtons: true
+                    });
+
+                    if (!result.isConfirmed) {
+                        console.log("Người dùng đã hủy bán hàng.");
+                        return;
+                    }
+                    break;
+                }
+            }
+
+
 
             if (!validateSaleInvoice(payload)) {
                 document.getElementById(`btnPurchase${tabId}`).classList.remove("d-none");
@@ -1038,7 +1116,6 @@
             }
 
 
-
             return invoice.items.every(item => item.productId && item.productPackageId && item.quantity > 0 && item.price >= 0 && item.payable >= 0);
         }
     </script>
@@ -1093,14 +1170,27 @@
                         printInvoice.classList.remove("d-none");
                         const printInvoiceBtn = document.getElementById(`printInvoiceBtn${tabId}`);
 
-                        if (type === 'purchase') {
-                            printInvoiceBtn.href = `/invoice/detail/import/print/${orderId}`;
-                            printInvoiceBtn.target = "_blank";
-                        } else {
-                            printInvoiceBtn.href = `/invoice/detail/export/print/${orderId}`;
-                            printInvoiceBtn.target = "_blank";
-                        }
+                        const url = type === 'purchase'
+                            ? `/invoice/detail/import/print/${orderId}`
+                            : `/invoice/detail/export/print/${orderId}`;
 
+                        printInvoiceBtn.addEventListener("click", function () {
+                            let iframe = document.createElement("iframe");
+                            iframe.style.display = "none";
+                            document.body.appendChild(iframe);
+                            fetch(url)
+                                .then(response => response.text())
+                                .then(html => {
+                                    iframe.contentDocument.open();
+                                    iframe.contentDocument.write(html);
+                                    iframe.contentDocument.close();
+                                    setTimeout(() => {
+                                        iframe.contentWindow.print();
+                                        document.body.removeChild(iframe);
+                                    }, 500);
+                                })
+                                .catch(error => console.error("Lỗi tải hóa đơn:", error));
+                        });
                     } else {
                         statusElement.innerHTML = "Đã xảy ra lỗi khi xử lý";
                         statusElement.classList.add("bg-danger");
@@ -1122,15 +1212,11 @@
                 input.setAttribute("disabled", "true");
             });
 
-            // ẩn nút xóa sản phẩm
             const removeButtons = document.querySelectorAll(`#${tabId} button`);
             removeButtons.forEach(button => {
                 button.classList.add("d-none");
             });
-
         }
-
-
     </script>
 
 

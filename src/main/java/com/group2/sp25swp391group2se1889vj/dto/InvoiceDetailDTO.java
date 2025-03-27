@@ -26,4 +26,5 @@ public class InvoiceDetailDTO extends BaseDTO{
     private boolean isProcessed;
     private boolean isSuccess;
     private String createdByUsername;
+    private Boolean isWarning;
 }

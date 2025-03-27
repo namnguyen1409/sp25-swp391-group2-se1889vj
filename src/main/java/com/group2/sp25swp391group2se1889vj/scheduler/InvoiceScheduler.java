@@ -39,6 +39,7 @@ public class InvoiceScheduler {
             isProcessing = true;
             var invoice = invoiceRepository.findById(invoiceId).orElse(null);
             try {
+                assert invoice != null;
                 if (invoice.getType() == InvoiceType.PURCHASE) {
                     processInvoicePurchase(invoice);
                     invoice.setProcessed(true);

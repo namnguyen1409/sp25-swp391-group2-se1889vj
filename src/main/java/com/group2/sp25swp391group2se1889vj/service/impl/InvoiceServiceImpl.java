@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 
@@ -116,6 +117,8 @@ public class InvoiceServiceImpl implements InvoiceService {
             }
             invoice.setWarehouse(warehouse);
 
+            var maxDiscount = warehouse.getMaxDiscount();
+
             Customer customer = customerRepository.findByIdAndWarehouseId(invoiceDTO.getCustomerId(), invoiceDTO.getWarehouseId()).orElse(null);
             if (customer == null) {
                 throw new RuntimeException("Customer not found");
@@ -127,6 +130,7 @@ public class InvoiceServiceImpl implements InvoiceService {
             invoice = invoiceRepository.save(invoice);
 
             Invoice finalInvoice = invoice;
+            boolean hasWarning = false;
             invoiceDTO.getItems().forEach(item -> {
                 InvoiceItem invoiceItem = new InvoiceItem();
                 Product product = productRepository.getProductByIdAndWarehouseId(item.getProductId(), invoiceDTO.getWarehouseId());
@@ -142,10 +146,21 @@ public class InvoiceServiceImpl implements InvoiceService {
                 invoiceItem.setProductPackage(productPackage);
 
                 invoiceItem.setInvoice(finalInvoice);
-                invoiceItem.setPrice(product.getPrice());
+                invoiceItem.setPrice(product.getPrice()); // giá trước khi giảm
                 invoiceItem.setQuantity(item.getQuantity());
                 invoiceItem.setWeight(item.getQuantity() * productPackage.getWeight());
-                invoiceItem.setDiscount(item.getDiscount());
+                invoiceItem.setDiscount(item.getDiscount()); // giá sau khi giảm
+
+                // tính giảm bao nhiêu phần trăm
+                var priceDifference = item.getDiscount().subtract(product.getPrice()).abs(); // Chênh lệch tuyệt đối
+                var percentageChange = priceDifference
+                        .divide(product.getPrice(), 2, RoundingMode.HALF_UP)
+                        .multiply(BigDecimal.valueOf(100));
+
+                if (percentageChange.compareTo(BigDecimal.valueOf(maxDiscount)) > 0) {
+                    finalInvoice.setWarning(true);
+                }
+
                 invoiceItem.setPayable(item.getDiscount().multiply(BigDecimal.valueOf((long) item.getQuantity() * productPackage.getWeight())));
                 invoiceItem.setProductSnapshotDTO(ProductSnapshotDTO.builder().id(product.getId())
                         .name(product.getName())
@@ -156,6 +171,9 @@ public class InvoiceServiceImpl implements InvoiceService {
                 );
                 invoiceItemRepository.save(invoiceItem);
             });
+
+            invoice = invoiceRepository.save(finalInvoice);
+
             return invoice.getId();
         }
         return null;
@@ -178,6 +196,7 @@ public class InvoiceServiceImpl implements InvoiceService {
                 .createdAt(invoice.getCreatedAt())
                 .updatedAt(invoice.getUpdatedAt())
                 .createdByUsername(invoice.getCreatedBy().getUsername())
+                .isWarning(invoice.isWarning())
                 .build()
         );
     }
