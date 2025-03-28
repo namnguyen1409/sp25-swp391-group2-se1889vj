@@ -83,7 +83,7 @@
         </div>
     </div>
     <script>
-        $(document).ready(function () {
+        $(document).ready(function () {2
             let debounceTimer;
 
             let csrfToken = $("meta[name='_csrf']").attr("content");
@@ -99,6 +99,20 @@
                 clearTimeout(debounceTimer);
                 debounceTimer = setTimeout(fn, delay);
             }
+
+            // Khi click vào ô tìm kiếm quy cách đóng gói thì load tất cả quy cách
+            $("#productPackageName").on("click", function () {
+                setTimeout(() => {
+                    debounce(() => {
+                        $.getJSON("/api/product-package/getAll", function (data) {
+                            let options = data.map(pkg =>
+                                `<option data-id="${pkg.id}" value="${pkg.name} (${pkg.weight}kg)"></option>`
+                            ).join("");
+                            $("#productPackageList").html(options);
+                        });
+                    }, 300);
+                }, 500); // Chờ 500ms trước khi bắt đầu tìm kiếm
+            });
 
             // Tìm kiếm quy cách đóng gói
             $("#productPackageName").on("input", function () {
@@ -120,6 +134,9 @@
                 let selectedOption = $("#productPackageList option[value='" + $(this).val() + "']");
                 $("#productPackageId").val(selectedOption.length ? selectedOption.data("id") : "");
             });
+
+            // Khi click vào ô tìm kiếm Zone thì load tất cả Zone
+
 
             // Tìm kiếm Zone
             $("#zoneSearch").on("input", function () {
