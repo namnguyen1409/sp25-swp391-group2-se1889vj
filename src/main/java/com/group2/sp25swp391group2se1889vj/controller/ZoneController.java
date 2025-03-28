@@ -77,7 +77,32 @@ public class ZoneController {
         model.addAttribute("zone", zone);
         return "warehouse/zone/edit";
     }
-    
+    @PostMapping("/edit")
+    public String editZone(
+            @Validated @ModelAttribute("zone") ZoneDTO zoneDTO,
+            BindingResult bindingResult
+    ) {
+        if (bindingResult.hasErrors()) {
+            System.err.println("DDax co loi");
+            return "warehouse/zone/edit";
+        }
+
+        // Kiểm tra nếu zoneDTO không có ID hợp lệ
+        if (zoneDTO.getId() == null) {
+            return "redirect:/zone/list";
+        }
+
+        var check = zoneService.findZoneById(zoneDTO.getId());
+        if (check == null || !Objects.equals(check.getWarehouseId(), getWarehouseId())) {
+            return "redirect:/zone/list";
+        }
+
+        zoneDTO.setWarehouseId(getWarehouseId());
+        zoneService.saveZone(zoneDTO);
+        return "redirect:/zone";
+    }
+
+
     @GetMapping({"/list", "", "/"})
     public String list(
             Model model,
