@@ -38,4 +38,9 @@ public class ZoneRestController {
         return ResponseEntity.ok(zoneService.searchZones(getWarehouseId(), keyword));
     }
 
+    @GetMapping("/getAll")
+    public Object getAll() {
+        return ResponseEntity.ok(zoneService.findAllByWarehouseId(getWarehouseId()));
+    }
+
 }
