@@ -343,13 +343,11 @@ public class UserController {
     @PostMapping("/verify-email")
     public String verifyEmail(@ModelAttribute("verificationCode") VerificationCodeDTO verificationCodeDTO,
                               RedirectAttributes redirectAttributes) {
-
         String storedCode = emailService.getStoredVerificationCode(verificationCodeDTO.getEmail());
         if(!verificationCodeDTO.getCode().equals(storedCode)) {
             redirectAttributes.addFlashAttribute("error", "Mã xác thực không chính xác");
             return "redirect:/users/verify-email?pendingEmail=" + verificationCodeDTO.getEmail() + "&userId=" + verificationCodeDTO.getId();
         }
-
         userService.updateEmail(verificationCodeDTO.getId(), verificationCodeDTO.getEmail());
         return "redirect:/users/list";
     }

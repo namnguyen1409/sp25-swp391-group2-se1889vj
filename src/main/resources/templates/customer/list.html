@@ -133,7 +133,7 @@
                         <a th:href="@{'/customer/detail/' + ${item.id}}" class="btn btn-info btn-sm">
                             <i class="bi bi-eye-fill"></i>
                         </a>
-                        <a th:href="@{'/customer/edit/' + ${item.id}}" class="btn btn-warning btn-sm">
+                        <a th:href="@{'/customer/edit/' + ${item.id}}" class="btn btn-warning btn-sm" sec:authorize="hasAnyRole('OWNER')">
                             <i class="bi bi-pencil-fill"></i>
                         </a>
                     </td>

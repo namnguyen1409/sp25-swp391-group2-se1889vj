@@ -3,6 +3,7 @@ package com.group2.sp25swp391group2se1889vj.dto;
 import com.group2.sp25swp391group2se1889vj.validation.annotation.FieldsEqual;
 import com.group2.sp25swp391group2se1889vj.validation.annotation.PasswordStrength;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
