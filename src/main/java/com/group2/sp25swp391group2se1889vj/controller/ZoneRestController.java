@@ -17,4 +17,30 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class ZoneRestController {
 
+    private final ZoneService zoneService;
+
+    private User getUser() {
+        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        return userDetails.getUser();
+    }
+
+    private Long getWarehouseId() {
+        var currentUser = getUser();
+        if(currentUser.getRole() == RoleType.OWNER) return currentUser.getWarehouse().getId();
+        else return currentUser.getAssignedWarehouse().getId();
+    }
+
+    @GetMapping("/search")
+    public Object search(
+            @RequestParam("name") String keyword
+    ) {
+        return ResponseEntity.ok(zoneService.searchZones(getWarehouseId(), keyword));
+    }
+
+    @GetMapping("/getAll")
+    public Object getAll() {
+        return ResponseEntity.ok(zoneService.findAllByWarehouseId(getWarehouseId()));
+    }
+
 }
