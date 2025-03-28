@@ -127,6 +127,8 @@ public class CustomerController {
         return "redirect:/customer/list";
     }
 
+
+    @PreAuthorize("hasRole('OWNER')")
     @GetMapping("/edit/{id}")
     public String edit(@PathVariable Long id, Model model) {
         CustomerDTO customerDTO = customerService.findCustomerById(id);
@@ -138,6 +140,7 @@ public class CustomerController {
         return "customer/edit";
     }
 
+    @PreAuthorize("hasRole('OWNER')")
     @Transactional
     @PostMapping("/edit")
     public String edit(
