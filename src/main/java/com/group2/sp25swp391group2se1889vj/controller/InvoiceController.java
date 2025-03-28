@@ -56,7 +56,14 @@ public class InvoiceController {
     private final InvoiceService invoiceService;
 
     @GetMapping("/add")
-    public String addInvoice(){
+    public String addInvoice(
+            Model model
+    ){
+        WarehouseDTO warehouseDTO = warehouseService.findWarehouseByOwnerId(getUser().getId());
+        if (warehouseDTO == null) {
+            throw new Http404("Không tìm thấy kho hàng");
+        }
+        model.addAttribute("warehouse", warehouseDTO);
         return "invoice/add";
     }
 
@@ -85,9 +92,9 @@ public class InvoiceController {
         Sort sortDirection = "asc".equalsIgnoreCase(invoiceFilterDTO.getDirection())
                 ? Sort.by(invoiceFilterDTO.getOrderBy()).ascending()
                 : Sort.by(invoiceFilterDTO.getOrderBy()).descending();
-        List<String> fields = Arrays.asList("totalPrice", "customerBalance", "totalPayable", "totalPaid", "totalDebt", "customerFullName", "customerPhone", "createdAt", "createdByUsername");
-        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tổng tiền", "Số dư khách hàng", "Tổng phải trả", "Tổng đã trả", "Tổng nợ khách", "Tên khách hàng", "Số điện thoại", "Ngày tạo", "Người tạo"));
-        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("price", "price", "price", "price", "price", "", "", "date", ""));
+        List<String> fields = Arrays.asList("customerFullName", "customerPhone", "totalPrice", "createdAt", "createdByUsername");
+        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên khách hàng", "Số điện thoại", "Tổng tiền","Ngày tạo", "Người tạo"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "", "price", "date", ""));
         model.addAttribute("fields", fields);
         model.addAttribute("fieldTitles", fieldTitles);
         model.addAttribute("fieldClasses", fieldClasses);
@@ -120,9 +127,9 @@ public class InvoiceController {
         Sort sortDirection = "asc".equalsIgnoreCase(invoiceFilterDTO.getDirection())
                 ? Sort.by(invoiceFilterDTO.getOrderBy()).ascending()
                 : Sort.by(invoiceFilterDTO.getOrderBy()).descending();
-        List<String> fields = Arrays.asList("totalPrice", "totalDiscount","customerBalance", "totalPayable", "totalPaid", "totalDebt", "customerFullName", "customerPhone", "createdAt", "createdByUsername");
-        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tổng tiền đề xuất", "Tổng tiền thực","Số dư khách hàng", "Tổng phải trả", "Tổng đã trả", "Tổng khách nợ", "Tên khách hàng", "Số điện thoại", "Ngày tạo", "Người tạo"));
-        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("price", "price","price", "price", "price", "price", "", "", "date", ""));
+        List<String> fields = Arrays.asList( "customerFullName", "customerPhone","totalPrice", "totalDiscount", "createdAt", "createdByUsername");
+        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên khách hàng", "Số điện thoại", "Tổng đề xuất", "Tổng thực tế", "Ngày tạo", "Người tạo"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "", "price", "price", "date", ""));
         model.addAttribute("fields", fields);
         model.addAttribute("fieldTitles", fieldTitles);
         model.addAttribute("fieldClasses", fieldClasses);
@@ -142,6 +149,20 @@ public class InvoiceController {
     ) {
         redirectAttributes.addFlashAttribute("invoiceFilterDTO", invoiceFilterDTO);
         return "redirect:/invoice/export";
+    }
+
+    @GetMapping("/detail/{id}")
+    public String detailData(@PathVariable Long id, Model model) {
+        InvoiceDataDTO invoice = invoiceService.findInvoiceDataBywarehouseIdAndId(getWarehouseId(), id);
+        if (invoice == null) {
+            throw new Http404("Không tìm thấy hóa đơn");
+        }
+        model.addAttribute("invoice", invoice);
+        if (invoice.getType() == InvoiceType.PURCHASE) {
+            return "invoice/detail-import";
+        } else {
+            return "invoice/detail-export";
+        }
     }
 
 

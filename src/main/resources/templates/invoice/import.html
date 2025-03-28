@@ -87,6 +87,14 @@
                 <tbody>
                 <tr th:object="${invoiceFilterDTO}">
                     <td>
+                        <input class="form-control form-control-sm" id="customerFullNameField" placeholder="Họ và tên"
+                               th:value="*{customerFullName}" type="text">
+                    </td>
+                    <td>
+                        <input class="form-control form-control-sm" id="customerPhoneField" placeholder="Số điện thoại"
+                               th:value="*{customerPhone}" type="text">
+                    </td>
+                    <td>
                         <div class="d-flex gap-2" style="max-width: 200px">
                             <input class="form-control form-control-sm currency-input" id="totalPriceFromField"
                                    placeholder="Số tiền từ" th:attr="data-raw=*{totalPriceFrom}"
@@ -95,54 +103,6 @@
                                    placeholder="Số tiền đến" th:attr="data-raw=*{totalPriceTo}" th:value="*{totalPriceTo}"
                                    type="text" style="max-width: 100px">
                         </div>
-                    </td>
-                    <td>
-                        <div class="d-flex gap-2" style="max-width: 200px">
-                            <input class="form-control form-control-sm currency-input" id="customerBalanceFromField"
-                                   placeholder="Số tiền từ" th:attr="data-raw=*{customerBalanceFrom}"
-                                   th:value="*{customerBalanceFrom}" type="text" style="max-width: 100px">
-                            <input class="form-control form-control-sm currency-input" id="customerBalanceToField"
-                                   placeholder="Số tiền đến" th:attr="data-raw=*{customerBalanceTo}"
-                                   th:value="*{customerBalanceTo}" type="text" style="max-width: 100px">
-                        </div>
-                    </td>
-                    <td>
-                        <div class="d-flex gap-2" style="max-width: 200px">
-                            <input class="form-control form-control-sm currency-input" id="totalPayableFromField"
-                                   placeholder="Số tiền từ" th:attr="data-raw=*{totalPayableFrom}"
-                                   th:value="*{totalPayableFrom}" type="text" style="max-width: 100px">
-                            <input class="form-control form-control-sm currency-input" id="totalPayableToField"
-                                   placeholder="Số tiền đến" th:attr="data-raw=*{totalPayableTo}"
-                                   th:value="*{totalPayableTo}" type="text" style="max-width: 100px">
-                        </div>
-                    </td>
-                    <td>
-                        <div class="d-flex gap-2" style="max-width: 200px">
-                            <input class="form-control form-control-sm currency-input" id="totalPaidFromField"
-                                   placeholder="Số tiền từ" th:attr="data-raw=*{totalPaidFrom}"
-                                   th:value="*{totalPaidFrom}" type="text" style="max-width: 100px">
-                            <input class="form-control form-control-sm currency-input" id="totalPaidToField" placeholder="Số tiền đến"
-                                   th:attr="data-raw=*{totalPaidTo}" th:value="*{totalPaidTo}"
-                                   type="text" style="max-width: 100px">
-                        </div>
-                    </td>
-                    <td>
-                        <div class="d-flex gap-2" style="max-width: 200px">
-                            <input class="form-control form-control-sm currency-input" id="totalDebtFromField"
-                                   placeholder="Số tiền từ" th:attr="data-raw=*{totalDebtFrom}"
-                                   th:value="*{totalDebtFrom}" type="text" style="max-width: 100px">
-                            <input class="form-control form-control-sm currency-input" id="totalDebtToField" placeholder="Số tiền đến"
-                                   th:attr="data-raw=*{totalDebtTo}" th:value="*{totalDebtTo}"
-                                   type="text" style="max-width: 100px">
-                        </div>
-                    </td>
-                    <td>
-                        <input class="form-control form-control-sm" id="customerFullNameField" placeholder="Họ và tên"
-                               th:value="*{customerFullName}" type="text">
-                    </td>
-                    <td>
-                        <input class="form-control form-control-sm" id="customerPhoneField" placeholder="Số điện thoại"
-                               th:value="*{customerPhone}" type="text">
                     </td>
                     <td>
                         <div class="d-flex gap-2" style="max-width: 200px">

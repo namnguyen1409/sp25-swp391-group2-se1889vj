@@ -96,6 +96,12 @@
                 <td class="price" th:text="${item.payable}"></td>
             </tr>
             </tbody>
+            <tfoot>
+            <tr>
+                <td colspan="6" class="text-right">Tổng cộng</td>
+                <td class="price" th:text="${invoice.totalPrice}"></td>
+            </tr>
+            </tfoot>
         </table>
         <div class="total-section mt-3">
             <p>Tổng giá trị nhập kho: <span  class="price" th:text="${invoice.totalPrice}"></span></p>

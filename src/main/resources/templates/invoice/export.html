@@ -73,7 +73,6 @@
                     <th style="cursor: pointer; min-width: 120px;"
                         th:data="${field}"
                         th:each="field : ${fields}"
-
                     >
                         <span>
                             <span th:text="${fieldTitles[__${field}__]}"></span>
@@ -85,6 +84,14 @@
                 </thead>
                 <tbody>
                 <tr th:object="${invoiceFilterDTO}">
+                    <td>
+                        <input class="form-control form-control-sm" id="customerFullNameField" placeholder="Họ và tên"
+                               th:value="*{customerFullName}" type="text">
+                    </td>
+                    <td>
+                        <input class="form-control form-control-sm" id="customerPhoneField" placeholder="Số điện thoại"
+                               th:value="*{customerPhone}" type="text">
+                    </td>
                     <td>
                         <div class="d-flex gap-2" style="max-width: 200px">
                             <input class="form-control form-control-sm currency-input" id="totalPriceFromField"
@@ -107,54 +114,6 @@
                     </td>
                     <td>
                         <div class="d-flex gap-2" style="max-width: 200px">
-                            <input class="form-control form-control-sm currency-input" id="customerBalanceFromField"
-                                   placeholder="Số tiền từ" th:attr="data-raw=*{customerBalanceFrom}"
-                                   th:value="*{customerBalanceFrom}" type="text">
-                            <input class="form-control form-control-sm currency-input" id="customerBalanceToField"
-                                   placeholder="Số tiền đến" th:attr="data-raw=*{customerBalanceTo}"
-                                   th:value="*{customerBalanceTo}" type="text">
-                        </div>
-                    </td>
-                    <td>
-                        <div class="d-flex gap-2" style="max-width: 200px">
-                            <input class="form-control form-control-sm currency-input" id="totalPayableFromField"
-                                   placeholder="Số tiền từ" th:attr="data-raw=*{totalPayableFrom}"
-                                   th:value="*{totalPayableFrom}" type="text">
-                            <input class="form-control form-control-sm currency-input" id="totalPayableToField"
-                                   placeholder="Số tiền đến" th:attr="data-raw=*{totalPayableTo}"
-                                   th:value="*{totalPayableTo}" type="text">
-                        </div>
-                    </td>
-                    <td>
-                        <div class="d-flex gap-2" style="max-width: 200px">
-                            <input class="form-control form-control-sm currency-input" id="totalPaidFromField"
-                                   placeholder="Số tiền từ" th:attr="data-raw=*{totalPaidFrom}"
-                                   th:value="*{totalPaidFrom}" type="text">
-                            <input class="form-control form-control-sm currency-input" id="totalPaidToField" placeholder="Số tiền đến"
-                                   th:attr="data-raw=*{totalPaidTo}" th:value="*{totalPaidTo}"
-                                   type="text">
-                        </div>
-                    </td>
-                    <td>
-                        <div class="d-flex gap-2" style="max-width: 200px">
-                            <input class="form-control form-control-sm currency-input" id="totalDebtFromField"
-                                   placeholder="Số tiền từ" th:attr="data-raw=*{totalDebtFrom}"
-                                   th:value="*{totalDebtFrom}" type="text">
-                            <input class="form-control form-control-sm currency-input" id="totalDebtToField" placeholder="Số tiền đến"
-                                   th:attr="data-raw=*{totalDebtTo}" th:value="*{totalDebtTo}"
-                                   type="text">
-                        </div>
-                    </td>
-                    <td>
-                        <input class="form-control form-control-sm" id="customerFullNameField" placeholder="Họ và tên"
-                               th:value="*{customerFullName}" type="text">
-                    </td>
-                    <td>
-                        <input class="form-control form-control-sm" id="customerPhoneField" placeholder="Số điện thoại"
-                               th:value="*{customerPhone}" type="text">
-                    </td>
-                    <td>
-                        <div class="d-flex gap-2" style="max-width: 200px">
                             <input type="datetime-local" class="form-control form-control-sm" th:value="*{minCreatedAt}" id="minCreatedAtField" placeholder="Ngày tạo tối thiểu" style="max-width: 80px;">
                             <input type="datetime-local" class="form-control form-control-sm" th:value="*{maxCreatedAt}" id="maxCreatedAtField" placeholder="Ngày tạo tối đa" style="max-width: 80px;">
                         </div>
@@ -173,7 +132,9 @@
                 </tr>
 
 
-                <tr th:each="item : ${invoices}" th:if="${invoices.totalPages > 0}">
+                <tr th:each="item : ${invoices}" th:if="${invoices.totalPages > 0}"
+                    th:classappend="${item.isWarning ? 'table-warning' : ''}"
+                >
                     <td th:each="field : ${fields}">
                         <th:block th:switch="${fieldClasses[__${field}__]}">
                             <th:block th:case="'image'">
@@ -268,8 +229,6 @@
             document.querySelectorAll('.currency-input').forEach(input => {
                 input.addEventListener('keydown', function (event) {
                     let rawValue = this.getAttribute('data-raw') || '';
-
-                    // Cho phép nhập dấu "-" chỉ khi nó là ký tự đầu tiên
                     if (event.key === '-' && rawValue.length === 0) {
                         this.setAttribute('data-raw', '-');
                         this.value = '-';

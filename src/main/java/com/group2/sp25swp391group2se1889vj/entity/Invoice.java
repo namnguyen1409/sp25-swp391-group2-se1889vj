@@ -70,6 +70,9 @@ public class Invoice extends BaseEntity{
     private boolean isProcessed = false;
     private boolean isSuccess = false;
 
+    @Column(name = "is_warning", nullable = true)
+    private boolean isWarning = false;
+
     // invoice Items
 
     @OneToMany(mappedBy = "invoice")

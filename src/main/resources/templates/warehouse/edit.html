@@ -22,6 +22,9 @@
               <div th:replace="fragments/input :: customInput('location', 'text', 'bi-geo-alt-fill', 'Vị trí', true)"></div>
             </div>
             <div class="mb-3">
+              <div th:replace="fragments/input :: customInput('maxDiscount', 'number', 'bi-tag-fill', 'giảm giá tối đa', true)"></div>
+            </div>
+            <div class="mb-3">
               <div th:replace="fragments/textarea :: customTextarea('description', 'bi-justify', 'Mô tả')"></div>
             </div>
             <button type="submit" class="btn btn-primary">

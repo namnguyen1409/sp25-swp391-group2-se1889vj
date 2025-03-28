@@ -32,6 +32,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         warehouse.setName(warehouseDTO.getName());
         warehouse.setLocation(warehouseDTO.getLocation());
         warehouse.setDescription(warehouseDTO.getDescription());
+        warehouse.setMaxDiscount(warehouseDTO.getMaxDiscount());
         warehouseRepository.save(warehouse);
     }
 

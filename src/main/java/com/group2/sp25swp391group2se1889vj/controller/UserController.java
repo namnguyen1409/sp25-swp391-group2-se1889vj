@@ -128,24 +128,6 @@ public class UserController {
             return "user/add";
         }
 
-    /**
-     * Thêm người dùng mới
-     *
-     * @param email
-     * //@param recaptchaResponse
-     * @param model
-     * @param redirectAttributes
-     *
-     *  - Kiểm tra reCAPTCHA
-     *  - Kiểm tra email đã tồn tại chưa
-     *  - Kiểm tra email đã được mời chưa
-     *  - Tạo token mới
-     *  - Gửi email mời
-     *  - Lưu token
-     * @return
-     * @throws Exception
-     */
-
     @PostMapping("/add")
     public String addUser(
             @RequestParam("email") String email,
@@ -209,8 +191,6 @@ public class UserController {
                       </div>
                       """.formatted(token)
         );
-
-
         if (check) {
             registrationTokenRepository.save(newRegistrationToken);
             redirectAttributes.addFlashAttribute("success", "Đã gửi thư mời thành công.");

@@ -1,8 +1,6 @@
 package com.group2.sp25swp391group2se1889vj.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -24,4 +22,8 @@ public class WarehouseDTO extends BaseDTO{
     private String location;
     private String description;
     private Long ownerId;
+
+    @Min(value = 0, message = "phần trăm giảm giá phải lớn hơn hoặc bằng 0")
+    @Max(value = 100, message = "phần trăm giảm giá phải nhỏ hơn hoặc bằng 100")
+    private Integer maxDiscount;
 }

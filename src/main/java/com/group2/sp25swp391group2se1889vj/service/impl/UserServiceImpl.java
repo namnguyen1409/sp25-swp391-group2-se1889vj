@@ -197,6 +197,7 @@ public class UserServiceImpl implements UserService {
             warehouse.setName("Kho của " + user.getUsername());
             warehouse.setLocation(user.getAddress());
             warehouse.setOwner(user);
+            warehouse.setMaxDiscount(0);
             warehouse = warehouseRepository.save(warehouse);
             user.setWarehouse(warehouse);
         } else {

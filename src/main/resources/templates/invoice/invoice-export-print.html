@@ -23,7 +23,7 @@
         }
     </style>
 </head>
-<body onload="window.print()">
+<body>
 <div class="invoice-container">
     <div class="invoice-header row">
         <div class="col-6">
@@ -82,8 +82,17 @@
 
     <hr>
 
+    <div class="total-section mt-3">
+        <p>Tổng tiền đề xuất: <span class="format-price" th:text="${invoice.totalPrice}"></span></p>
+        <p>Tổng tiền thực tế <span class="format-price" th:text="${invoice.totalDiscount}"></span></p>
+        <p>Đã thanh toán: <span  class="format-price" th:text="${invoice.totalPaid}"></span></p>
+        <p style="color: red;">Số tiền còn nợ cửa hàng: <span class="format-price" th:text="${invoice.totalDebt}"></span></p>
+    </div>
+
+    <hr>
+
     <div class="invoice-footer">
-        <p>Cảm ơn quý khách đã hợp mua hàng!</p>
+        <p>Cảm ơn quý khách đã mua hàng!</p>
         <p th:utext="${invoice.warehouse.description}"></p>
     </div>
 </div>

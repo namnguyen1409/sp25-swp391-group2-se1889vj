@@ -201,8 +201,6 @@
             document.querySelectorAll('.currency-input').forEach(input => {
                 input.addEventListener('keydown', function (event) {
                     let rawValue = this.getAttribute('data-raw') || '';
-
-                    // Cho phép nhập dấu "-" chỉ khi nó là ký tự đầu tiên
                     if (event.key === '-' && rawValue.length === 0) {
                         this.setAttribute('data-raw', '-');
                         this.value = '-';
