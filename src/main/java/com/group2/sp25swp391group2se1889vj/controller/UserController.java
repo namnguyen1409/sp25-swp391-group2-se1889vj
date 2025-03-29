@@ -114,9 +114,6 @@ public class UserController {
         model.addAttribute("n1", n1);
         model.addAttribute("n2", n2);
         model.addAttribute("total", users.getTotalElements());
-
-
-
         model.addAttribute("users", users);
         model.addAttribute("userFilterDTO", userFilterDTO);
         return "user/list";
