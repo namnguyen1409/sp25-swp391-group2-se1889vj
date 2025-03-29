@@ -138,7 +138,6 @@
             console.log(`Khởi tạo sự kiện cho tab: ${tabId}`);
 
             let searchInput = document.getElementById(`productSearch${tabId}`);
-            let productList = document.getElementById(`productList${tabId}`);
             let productSuggestion = document.getElementById(`productSuggestion${tabId}`);
 
             let customerPhone = document.getElementById(`customerPhone${tabId}`);
@@ -154,9 +153,7 @@
             let paid = document.getElementById(`paid${tabId}`);
             let paidAndDebt = document.getElementById(`paidAndDebt${tabId}`);
 
-            let debt = document.getElementById(`debt${tabId}`);
             let btnPurchase = document.getElementById(`btnPurchase${tabId}`);
-            let loadingService = document.getElementById(`loadingService${tabId}`);
 
             unpaid.addEventListener("click", function () {
                 payment.value = formatCurrency(0);
@@ -171,20 +168,11 @@
             });
 
             paidAndDebt.addEventListener("click", function () {
-                // payment.value = formatCurrency(0);
-                // payment.setAttribute("data-raw", "0");
-                // updateTotal(tabId)
-                // payment.value = formatCurrency(parseInt(debt.getAttribute("data-raw"), 10));
-                // payment.setAttribute("data-raw", debt.getAttribute("data-raw"));
-                // updateTotal(tabId)
-
                 let balanceValue = parseInt(customerBalance.getAttribute("data-raw"), 10);
                 let totalPriceValue = parseInt(totalPrice.getAttribute("data-raw"), 10);
                 payment.value = formatCurrency(totalPriceValue + balanceValue);
                 payment.setAttribute("data-raw", totalPriceValue + balanceValue);
                 updateTotal(tabId);
-
-
             });
 
             function debounce(func, delay) {
@@ -526,13 +514,14 @@
             if (productSuggestion) {
                 productSuggestion.classList.add("d-none");
             }
-
+            let searchInput = document.getElementById(`productSearch${tabId}`);
+            if (searchInput) {
+                searchInput.value = "";
+            }
         }
 
 
         function showProductInfo(productId) {
-            // TODO: Hiển thị thông tin sản phẩm
-
             fetch("/api/product/get/" + productId, {
                 method: "GET",
                 headers: {
@@ -766,6 +755,11 @@
             let productSuggestion = document.getElementById(`productSuggestion${tabId}`);
             if (productSuggestion) {
                 productSuggestion.classList.add("d-none");
+            }
+            // xóa nội dung ô tìm kiếm
+            let searchInput = document.getElementById(`productSearch${tabId}`);
+            if (searchInput) {
+                searchInput.value = "";
             }
         }
 
@@ -1048,7 +1042,6 @@
                     break;
                 }
             }
-
 
 
             if (!validateSaleInvoice(payload)) {

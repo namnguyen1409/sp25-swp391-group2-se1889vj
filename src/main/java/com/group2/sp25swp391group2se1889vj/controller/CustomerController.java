@@ -74,7 +74,7 @@ public class CustomerController {
 
         List<String> fields = Arrays.asList("fullName", "phone", "email", "address", "balance", "createdAt");
         Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Họ và tên", "Số điện thoại", "Email", "Địa chỉ", "số dư", "Ngày tạo"));
-        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "phone", "", "", "price", "dateTime"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "phone", "", "", "price text-right", "dateTime"));
         model.addAttribute("fields", fields);
         model.addAttribute("fieldTitles", fieldTitles);
         model.addAttribute("fieldClasses", fieldClasses);
@@ -88,6 +88,17 @@ public class CustomerController {
 
         model.addAttribute("customers", customers);
         model.addAttribute("customerFilterDTO", customerFilterDTO);
+
+        int n1 = customers.getNumber() * customers.getSize() + 1;
+        if (customers.getTotalElements() == 0) {
+            n1 = 0;
+        }
+        int n2 = Math.min((customers.getNumber() + 1) * customers.getSize(), (int) customers.getTotalElements());
+
+        model.addAttribute("n1", n1);
+        model.addAttribute("n2", n2);
+        model.addAttribute("total", customers.getTotalElements());
+
         return "customer/list";
     }
 
@@ -150,7 +161,7 @@ public class CustomerController {
         if(Boolean.TRUE.equals(customerService.existByPhoneAndWarehouseIdAndIdNot(customerDTO.getPhone() ,getWarehouseId(), customerDTO.getId()))) {
             bindingResult.rejectValue("phone", "error.phone", "Số điện thoại đã tồn tại");
         }
-        if(Boolean.TRUE.equals(customerService.existByEmailAndWarehouseIdAndIdNot(customerDTO.getEmail(), getWarehouseId(), customerDTO.getId()))) {
+        if(Boolean.TRUE.equals(customerService.existByEmailAndWarehouseIdAndIdNot(customerDTO.getEmail(), getWarehouseId(), customerDTO.getId())) && !customerDTO.getEmail().isEmpty()) {
             bindingResult.rejectValue("email", "error.email", "Email đã tồn tại");
         }
         if (bindingResult.hasErrors()) {
@@ -208,6 +219,17 @@ public class CustomerController {
         model.addAttribute("customer", customer);
         model.addAttribute("debts", debts);
         model.addAttribute("debtFilterDTO", debtFilterDTO);
+
+        int n1 = debts.getNumber() * debts.getSize() + 1;
+        if (debts.getTotalElements() == 0) {
+            n1 = 0;
+        }
+        int n2 = Math.min((debts.getNumber() + 1) * debts.getSize(), (int) debts.getTotalElements());
+
+        model.addAttribute("n1", n1);
+        model.addAttribute("n2", n2);
+        model.addAttribute("total", debts.getTotalElements());
+
         return "customer/debt/list";
     }
 
