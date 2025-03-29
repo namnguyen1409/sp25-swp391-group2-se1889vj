@@ -70,7 +70,7 @@
                     </th>
                     <th th:each="field : ${fields}"
                         th:data="${field}"
-                        style="cursor: pointer; min-width: 80px;"
+                        style="cursor: pointer; min-width: 80px; text-align: center;"
                     >
                         <span>
                             <span th:text="${fieldTitles[__${field}__]}"></span>
@@ -117,7 +117,9 @@
                 </tr>
 
                 <tr th:if="${customers.totalPages > 0}" th:each="item, step : ${customers}">
-                    <td th:text="${customers.number * customers.size + step.index + 1}"></td>
+                    <td th:text="${customers.number * customers.size + step.index + 1}"
+                        style="text-align: center"
+                    ></td>
                     <td th:each="field : ${fields}" >
                         <th:block th:switch="${fieldClasses[__${field}__]}" >
                             <th:block th:case="'debtType'">
@@ -290,7 +292,13 @@
         // tìm span trong ô td có class là price và thêm class text-right vào thẻ td
         document.querySelectorAll('td').forEach(td => {
             if (td.querySelector('span.price')) {
-                td.classList.add('text-right');
+                td.style.textAlign = 'right';
+            }
+            if (td.querySelector('span.dateTime')) {
+                td.style.textAlign = 'center';
+            }
+            if (td.querySelector('span.date')) {
+                td.style.textAlign = 'center';
             }
         });
 
