@@ -89,7 +89,7 @@ public class UserController {
 
         List<String> fields = Arrays.asList("username", "firstName","lastName", "phone", "email", "address", "role","createdAt");
         Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên đăng nhập",  "Họ", "Tên", "Số điện thoại", "Email",  "Địa chỉ", "Vai trò", "Ngày tạo"));
-        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("text","text", "text", "text","email", "text", "select","dateTime"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("text","text", "text", "text","email", "text", "select","date"));
         model.addAttribute("fields", fields);
         model.addAttribute("fieldTitles", fieldTitles);
         model.addAttribute("fieldClasses", fieldClasses);
@@ -104,7 +104,18 @@ public class UserController {
         }else{
             users = userService.searchUsersByAdmin(userFilterDTO, pageable);
         }
-        System.out.println(userFilterDTO);
+
+        int n1 = users.getNumber() * users.getSize() + 1;
+        if (users.getTotalElements() == 0) {
+            n1 = 0;
+        }
+        int n2 = Math.min((users.getNumber() + 1) * users.getSize(), (int) users.getTotalElements());
+
+        model.addAttribute("n1", n1);
+        model.addAttribute("n2", n2);
+        model.addAttribute("total", users.getTotalElements());
+
+
 
         model.addAttribute("users", users);
         model.addAttribute("userFilterDTO", userFilterDTO);
