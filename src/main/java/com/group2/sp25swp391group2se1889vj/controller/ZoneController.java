@@ -118,7 +118,7 @@ public class ZoneController {
 
         List<String> fields = Arrays.asList("name", "productName", "productImage", "createdAt", "updatedAt");
         Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên khu vực", "Tên sản phẩm", "Hình ảnh sản phẩm", "Ngày tạo", "Ngày cập nhật"));
-        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "", "image", "dateTime", "dateTime"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "", "image", "date", "date"));
 
         model.addAttribute("fields", fields);
         model.addAttribute("fieldTitles", fieldTitles);
@@ -132,6 +132,15 @@ public class ZoneController {
         model.addAttribute("zones", zones);
         model.addAttribute("zoneFilterDTO", zoneFilterDTO);
 
+        int n1 = zones.getNumber() * zones.getSize() + 1;
+        if (zones.getTotalElements() == 0) {
+            n1 = 0;
+        }
+        int n2 = Math.min((zones.getNumber() + 1) * zones.getSize(), (int) zones.getTotalElements());
+
+        model.addAttribute("n1", n1);
+        model.addAttribute("n2", n2);
+        model.addAttribute("total", zones.getTotalElements());
         return "warehouse/zone/list";
     }
 

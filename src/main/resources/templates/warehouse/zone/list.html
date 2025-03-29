@@ -27,13 +27,14 @@
     </div>
     <div>
         <div class="table-responsive">
-            <table class="table table-container table-striped table-sm table-hover mt-5">
+            <table class="table table-container table-striped table-bordered table-sm table-hover mt-5">
                 <caption>
                     <div class="container-fluid">
                         <div class="row align-items-center">
                             <div class="col-md-4">
-                                Đang hiển thị <span th:text="${zoneFilterDTO.size}"></span>/<span
-                                    th:text="${zones.totalPages * zones.size}"></span> bản ghi
+                                <div class="col text-start">
+                                    <span th:text="'Hiển thị từ bản ghi ' + ${n1} + ' đến ' + ${n2} + ' trong tổng số ' + ${total} + ' bản ghi'"></span>
+                                </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="input-group">
@@ -58,7 +59,8 @@
                     </div>
                 </caption>
                 <thead>
-                <tr>
+                <tr class="text-center">
+                    <th>STT</th>
                     <th th:each="field : ${fields}"
                         th:data="${field}"
                         style="cursor: pointer; min-width: 80px;"
@@ -73,6 +75,7 @@
                 </thead>
                 <tbody>
                 <tr th:object="${zoneFilterDTO}">
+                    <td></td>
                     <td>
                         <input type="text" class="form-control form-control-sm" th:value="*{name}"
                                id="zoneNameField" placeholder="Tên khu vực">
@@ -85,7 +88,7 @@
 
                     </td>
                     <td>
-                        <div class="d-flex gap-2" style="max-width: 200px">
+                        <div class="d-flex gap-2 justify-content-center" style="max-width: 200px">
                             <input type="datetime-local" class="form-control form-control-sm" th:value="*{minCreatedAt}"
                                    id="minCreatedAtField" placeholder="Ngày tạo tối thiểu" style="max-width: 80px;">
                             <input type="datetime-local" class="form-control form-control-sm" th:value="*{maxCreatedAt}"
@@ -93,7 +96,7 @@
                         </div>
                     </td>
                     <td>
-                        <div class="d-flex gap-2" style="max-width: 200px">
+                        <div class="d-flex gap-2 justify-content-center" style="max-width: 200px">
                             <input type="datetime-local" class="form-control form-control-sm" th:value="*{minUpdateAt}"
                                    id="minUpdateAtField" placeholder="Ngày tạo tối thiểu" style="max-width: 80px;">
                             <input type="datetime-local" class="form-control form-control-sm" th:value="*{maxUpdateAt}"
@@ -107,7 +110,10 @@
                     </td>
                 </tr>
 
-                <tr th:if="${zones.totalPages > 0}" th:each="item : ${zones}">
+                <tr th:if="${zones.totalPages > 0}" th:each="item, step : ${zones}">
+                    <td th:text="${zones.number * zones.size + step.index + 1}"
+                        style="text-align: center"
+                    ></td>
                     <td th:each="field : ${fields}">
                         <th:block th:switch="${fieldClasses[__${field}__]}">
                             <th:block th:case="'image'" th:if="${item[field] != null}">
@@ -140,7 +146,7 @@
                 lại bộ lọc </a> hoặc thêm mới bản ghi
             </div>
         </th:block>
-        <th:block th:if="${zones.totalPages > 0}">
+        <th:block th:if="${zones.totalPages > 1}">
             <div th:replace="fragments/pagination :: pagination(${zones})"></div>
         </th:block>
     </div>
@@ -202,6 +208,26 @@
             form.submit();
         }
 
+        document.querySelectorAll('input[id$="Field"]').forEach(input => {
+            input.addEventListener('keydown', event => {
+                if (event.key === 'Enter') {
+                    updateField();
+                }
+            });
+        });
+
+        // tìm span trong ô td có class là price và thêm class text-right vào thẻ td
+        document.querySelectorAll('td').forEach(td => {
+            if (td.querySelector('span.price')) {
+                td.style.textAlign = 'right';
+            }
+            if (td.querySelector('span.date')) {
+                td.style.textAlign = 'center';
+            }
+            if (td.querySelector('.img-thumbnail')) {
+                td.style.textAlign = 'center';
+            }
+        });
     </script>
 </section>
 </body>
