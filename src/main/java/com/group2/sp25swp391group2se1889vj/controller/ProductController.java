@@ -125,8 +125,8 @@ public class ProductController {
                 : Sort.by(productFilterDTO.getOrderBy()).descending();
 
         List<String> fields = Arrays.asList("image", "name", "price", "stockQuantity" ,"createdAt");
-        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Hình ảnh", "Tên", "Giá", "Số lượng", "Ngày tạo"));
-        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("image", "", "price", "", "datetime"));
+        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Hình ảnh", "Tên", "Giá", "Khối lượng (Kg)", "Ngày tạo"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("image", "", "price", "quantity", "date"));
 
         model.addAttribute("fields", fields);
         model.addAttribute("fieldTitles", fieldTitles);
@@ -139,6 +139,16 @@ public class ProductController {
 
         model.addAttribute("products", products);
         model.addAttribute("productFilterDTO", productFilterDTO);
+
+        int n1 = products.getNumber() * products.getSize() + 1;
+        if (products.getTotalElements() == 0) {
+            n1 = 0;
+        }
+        int n2 = Math.min((products.getNumber() + 1) * products.getSize(), (int) products.getTotalElements());
+
+        model.addAttribute("n1", n1);
+        model.addAttribute("n2", n2);
+        model.addAttribute("total", products.getTotalElements());
 
         return "product/list";
     }
