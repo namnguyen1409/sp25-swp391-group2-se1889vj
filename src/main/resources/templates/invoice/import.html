@@ -292,6 +292,17 @@
                 }
             });
         });
+        document.querySelectorAll('td').forEach(td => {
+            if (td.querySelector('span.price')) {
+                td.style.textAlign = 'right';
+            }
+            if (td.querySelector('span.dateTime')) {
+                td.style.textAlign = 'center';
+            }
+            if (td.querySelector('span.date')) {
+                td.style.textAlign = 'center';
+            }
+        });
 
     </script>
 </section>
