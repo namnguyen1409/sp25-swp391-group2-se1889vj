@@ -106,7 +106,11 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductDTO> searchProducts(Long warehouseId, String keyword) {
-        return productRepository.findAllByNameContainingAndWarehouseId(keyword, warehouseId).stream().map(productMapper::mapToProductDTO).collect(Collectors.toList());
+        return productRepository
+                .findTop5ByNameContainingOrDescriptionPlainTextContainingAndWarehouseId(keyword, keyword, warehouseId)
+                .stream()
+                .map(productMapper::mapToProductDTO)
+                .collect(Collectors.toList());
     }
 
     @Override

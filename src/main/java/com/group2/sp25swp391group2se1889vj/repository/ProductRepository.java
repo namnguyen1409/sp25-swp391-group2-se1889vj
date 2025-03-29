@@ -38,5 +38,8 @@ public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpec
 
 
     Product findByIdAndWarehouseId(Long id, Long warehouseId);
+
+    List<Product> findTop5ByNameContainingOrDescriptionPlainTextContainingAndWarehouseId(String name, String descriptionPlainText, Long warehouseId);
+
 }
 
