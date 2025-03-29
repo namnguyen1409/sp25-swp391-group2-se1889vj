@@ -13,39 +13,54 @@
                 <div class="card-header">
                     <h4 class="card-title"> Thông tin khách hàng </h4>
                 </div>
+
                 <div class="card-body bd-sidebar">
                     <form class="p-md-4" th:object="${customer}">
-                        <!--/*@thymesVar id="currentUser" type="com.hsf302.trialproject.entity.User"*/-->
-                        <div class="mb-3">
-                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('fullName', 'text', 'bi-hash', 'Họ và tên', true)"></div>
-                        </div>
-                        <div class="mb-3">
-                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('phone', 'tel', 'bi-telephone-fill', 'Số điện thoại', true)"></div>
-                        </div>
-                        <div class="mb-3">
-                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('email', 'email', 'bi-envelope-fill', 'Email', false)"></div>
-                        </div>
-                        <div class="mb-3">
-                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('address', 'text', 'bi-house-fill', 'Địa chỉ', false)"></div>
-                        </div>
-                        <div class="mb-3">
-                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('createdAt', 'datetime-local', 'bi-house-fill', 'Ngày thêm', false)"></div>
-                        </div>
-                        <div class="mb-3">
-                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('updatedAt', 'datetime-local', 'bi-house-fill', 'Ngày cập nhật', false)"></div>
-                        </div>
-                        <div class="mb-3">
-                            <a th:href="@{${'/customer/edit/' + customer.id}}" class="btn btn-primary">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th>Họ và tên:</th>
+                                <td><span th:text="*{fullName}"></span></td>
+                            </tr>
+                            <tr>
+                                <th>Số điện thoại:</th>
+                                <td><span th:text="*{phone}"></span></td>
+                            </tr>
+                            <tr>
+                                <th>Email:</th>
+                                <td><span th:text="*{email}"></span></td>
+                            </tr>
+                            <tr>
+                                <th>Địa chỉ:</th>
+                                <td><span th:text="*{address}"></span></td>
+                            </tr>
+                            <tr>
+                                <th>Ngày thêm:</th>
+                                <td><span th:text="*{createdAt}" class="dateTime"></span></td>
+                            </tr>
+                            <tr>
+                                <th>Số dư:</th>
+                                <td><span th:text="*{balance}" class="price"></span></td>
+                            </tr>
+                        </table>
+
+                        <hr>
+
+                        <div class="text-end">
+                            <a th:href="@{${'/customer/edit/' + customer.id}}" class="btn btn-primary" sec:authorize="hasAnyRole('OWNER')">
                                 <i class="bi bi-pencil-square"></i>
                                 Chỉnh sửa
                             </a>
-                            <a href="/customer" class="btn btn-primary">
+                            <a class="btn btn-secondary"
+                               onclick=" window.history.back();"
+                            >
                                 <i class="bi bi-arrow-left"></i>
                                 Quay lại
                             </a>
                         </div>
                     </form>
                 </div>
+
+
             </div>
         </div>
     </div>

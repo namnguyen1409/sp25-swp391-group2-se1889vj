@@ -15,76 +15,57 @@
                         <span th:text="${customer.fullName}"></span>
                     </h4>
                 </div>
-                <div class="card-body">
-                    <form method="post" class="p-md-4" th:object="${debt}" th:action="@{'add'}" id="addDebtForm">
-                        <div class="mb-3">
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="bi bi-cash"></i>
-                                </span>
-                                <div class="form-floating">
-                                    <select class="form-select" th:field="*{type}" disabled>
-                                        <option value="CUSTOMER_BORROW">
-                                            Khách hàng nợ cửa hàng
-                                        </option>
-                                        <option value="CUSTOMER_REPAY">
-                                            Khách hàng trả nợ cửa hàng
-                                        </option>
-                                        <option value="SHOP_BORROW">
-                                            Cửa hàng vay khách hàng
-                                        </option>
-                                        <option value="SHOP_REPAY">
-                                            Cửa hàng trả nợ khách hàng
-                                        </option>
-                                    </select>
-                                    <label th:for="*{type}" class="form-label">Loại giao dịch</label>
-                                </div>
-                            </div>
+
+                <div class="card-body" th:object="${debt}">
+                    <div class="row">
+                        <!-- Thông tin chi tiết bên trái -->
+                        <div class="col-md-6">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th>Loại giao dịch:</th>
+                                    <td>
+                                        <span th:switch="*{type.name()}">
+                                            <span th:case="'CUSTOMER_BORROW'">Khách hàng nợ cửa hàng</span>
+                                            <span th:case="'CUSTOMER_REPAY'">Khách hàng trả nợ cửa hàng</span>
+                                            <span th:case="'SHOP_BORROW'">Cửa hàng vay khách hàng</span>
+                                            <span th:case="'SHOP_REPAY'">Cửa hàng trả nợ khách hàng</span>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Số tiền giao dịch:</th>
+                                    <td><span th:text="*{amount}"></span></td>
+                                </tr>
+                                <tr>
+                                    <th>Ngày giao dịch:</th>
+                                    <td><span th:text="*{debtAt}" class="dateTime"></span></td>
+                                </tr>
+                            </table>
                         </div>
 
-                        <div class="mb-3">
-                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('amount', 'text', 'bi-cash-coin', 'Số tiền', true)"></div>
+                        <div class="col-md-6 text-center" th:if="${debt.image != null && !debt.image.isEmpty()}">
+                            <h5>Hình ảnh minh chứng</h5>
+                            <img th:src="@{${'/' + debt.image}}" class="img-fluid img-thumbnail" alt="Hình ảnh minh chứng" style="max-width: 200px;">
                         </div>
-                        <div class="mb-3">
-                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('debtAt', 'datetime-local', 'bi-calendar', 'Ngày giao dịch', true)"></div>
-                        </div>
+                    </div>
 
+                    <th:block th:if="${debt.description != null && !debt.description.isEmpty()}">
+                        <hr>
                         <div class="mb-3">
-                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('createdAt', 'datetime-local', 'bi-calendar', 'Ngày Tạo', true)"></div>
+                            <h5 class="text-center">Mô tả</h5>
+                            <div th:utext="${debt.description}" class="form-control bg-light border" style="height: 100px; overflow-y: auto;"></div>
                         </div>
-                        <div class="mb-3">
-                            <div th:replace="fragments/readOnlyInput :: customReadonlyInput('updatedAt', 'datetime-local', 'bi-calendar', 'Ngày Cập Nhật', true)"></div>
-                        </div>
-                        <th:block th:if="${debt.description!=null && !debt.description.isEmpty()}">
-                            <hr>
-                            <div class="mb-3">
-                                <h3 class="text-center">Mô tả</h3>
-<!--                                <textarea class="form-control" th:utext="*{description}"></textarea>-->
-                                <div th:utext="${debt.description}" class="form-control" style="height: 100px">
+                    </th:block>
 
-                                </div>
-                            </div>
-                        </th:block>
+                    <hr>
 
-                        <th:block th:if="${debt.image != null && !debt.image.isEmpty()}">
-                            <hr>
-                            <div class="mb-3">
-                                <h3 class="text-center">Hình ảnh minh chứng</h3>
-                                <img th:src="@{${'/' + debt.image}}" class="img-fluid img-thumbnail" alt="Hình ảnh minh chứng" style="max-width: 100%">
-                            </div>
-                        </th:block>
-
-                        <div class="mb-3">
-
-                        </div>
-                        <div class="mb-3">
-                            <a href=".." class="btn btn-primary">
-                                <i class="bi bi-arrow-left"></i>
-                                Quay lại
-                            </a>
-                        </div>
-                    </form>
+                    <div class="text-end">
+                        <a href=".." class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> Quay lại
+                        </a>
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>

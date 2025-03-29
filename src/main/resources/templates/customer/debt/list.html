@@ -21,22 +21,21 @@
         </a>
     </h2>
 
-    <div class="mt-3">
-        <form id="searchForm" th:object="${debtFilterDTO}" th:action="@{${'/customer/' + customer.id +'/debt/'}}"  method="post">
-            <input type="hidden" th:field="*{page}">
-            <input type="hidden" th:field="*{orderBy}">
-            <input type="hidden" th:field="*{direction}">
-            <input type="hidden" th:field="*{size}">
-            <input type="hidden" th:field="*{type}">
-            <input type="hidden" th:field="*{description}">
-            <input type="hidden" th:field="*{minAmount}">
-            <input type="hidden" th:field="*{maxAmount}">
-            <input type="hidden" th:field="*{minDebtAt}">
-            <input type="hidden" th:field="*{maxDebtAt}">
-            <input type="hidden" th:field="*{minCreatedAt}">
-            <input type="hidden" th:field="*{maxCreatedAt}">
-        </form>
-    </div>
+
+    <form id="searchForm" th:object="${debtFilterDTO}" th:action="@{${'/customer/' + customer.id +'/debt/'}}"  method="post" class="d-none">
+        <input type="hidden" th:field="*{page}">
+        <input type="hidden" th:field="*{orderBy}">
+        <input type="hidden" th:field="*{direction}">
+        <input type="hidden" th:field="*{size}">
+        <input type="hidden" th:field="*{type}">
+        <input type="hidden" th:field="*{description}">
+        <input type="hidden" th:field="*{minAmount}">
+        <input type="hidden" th:field="*{maxAmount}">
+        <input type="hidden" th:field="*{minDebtAt}">
+        <input type="hidden" th:field="*{maxDebtAt}">
+        <input type="hidden" th:field="*{minCreatedAt}">
+        <input type="hidden" th:field="*{maxCreatedAt}">
+    </form>
     <div>
         <div class="table-responsive" >
             <table class="table table-container table-striped table-sm table-hover mt-5">
@@ -44,7 +43,9 @@
                     <div class="container-fluid">
                         <div class="row align-items-center">
                             <div class="col-md-4">
-                                Đang hiển thị <span th:text="${debtFilterDTO.size}"></span>/<span th:text="${debts.totalPages * debts.size}"></span> bản ghi
+                                <div class="col text-start">
+                                    <span th:text="'Hiển thị từ bản ghi ' + ${n1} + ' đến ' + ${n2} + ' trong tổng số ' + ${total} + ' bản ghi'"></span>
+                                </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="input-group">
@@ -63,12 +64,18 @@
                                 <a th:href="@{${'/customer/' + customer.id + '/debt/add'}}" class="btn btn-secondary">
                                     <i class="bi bi-plus-circle"></i> Thêm bản ghi nợ
                                 </a>
+
+                                <a th:href="@{'/customer'}" class="btn btn-secondary">
+                                    <i class="bi bi-arrow-left"></i> Quay lại
+                                </a>
+
                             </div>
                         </div>
                     </div>
                 </caption>
                 <thead>
                 <tr>
+                    <th>STT</th>
                     <th th:each="field : ${fields}"
                         th:data="${field}"
                         style="cursor: pointer; min-width: 120px;">
@@ -82,8 +89,9 @@
                 </thead>
                 <tbody>
                 <tr th:object="${debtFilterDTO}">
+                    <td></td>
                     <td>
-                        <select class="form-select form-select-sm" id="typeField" name="type">
+                        <select class="form-select form-select-sm" id="typeField" name="type" onchange="updateField()">
                             <option value="" th:selected="${debtFilterDTO.type == ''}">Tất cả</option>
                             <option value="CUSTOMER_BORROW"
                                     th:selected="${debtFilterDTO.type != null and debtFilterDTO.type.name() == 'CUSTOMER_BORROW'}">
@@ -128,7 +136,8 @@
                         </button>
                     </td>
                 </tr>
-                <tr th:if="${debts.totalPages > 0}" th:each="item : ${debts}">
+                <tr th:if="${debts.totalPages > 0}" th:each="item, step : ${debts}">
+                    <td th:text="${debts.number * debts.size + step.index + 1}"></td>
                     <td th:each="field : ${fields}" >
                         <th:block th:switch="${fieldClasses[__${field}__]}" >
                             <th:block th:case="'debtType'">
@@ -162,7 +171,7 @@
                 Không có bản ghi nào, thử <a href="javascript:void(0);" onclick="resetField()" class="alert-link"> đặt lại bộ lọc </a> hoặc thêm mới bản ghi
             </div>
         </th:block>
-        <th:block th:if="${debts.totalPages > 0}">
+        <th:block th:if="${debts.totalPages > 1}">
             <div th:replace="fragments/pagination :: pagination(${debts})"></div>
         </th:block>
     </div>
@@ -259,6 +268,15 @@
             form.elements['size'].value = document.getElementById('sizeField').value;
             form.submit();
         }
+
+        document.querySelectorAll('input[id$="Field"]').forEach(input => {
+            input.addEventListener('keydown', event => {
+                if (event.key === 'Enter') {
+                    updateField();
+                }
+            });
+        });
+
 
     </script>
 </section>

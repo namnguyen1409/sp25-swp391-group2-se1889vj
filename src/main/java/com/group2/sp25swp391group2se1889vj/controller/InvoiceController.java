@@ -59,7 +59,7 @@ public class InvoiceController {
     public String addInvoice(
             Model model
     ){
-        WarehouseDTO warehouseDTO = warehouseService.findWarehouseByOwnerId(getUser().getId());
+        WarehouseDTO warehouseDTO = warehouseService.findById(getWarehouseId());
         if (warehouseDTO == null) {
             throw new Http404("Không tìm thấy kho hàng");
         }
@@ -73,11 +73,11 @@ public class InvoiceController {
                                      Model model) {
         model.addAttribute("tabId", tabId);
         if ("purchase".equals(type)) {
-            return "invoice/purchase"; // Trả về file templates/invoice/purchase.html
+            return "invoice/purchase";
         } else if ("sales".equals(type)) {
-            return "invoice/sale"; // Trả về file templates/invoice/sales.html
+            return "invoice/sale";
         } else {
-            return "error"; // Trả về trang lỗi nếu type không hợp lệ
+            return "error";
         }
     }
 
@@ -104,6 +104,17 @@ public class InvoiceController {
         Page<InvoiceDetailDTO> invoices = invoiceService.searchInvoices(warehouseId, invoiceFilterDTO, pageable);
         model.addAttribute("invoices", invoices);
         model.addAttribute("invoiceFilterDTO", invoiceFilterDTO);
+
+        int n1 = invoices.getNumber() * invoices.getSize() + 1;
+        if (invoices.getTotalElements() == 0) {
+            n1 = 0;
+        }
+        int n2 = Math.min((invoices.getNumber() + 1) * invoices.getSize(), (int) invoices.getTotalElements());
+
+        model.addAttribute("n1", n1);
+        model.addAttribute("n2", n2);
+        model.addAttribute("total", invoices.getTotalElements());
+
         return "invoice/import";
     }
 
@@ -139,6 +150,16 @@ public class InvoiceController {
         Page<InvoiceDetailDTO> invoices = invoiceService.searchInvoices(warehouseId, invoiceFilterDTO, pageable);
         model.addAttribute("invoices", invoices);
         model.addAttribute("invoiceFilterDTO", invoiceFilterDTO);
+
+        int n1 = invoices.getNumber() * invoices.getSize() + 1;
+        if (invoices.getTotalElements() == 0) {
+            n1 = 0;
+        }
+        int n2 = Math.min((invoices.getNumber() + 1) * invoices.getSize(), (int) invoices.getTotalElements());
+
+        model.addAttribute("n1", n1);
+        model.addAttribute("n2", n2);
+        model.addAttribute("total", invoices.getTotalElements());
         return "invoice/export";
     }
 

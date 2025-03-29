@@ -61,9 +61,8 @@
             <th>Quy cách<br>C</th>
             <th>Số lượng<br>1</th>
             <th>Khối lượng<br>2</th>
-            <th>Giá bán đề xuất<br>3</th>
-            <th>Giá bán thực tế<br>4</th>
-            <th>Thành tiền<br>5 = 2 x 4</th>
+            <th>Giá bán<br>3</th>
+            <th>Thành tiền<br>4 = 2 x 3</th>
         </tr>
         </thead>
         <tbody>
@@ -73,7 +72,6 @@
             <td th:text="${item.productPackage.name}"></td>
             <td th:text="${item.quantity}"></td>
             <td th:text="${item.weight + ' kg'}"></td>
-            <th class="format-price" th:text="${item.price}"></th>
             <td class="format-price" th:text="${item.discount}"></td>
             <td class="format-price" th:text="${item.payable}"></td>
         </tr>

@@ -21,6 +21,13 @@
                 <input type="hidden" th:field="*{maxBalance}">
                 <input type="hidden" th:field="*{minCreatedAt}">
                 <input type="hidden" th:field="*{maxCreatedAt}">
+
+
+                <input type="hidden" th:field="*{orderBy}">
+                <input type="hidden" th:field="*{direction}">
+                <input type="hidden" th:field="*{size}">
+                <input type="hidden" th:field="*{page}">
+
             </form>
         </div>
     </div>
@@ -31,7 +38,9 @@
                     <div class="container-fluid">
                         <div class="row align-items-center">
                             <div class="col-md-4">
-                                Đang hiển thị <span th:text="${customerFilterDTO.size}"></span>/<span th:text="${customers.totalPages * customers.size}"></span> bản ghi
+                                <div class="col text-start">
+                                    <span th:text="'Hiển thị từ bản ghi ' + ${n1} + ' đến ' + ${n2} + ' trong tổng số ' + ${total} + ' bản ghi'"></span>
+                                </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="input-group">
@@ -56,6 +65,9 @@
                 </caption>
                 <thead>
                 <tr>
+                    <th>
+                        STT
+                    </th>
                     <th th:each="field : ${fields}"
                         th:data="${field}"
                         style="cursor: pointer; min-width: 80px;"
@@ -71,6 +83,9 @@
                 <tbody>
                 <tr th:object="${customerFilterDTO}">
                     <td>
+
+                    </td>
+                    <td>
                         <input type="text" class="form-control form-control-sm" th:value="*{fullName}" id="fullNameField" placeholder="Tên khách hàng">
                     </td>
                     <td>
@@ -83,7 +98,6 @@
                         <input type="text" class="form-control form-control-sm" th:value="*{address}" id="addressField" placeholder="Địa chỉ">
                     </td>
                     <td>
-
                         <div class="d-flex gap-2" style="max-width: 200px">
                             <input type="text" class="form-control form-control-sm currency-input" th:attr="data-raw=*{minBalance}" th:value="*{minBalance}" id="minBalanceField" placeholder="Số dư tối thiểu">
                             <input type="text" class="form-control form-control-sm currency-input" th:attr="data-raw=*{maxBalance}" th:value="*{maxBalance}" id="maxBalanceField" placeholder="Số dư tối đa">
@@ -102,7 +116,8 @@
                     </td>
                 </tr>
 
-                <tr th:if="${customers.totalPages > 0}" th:each="item : ${customers}">
+                <tr th:if="${customers.totalPages > 0}" th:each="item, step : ${customers}">
+                    <td th:text="${customers.number * customers.size + step.index + 1}"></td>
                     <td th:each="field : ${fields}" >
                         <th:block th:switch="${fieldClasses[__${field}__]}" >
                             <th:block th:case="'debtType'">
@@ -118,8 +133,8 @@
                                 <span th:classappend="${fieldClasses[__${field}__]}" th:utext="${item[field]}"></span>
                             </th:block>
                             <th:block th:case="'phone'">
-
-                                <span  th:classappend="${fieldClasses[__${field}__]}" th:text="${item[field].substring(0, 3) + '****' + item[field].substring(7)}"></span>
+                                <span sec:authorize="hasRole('STAFF')"  th:classappend="${fieldClasses[__${field}__]}" th:text="${item[field].substring(0, 3) + '****' + item[field].substring(7)}"></span>
+                                <span sec:authorize="hasRole('OWNER')" th:classappend="${fieldClasses[__${field}__]}" th:text="${item[field]}"></span>
                             </th:block>
                             <th:block th:case="*">
                                 <span th:classappend="${fieldClasses[__${field}__]}" th:text="${item[field]}"></span>
@@ -146,7 +161,7 @@
                 Không có bản ghi nào, thử <a href="javascript:void(0);" onclick="resetField()" class="alert-link"> đặt lại bộ lọc </a> hoặc thêm mới bản ghi
             </div>
         </th:block>
-        <th:block th:if="${customers.totalPages > 0}">
+        <th:block th:if="${customers.totalPages > 1}">
             <div th:replace="fragments/pagination :: pagination(${customers})"></div>
         </th:block>
     </div>
@@ -256,13 +271,28 @@
             form.elements['phone'].value = document.getElementById('phoneField').value;
             form.elements['email'].value = document.getElementById('emailField').value;
             form.elements['address'].value = document.getElementById('addressField').value;
-            form.elements['minBalance'].value = document.getElementById('minBalanceField').getAttribute('data-raw') || '';;
-            form.elements['maxBalance'].value = document.getElementById('maxBalanceField').getAttribute('data-raw') || '';;
+            form.elements['minBalance'].value = document.getElementById('minBalanceField').getAttribute('data-raw') || '';
+            form.elements['maxBalance'].value = document.getElementById('maxBalanceField').getAttribute('data-raw') || '';
             form.elements['minCreatedAt'].value = document.getElementById('minCreatedAtField').value;
             form.elements['maxCreatedAt'].value = document.getElementById('maxCreatedAtField').value;
             form.elements['size'].value = document.getElementById('sizeField').value;
             form.submit();
         }
+
+        document.querySelectorAll('input[id$="Field"]').forEach(input => {
+            input.addEventListener('keydown', event => {
+                if (event.key === 'Enter') {
+                    updateField();
+                }
+            });
+        });
+
+        // tìm span trong ô td có class là price và thêm class text-right vào thẻ td
+        document.querySelectorAll('td').forEach(td => {
+            if (td.querySelector('span.price')) {
+                td.classList.add('text-right');
+            }
+        });
 
     </script>
 </section>
