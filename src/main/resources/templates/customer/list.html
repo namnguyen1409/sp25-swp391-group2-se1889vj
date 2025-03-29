@@ -33,7 +33,7 @@
     </div>
     <div>
         <div class="table-responsive" >
-            <table class="table table-container table-striped table-sm table-hover mt-5">
+            <table class="table table-container table-striped table-bordered table-sm table-hover mt-5">
                 <caption>
                     <div class="container-fluid">
                         <div class="row align-items-center">
@@ -70,7 +70,7 @@
                     </th>
                     <th th:each="field : ${fields}"
                         th:data="${field}"
-                        style="cursor: pointer; min-width: 80px;"
+                        style="cursor: pointer; min-width: 80px; text-align: center;"
                     >
                         <span>
                             <span th:text="${fieldTitles[__${field}__]}"></span>
@@ -99,13 +99,13 @@
                     </td>
                     <td>
                         <div class="d-flex gap-2" style="max-width: 200px">
-                            <input type="text" class="form-control form-control-sm currency-input" th:attr="data-raw=*{minBalance}" th:value="*{minBalance}" id="minBalanceField" placeholder="Số dư tối thiểu">
-                            <input type="text" class="form-control form-control-sm currency-input" th:attr="data-raw=*{maxBalance}" th:value="*{maxBalance}" id="maxBalanceField" placeholder="Số dư tối đa">
+                            <input type="text" class="form-control form-control-sm currency-input" th:attr="data-raw=*{minBalance}" th:value="*{minBalance}" id="minBalanceField" placeholder="Số dư tối thiểu" style="max-width: 90px;">
+                            <input type="text" class="form-control form-control-sm currency-input" th:attr="data-raw=*{maxBalance}" th:value="*{maxBalance}" id="maxBalanceField" placeholder="Số dư tối đa" style="max-width: 90px;">
                         </div>
                     </td>
                     <td>
                         <div class="d-flex gap-2" style="max-width: 200px">
-                            <input type="datetime-local" class="form-control form-control-sm" th:value="*{minCreatedAt}" id="minCreatedAtField" placeholder="Ngày tạo tối thiểu" style="max-width: 80px;">
+                            <input type="datetime-local" class="form-control form-control-sm" th:value="*{minCreatedAt}" id="minCreatedAtField" placeholder="Ngày tạo tối thiểu" style="max-width: 80px;" >
                             <input type="datetime-local" class="form-control form-control-sm" th:value="*{maxCreatedAt}" id="maxCreatedAtField" placeholder="Ngày tạo tối đa" style="max-width: 80px;">
                         </div>
                     </td>
@@ -117,7 +117,9 @@
                 </tr>
 
                 <tr th:if="${customers.totalPages > 0}" th:each="item, step : ${customers}">
-                    <td th:text="${customers.number * customers.size + step.index + 1}"></td>
+                    <td th:text="${customers.number * customers.size + step.index + 1}"
+                        style="text-align: center"
+                    ></td>
                     <td th:each="field : ${fields}" >
                         <th:block th:switch="${fieldClasses[__${field}__]}" >
                             <th:block th:case="'debtType'">
@@ -290,7 +292,13 @@
         // tìm span trong ô td có class là price và thêm class text-right vào thẻ td
         document.querySelectorAll('td').forEach(td => {
             if (td.querySelector('span.price')) {
-                td.classList.add('text-right');
+                td.style.textAlign = 'right';
+            }
+            if (td.querySelector('span.dateTime')) {
+                td.style.textAlign = 'center';
+            }
+            if (td.querySelector('span.date')) {
+                td.style.textAlign = 'center';
             }
         });
 

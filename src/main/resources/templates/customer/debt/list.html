@@ -38,7 +38,7 @@
     </form>
     <div>
         <div class="table-responsive" >
-            <table class="table table-container table-striped table-sm table-hover mt-5">
+            <table class="table table-container table-striped table-bordered table-sm table-hover mt-5">
                 <caption>
                     <div class="container-fluid">
                         <div class="row align-items-center">
@@ -78,7 +78,7 @@
                     <th>STT</th>
                     <th th:each="field : ${fields}"
                         th:data="${field}"
-                        style="cursor: pointer; min-width: 120px;">
+                        style="cursor: pointer; min-width: 120px; text-align: center">
                         <span>
                             <span th:text="${fieldTitles[__${field}__]}"></span>
                             <i th:if="${debtFilterDTO.orderBy} == ${field}"
@@ -120,14 +120,14 @@
                     </td>
                     <td>
                         <div class="d-flex gap-2" style="max-width: 200px">
-                            <input type="datetime-local" class="form-control form-control-sm" id="minDebtAtField" th:field="*{minDebtAt}" placeholder="Ngày nợ từ" style="max-width: 100px;">
-                            <input type="datetime-local" class="form-control form-control-sm" id="maxDebtAtField" th:field="*{maxDebtAt}" placeholder="Ngày nợ đến" style="max-width: 100px;">
+                            <input type="datetime-local" class="form-control form-control-sm" id="minDebtAtField" th:field="*{minDebtAt}" placeholder="Ngày nợ từ" style="max-width: 90px;">
+                            <input type="datetime-local" class="form-control form-control-sm" id="maxDebtAtField" th:field="*{maxDebtAt}" placeholder="Ngày nợ đến" style="max-width: 90px;">
                         </div>
                     </td>
                     <td>
                         <div class="d-flex gap-2" style="max-width: 200px">
-                            <input type="datetime-local" class="form-control form-control-sm" id="minCreatedAtField" th:value="*{minCreatedAt}" placeholder="Ngày tạo từ" style="max-width: 100px;">
-                            <input type="datetime-local" class="form-control form-control-sm" id="maxCreatedAtField" th:value="*{maxCreatedAt}" placeholder="Ngày tạo đến" style="max-width: 100px;">
+                            <input type="datetime-local" class="form-control form-control-sm" id="minCreatedAtField" th:value="*{minCreatedAt}" placeholder="Ngày tạo từ" style="max-width: 90px;">
+                            <input type="datetime-local" class="form-control form-control-sm" id="maxCreatedAtField" th:value="*{maxCreatedAt}" placeholder="Ngày tạo đến" style="max-width: 90px;">
                         </div>
                     </td>
                     <td class="text-center">
@@ -137,7 +137,7 @@
                     </td>
                 </tr>
                 <tr th:if="${debts.totalPages > 0}" th:each="item, step : ${debts}">
-                    <td th:text="${debts.number * debts.size + step.index + 1}"></td>
+                    <td th:text="${debts.number * debts.size + step.index + 1}" class="text-center"></td>
                     <td th:each="field : ${fields}" >
                         <th:block th:switch="${fieldClasses[__${field}__]}" >
                             <th:block th:case="'debtType'">
@@ -275,6 +275,19 @@
                     updateField();
                 }
             });
+        });
+
+
+        document.querySelectorAll('td').forEach(td => {
+            if (td.querySelector('span.price')) {
+                td.style.textAlign = 'right';
+            }
+            if (td.querySelector('span.dateTime')) {
+                td.style.textAlign = 'center';
+            }
+            if (td.querySelector('span.date')) {
+                td.style.textAlign = 'center';
+            }
         });
 
 
