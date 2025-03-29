@@ -11,6 +11,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -50,8 +52,12 @@ public class WarehouseController {
 
     @PostMapping("/edit")
     public String edit(
-            @ModelAttribute WarehouseDTO warehouseDTO
+            @Validated  @ModelAttribute("warehouse") WarehouseDTO warehouseDTO,
+            BindingResult bindingResult
     ) {
+        if (bindingResult.hasErrors()) {
+            return "warehouse/edit";
+        }
         warehouseDTO.setOwnerId(getUser().getId());
         warehouseService.updateWarehouse(warehouseDTO);
         return "redirect:/warehouse";
