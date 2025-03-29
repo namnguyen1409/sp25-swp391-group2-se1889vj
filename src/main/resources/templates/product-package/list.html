@@ -28,12 +28,14 @@
   </div>
   <div>
     <div class="table-responsive" >
-      <table class="table table-container table-striped table-sm table-hover mt-5">
+      <table class="table table-container table-striped table-bordered table-sm table-hover mt-5">
         <caption>
           <div class="container-fluid">
             <div class="row align-items-center">
               <div class="col-md-4">
-                Đang hiển thị <span th:text="${productPackages.size}"></span>/<span th:text="${productPackages.totalPages * productPackages.size}"></span> bản ghi
+                <div class="col text-start">
+                  <span th:text="'Hiển thị từ bản ghi ' + ${n1} + ' đến ' + ${n2} + ' trong tổng số ' + ${total} + ' bản ghi'"></span>
+                </div>
               </div>
               <div class="col-md-4">
                 <div class="input-group">
@@ -56,8 +58,9 @@
             </div>
           </div>
         </caption>
-        <thead>
+        <thead class="text-center">
         <tr>
+          <th>STT</th>
           <th th:each="field : ${fields}"
               th:data="${field}"
               style="cursor: pointer; min-width: 80px;"
@@ -73,27 +76,29 @@
         </thead>
         <tbody>
         <tr th:object="${productPackageFilterDTO}">
+          <td></td>
           <td>
             <input type="text" class="form-control form-control-sm" th:value="*{name}" id="nameField" placeholder="Tên quy cách">
           </td>
           <td>
-            <div class="d-flex gap-2" style="max-width: 200px">
-              <input type="text" class="form-control form-control-sm weight-input" th:attr="data-raw=*{weightFrom}" th:value="*{weightFrom}" id="weightFromField" placeholder="Cân nặng từ">
-              <input type="text" class="form-control form-control-sm weight-input" th:attr="data-raw=*{weightTo}" th:value="*{weightTo}" id="weightToField" placeholder="Cân nặng đến">
+            <div class="d-flex justify-content-center gap-2" style="max-width: 100%">
+              <input type="text" class="form-control form-control-sm weight-input" th:attr="data-raw=*{weightFrom}" th:value="*{weightFrom}" id="weightFromField" placeholder="Cân nặng từ" style="max-width: 80px;">
+              <input type="text" class="form-control form-control-sm weight-input" th:attr="data-raw=*{weightTo}" th:value="*{weightTo}" id="weightToField" placeholder="Cân nặng đến" style="max-width: 80px;">
             </div>
           </td>
           <td>
-            <div class="d-flex gap-2" style="max-width: 200px">
-              <input type="datetime-local" class="form-control form-control-sm" th:value="*{minCreatedAt}" id="minCreatedAtField" placeholder="Ngày tạo tối thiểu" style="max-width: 80px;">
-              <input type="datetime-local" class="form-control form-control-sm" th:value="*{maxCreatedAt}" id="maxCreatedAtField" placeholder="Ngày tạo tối đa" style="max-width: 80px;">
+            <div class="d-flex gap-2 justify-content-center" style="max-width: 100%">
+              <input type="datetime-local" class="form-control form-control-sm" th:value="*{minCreatedAt}" id="minCreatedAtField" placeholder="Ngày tạo tối thiểu" style="max-width: 100px;">
+              <input type="datetime-local" class="form-control form-control-sm" th:value="*{maxCreatedAt}" id="maxCreatedAtField" placeholder="Ngày tạo tối đa" style="max-width: 100px;">
             </div>
           </td>
           <td>
-            <div class="d-flex gap-2" style="max-width: 200px">
-              <input type="datetime-local" class="form-control form-control-sm" th:value="*{minUpdatedAt}" id="minUpdatedAtField" placeholder="Ngày cập nhật tối thiểu" style="max-width: 80px;">
-              <input type="datetime-local" class="form-control form-control-sm" th:value="*{maxUpdatedAt}" id="maxUpdatedAtField" placeholder="Ngày cập nhật tối đa" style="max-width: 80px;">
+            <div class="d-flex gap-2 justify-content-center" style="max-width: 100%">
+              <input type="datetime-local" class="form-control form-control-sm" th:value="*{minUpdatedAt}" id="minUpdatedAtField" placeholder="Ngày cập nhật tối thiểu" style="max-width: 100px;">
+              <input type="datetime-local" class="form-control form-control-sm" th:value="*{maxUpdatedAt}" id="maxUpdatedAtField" placeholder="Ngày cập nhật tối đa" style="max-width: 100px;">
             </div>
           </td>
+
           <td class="text-center">
             <button id="btnSubmit" class="btn btn-primary btn-sm">
               <i class="bi bi-search"></i> Tìm kiếm
@@ -102,7 +107,10 @@
         </tr>
 
 
-        <tr th:if="${productPackages.totalPages > 0}" th:each="item : ${productPackages}">
+        <tr th:if="${productPackages.totalPages > 0}" th:each="item, step : ${productPackages}">
+          <td th:text="${productPackages.number * productPackages.size + step.index + 1}"
+              style="text-align: center"
+          ></td>
           <td th:each="field : ${fields}" >
             <th:block th:switch="${fieldClasses[__${field}__]}" >
               <th:block th:case="'html'">
@@ -130,7 +138,7 @@
         Không có bản ghi nào, thử <a href="javascript:void(0);" onclick="resetField()" class="alert-link"> đặt lại bộ lọc </a> hoặc thêm mới bản ghi
       </div>
     </th:block>
-    <th:block th:if="${productPackages.totalPages > 0}">
+    <th:block th:if="${productPackages.totalPages > 1}">
       <div th:replace="fragments/pagination :: pagination(${productPackages})"></div>
     </th:block>
   </div>
@@ -196,6 +204,29 @@
       form.submit();
     }
 
+    document.querySelectorAll('input[id$="Field"]').forEach(input => {
+      input.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+          updateField();
+        }
+      });
+    });
+
+    // tìm span trong ô td có class là price và thêm class text-right vào thẻ td
+    document.querySelectorAll('td').forEach(td => {
+      if (td.querySelector('span.price')) {
+        td.style.textAlign = 'right';
+      }
+      if (td.querySelector('.weight')) {
+        td.style.textAlign = 'right';
+      }
+      if (td.querySelector('.date')) {
+        td.style.textAlign = 'center';
+      }
+      if (td.querySelector('.img-thumbnail')) {
+        td.style.textAlign = 'center';
+      }
+    });
   </script>
 </section>
 </body>

@@ -83,8 +83,8 @@ public class ProductPackageController {
                 : Sort.by(productPackageFilterDTO.getOrderBy()).descending();
 
         List<String> fields = Arrays.asList("name", "weight", "createdAt", "updatedAt");
-        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên quy cách", "Khối lượng", "Ngày tạo", "Ngày cập nhật"));
-        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "weight", "dateTime", "dateTime"));
+        Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Tên quy cách", "Khối lượng (Kg)", "Ngày tạo", "Ngày cập nhật"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "weight", "date", "date"));
 
         model.addAttribute("fields", fields);
         model.addAttribute("fieldTitles", fieldTitles);
@@ -98,6 +98,15 @@ public class ProductPackageController {
         model.addAttribute("productPackages", productPackages);
         model.addAttribute("productPackageFilterDTO", productPackageFilterDTO);
 
+        int n1 = productPackages.getNumber() * productPackages.getSize() + 1;
+        if (productPackages.getTotalElements() == 0) {
+            n1 = 0;
+        }
+        int n2 = Math.min((productPackages.getNumber() + 1) * productPackages.getSize(), (int) productPackages.getTotalElements());
+
+        model.addAttribute("n1", n1);
+        model.addAttribute("n2", n2);
+        model.addAttribute("total", productPackages.getTotalElements());
         return "product-package/list";
     }
 
