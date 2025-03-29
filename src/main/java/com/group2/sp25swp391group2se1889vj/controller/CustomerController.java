@@ -74,7 +74,7 @@ public class CustomerController {
 
         List<String> fields = Arrays.asList("fullName", "phone", "email", "address", "balance", "createdAt");
         Map<String, String> fieldTitles = createPairs(fields, Arrays.asList("Họ và tên", "Số điện thoại", "Email", "Địa chỉ", "số dư", "Ngày tạo"));
-        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "phone", "", "", "price text-right", "dateTime"));
+        Map<String, String> fieldClasses = createPairs(fields, Arrays.asList("", "phone", "", "", "price text-right", "date"));
         model.addAttribute("fields", fields);
         model.addAttribute("fieldTitles", fieldTitles);
         model.addAttribute("fieldClasses", fieldClasses);
