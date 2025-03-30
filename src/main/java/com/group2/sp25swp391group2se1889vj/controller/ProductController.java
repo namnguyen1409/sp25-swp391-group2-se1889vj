@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,6 +31,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.math.BigDecimal;
 import java.util.*;
 
+@PreAuthorize("hasAnyRole('OWNER', 'STAFF')")
 @Controller
 @RequestMapping("/product")
 @AllArgsConstructor
@@ -69,12 +71,14 @@ public class ProductController {
 
 
 
+    @PreAuthorize("hasRole('OWNER')")
     @GetMapping("/add")
     public String addProduct(Model model) {
         model.addAttribute("product", new ProductDTO());
         return "product/add";
     }
 
+    @PreAuthorize("hasRole('OWNER')")
     @PostMapping("/add")
     public String addProduct(
             @ModelAttribute("product") @Validated ProductDTO productDTO,
@@ -173,6 +177,7 @@ public class ProductController {
         return "product/detail";
     }
 
+    @PreAuthorize("hasRole('OWNER')")
     @GetMapping("/edit/{id}")
     public String editProduct(@PathVariable Long id, Model model) {
         ProductDTO product = productService.findProductByIdAndWarehouseId(id, getWarehouseId());
@@ -186,6 +191,7 @@ public class ProductController {
         return "product/edit";
     }
 
+    @PreAuthorize("hasRole('OWNER')")
     @PostMapping("/edit/{id}")
     public String editProduct(
             @PathVariable Long id,

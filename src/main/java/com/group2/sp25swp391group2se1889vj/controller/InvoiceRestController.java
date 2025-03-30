@@ -45,6 +45,7 @@ public class InvoiceRestController {
     public void init() {
         List<Long> unprocessedInvoiceIds = invoiceRepository.findIdsByIsProcessedIsFalse();
         invoiceQueue.addAll(unprocessedInvoiceIds);
+        new Thread(invoiceScheduler::processInvoice).start();
     }
 
 

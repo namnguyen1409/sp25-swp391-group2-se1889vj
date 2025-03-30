@@ -20,12 +20,15 @@
                         <div class="mb-3">
                             <div th:replace="fragments/textarea :: customTextarea('description', 'bi-justify', 'Mô tả')"></div>
                         </div>
-                        <div th:replace="fragments/recapcha :: recapcha"></div>
                         <p th:text="${error}" class="text-danger mb-3"></p>
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-person-plus-fill"></i>
                             Thêm mới
                         </button>
+                        <a onclick=" window.history.back();" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i>
+                            Quay lại
+                        </a>
                     </form>
                 </div>
             </div>
