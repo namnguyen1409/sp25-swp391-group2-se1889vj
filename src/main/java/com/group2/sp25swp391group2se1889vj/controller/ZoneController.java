@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +28,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.*;
 
+@PreAuthorize("hasAnyRole('OWNER', 'STAFF')")
 @AllArgsConstructor
 @Controller
 @RequestMapping("/zone")
@@ -55,12 +57,14 @@ public class ZoneController {
         return pairs;
     }
 
+    @PreAuthorize("hasRole('OWNER')")
     @GetMapping("/add")
     public String addZone(Model model) {
         model.addAttribute("zone", new ZoneDTO());
         return "warehouse/zone/add";
     }
 
+    @PreAuthorize("hasRole('OWNER')")
     @PostMapping("/add")
     public String addZone(@ModelAttribute ZoneDTO zone) {
         zone.setWarehouseId(getWarehouseId());
@@ -68,6 +72,7 @@ public class ZoneController {
         return "redirect:/zone";
     }
 
+    @PreAuthorize("hasRole('OWNER')")
     @GetMapping("/edit/{id}")
     public String editZone(Model model, @PathVariable("id") Long id) {
         ZoneDTO zone = zoneService.findZoneById(id);
@@ -77,6 +82,8 @@ public class ZoneController {
         model.addAttribute("zone", zone);
         return "warehouse/zone/edit";
     }
+
+    @PreAuthorize("hasRole('OWNER')")
     @PostMapping("/edit")
     public String editZone(
             @Validated @ModelAttribute("zone") ZoneDTO zoneDTO,

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+        xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       lang="en" layout:decorate="template"
 
 >
@@ -51,7 +52,7 @@
                 </div>
               </div>
               <div class="col-md-4 text-end">
-                <a th:href="@{'/product-package/add'}" class="btn btn-secondary btn-sm">
+                <a th:href="@{'/product-package/add'}" class="btn btn-secondary btn-sm" sec:authorize="hasRole('OWNER')">
                   <i class="bi bi-plus-circle"></i> Thêm mới
                 </a>
               </div>
@@ -125,7 +126,7 @@
             <a th:href="@{'/product-package/detail/' + ${item.id}}" class="btn btn-info btn-sm">
               <i class="bi bi-eye-fill"></i>
             </a>
-            <a th:href="@{'/product-package/edit/' + ${item.id}}" class="btn btn-warning btn-sm">
+            <a th:href="@{'/product-package/edit/' + ${item.id}}" class="btn btn-warning btn-sm" sec:authorize="hasRole('OWNER')">
               <i class="bi bi-pencil-fill"></i>
             </a>
           </td>

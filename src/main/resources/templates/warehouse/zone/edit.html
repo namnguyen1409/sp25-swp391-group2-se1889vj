@@ -46,12 +46,15 @@
                             </div>
                         </div>
 
-                        <div th:replace="fragments/recapcha :: recapcha"></div>
                         <p th:text="${error}" class="text-danger mb-3"></p>
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-save"></i>
                             Lưu
                         </button>
+                        <a onclick=" window.history.back();" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i>
+                            Quay lại
+                        </a>
                     </form>
                 </div>
             </div>

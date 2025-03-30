@@ -10,6 +10,7 @@ import com.group2.sp25swp391group2se1889vj.service.ProductPackageService;
 import com.group2.sp25swp391group2se1889vj.service.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,6 +51,7 @@ public class ProductRestController {
         return ResponseEntity.ok(productService.findProductByIdAndWarehouseId(id, getWarehouseId()));
     }
 
+    @PreAuthorize("hasRole('OWNER')")
     @PostMapping("/add")
     public ResponseEntity<?> addProduct(
             @Valid @RequestBody ProductDTO productDTO

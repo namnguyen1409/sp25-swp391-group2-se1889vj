@@ -6,6 +6,7 @@ import com.group2.sp25swp391group2se1889vj.security.CustomUserDetails;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
@@ -61,6 +62,18 @@ public class GlobalExceptionHandler {
                 new Error("400",
                         "Lỗi yêu cầu",
                         exception.getMessage()));
+        return "common/error";
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public String handleAuthorizationDeniedException(AuthorizationDeniedException exception,
+                                                     Model model) {
+        model.addAttribute("currentUser", getCurrentUser());
+        model.addAttribute("error",
+                new Error("403",
+                        "Lỗi quyền truy cập",
+                        "Xin lỗi, bạn không có quyền truy cập vào trang này."));
         return "common/error";
     }
 

@@ -141,7 +141,10 @@
             // Tìm kiếm Zone
             $("#zoneSearch").on("input", function () {
                 let searchTerm = $(this).val().trim();
-                if (searchTerm.length < 1) return;
+                if (searchTerm.length < 1) {
+                    $("#zoneDropdown").classList.remove("show");
+                    return;
+                }
 
                 debounce(() => {
                     $.getJSON("/api/zone/search", { name: searchTerm }, function (zones) {
@@ -162,7 +165,6 @@
                 }, 300);
             });
 
-            // Chọn Zone
             $(document).on("click", ".select-zone", function () {
                 let zoneId = $(this).data("id");
                 let zoneName = $(this).data("name");
@@ -178,6 +180,7 @@
 
                 updateZoneIds();
                 $("#zoneDropdown").remove();
+                $("#zoneSearch").val("");
             });
 
             // Xóa Zone đã chọn
@@ -207,6 +210,12 @@
                     zoneIds: $("#selectedZoneIds").val().split(",").filter(id => id.trim() !== "").map(id => parseInt(id))
                 };
 
+                // kiểm tra đủ thông tin chưa
+                if (!formData.name || !formData.price || !formData.image || !formData.productPackageId) {
+                    alert("Vui lòng điền đầy đủ thông tin!");
+                    return;
+                }
+
 
                 $.ajax({
                     url: "/api/product/add",
@@ -218,7 +227,11 @@
                         window.location.href = "/product/list";
                     },
                     error: function (xhr) {
-                        alert("Lỗi: " + xhr.responseJSON.message);
+                        if (xhr.status === 400) {
+                            alert("Có lỗi xảy ra khi thêm sản phẩm. Vui lòng kiểm tra lại thông tin.");
+                        } else {
+                            alert("Có lỗi xảy ra. Vui lòng thử lại sau.");
+                        }
                     }
                 });
             });
