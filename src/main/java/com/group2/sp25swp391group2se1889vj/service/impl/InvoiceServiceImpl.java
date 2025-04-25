@@ -84,6 +84,9 @@ public class InvoiceServiceImpl implements InvoiceService {
 
                 invoiceItem.setInvoice(finalInvoice);
                 invoiceItem.setPrice(item.getPrice());
+                if(item.getQuantity() <= 0) {
+                    throw new RuntimeException("Quantity must be greater than 0");
+                }
                 invoiceItem.setQuantity(item.getQuantity());
                 invoiceItem.setWeight(item.getQuantity() * productPackage.getWeight());
                 invoiceItem.setDiscount(BigDecimal.ZERO);
@@ -147,6 +150,9 @@ public class InvoiceServiceImpl implements InvoiceService {
 
                 invoiceItem.setInvoice(finalInvoice);
                 invoiceItem.setPrice(product.getPrice()); // giá trước khi giảm
+                if(item.getQuantity() <= 0) {
+                    throw new RuntimeException("Quantity must be greater than 0");
+                }
                 invoiceItem.setQuantity(item.getQuantity());
                 invoiceItem.setWeight(item.getQuantity() * productPackage.getWeight());
                 invoiceItem.setDiscount(item.getDiscount()); // giá sau khi giảm

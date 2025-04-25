@@ -68,40 +68,32 @@ public class InvoiceScheduler {
 
     @Transactional
     protected void processInvoicePurchase(Invoice invoice) {
-        // 1. Tính tổng tiền hàng nhập từ khách hàng
         BigDecimal totalPrice = invoice.getInvoiceItems().stream()
                 .map(InvoiceItem::getPayable)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         invoice.setTotalPrice(totalPrice);
 
-        invoice.setTotalDiscount(totalPrice); // không có giảm giá khi nhập hàng
+        invoice.setTotalDiscount(totalPrice);
 
-        // 2. Lấy thông tin khách hàng và số dư hiện tại
         Customer customer = invoice.getCustomer();
         BigDecimal customerBalance = customer.getBalance();
         invoice.setCustomerBalance(customerBalance);
 
-        // 3. Tổng tiền phải trả cho khách hàng (bao gồm số dư trước đó)
         BigDecimal totalPayable = totalPrice.add(customerBalance);
         invoice.setTotalPayable(totalPayable);
 
         invoice.setTotalDiscount(totalPrice);
 
-        // 4. Số tiền đã trả thực tế
         BigDecimal totalPaid = invoice.getTotalPaid();
 
-        // 5. Tính tổng nợ còn lại sau khi trả
         BigDecimal totalDebt = totalPayable.subtract(totalPaid);
         invoice.setTotalDebt(totalDebt);
 
 
-        // cập nhật số lượng sản phẩm
         for (InvoiceItem item : invoice.getInvoiceItems()) {
-            // log.info("Cập nhật số lượng sản phẩm: {} - {}", item.getProduct().getName(), item.getQuantity());
             productRepository.increaseStockQuantity(item.getProduct().getId(), item.getQuantity() * item.getProductPackage().getWeight());
         }
 
-        // 6. Xử lý công nợ theo từng case
         if (customerBalance.compareTo(BigDecimal.ZERO) == 0) {
             // log.info("Trường hợp số dư khách hàng = 0");
             if (totalPaid.compareTo(totalPrice) < 0) {
@@ -280,7 +272,6 @@ public class InvoiceScheduler {
                     createDebt(invoice, DebtType.CUSTOMER_BORROW, totalPaid.abs().add(totalDiscount).subtract(customerBalance), "Khách nợ cửa hàng sau mua hàng");
                 }
             }
-
         } else if (customerBalance.compareTo(BigDecimal.ZERO) < 0) {
             // log.info("SỐ DƯ KHÁCH HÀNG < 0 (Khách hàng nợ cửa hàng)");
             if (totalPaid.compareTo(totalDiscount) == 0) {
@@ -314,9 +305,6 @@ public class InvoiceScheduler {
     }
 
 
-    /**
-     * Phương thức tạo bản ghi nợ
-     */
     @Transactional
     protected void createDebt(Invoice invoice, DebtType type, BigDecimal amount, String description) {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) return; // Không tạo nếu số tiền không hợp lệ

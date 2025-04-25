@@ -68,6 +68,11 @@ public class CustomerController {
         if (customerFilterDTO == null) {
             customerFilterDTO = new CustomerFilterDTO();
         }
+
+        if(customerFilterDTO.getSize() <= 0) {
+            customerFilterDTO.setSize(10);
+        }
+
         Sort sortDirection = "asc".equalsIgnoreCase(customerFilterDTO.getDirection())
                 ? Sort.by(customerFilterDTO.getOrderBy()).ascending()
                 : Sort.by(customerFilterDTO.getOrderBy()).descending();
@@ -201,6 +206,11 @@ public class CustomerController {
         if (debtFilterDTO == null) {
             debtFilterDTO = new DebtFilterDTO();
         }
+
+        if(debtFilterDTO.getSize() <= 0) {
+            debtFilterDTO.setSize(10);
+        }
+
         Sort sortDirection = "asc".equalsIgnoreCase(debtFilterDTO.getDirection())
                 ? Sort.by(debtFilterDTO.getOrderBy()).ascending()
                 : Sort.by(debtFilterDTO.getOrderBy()).descending();

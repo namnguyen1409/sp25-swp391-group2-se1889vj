@@ -53,7 +53,6 @@
                         <div class="mb-3">
                             <div th:replace="fragments/inputImage :: customInputImage('image', 'bi-box-seam-fill', 'Hình ảnh minh chứng', @{/upload/debt})"></div>
                         </div>
-                        <div th:replace="fragments/recapcha :: recapcha"></div>
                         <p th:text="${error}" class="text-danger mb-3"></p>
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-person-plus-fill"></i>

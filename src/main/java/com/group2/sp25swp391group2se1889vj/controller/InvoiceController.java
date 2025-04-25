@@ -91,6 +91,11 @@ public class InvoiceController {
         if (invoiceFilterDTO == null) {
             invoiceFilterDTO = new InvoiceFilterDTO();
         }
+
+        if (invoiceFilterDTO.getSize() <= 0) {
+            invoiceFilterDTO.setSize(10);
+        }
+
         Sort sortDirection = "asc".equalsIgnoreCase(invoiceFilterDTO.getDirection())
                 ? Sort.by(invoiceFilterDTO.getOrderBy()).ascending()
                 : Sort.by(invoiceFilterDTO.getOrderBy()).descending();
@@ -137,6 +142,11 @@ public class InvoiceController {
         if (invoiceFilterDTO == null) {
             invoiceFilterDTO = new InvoiceFilterDTO();
         }
+
+        if (invoiceFilterDTO.getSize() <= 0) {
+            invoiceFilterDTO.setSize(10);
+        }
+
         Sort sortDirection = "asc".equalsIgnoreCase(invoiceFilterDTO.getDirection())
                 ? Sort.by(invoiceFilterDTO.getOrderBy()).ascending()
                 : Sort.by(invoiceFilterDTO.getOrderBy()).descending();

@@ -1015,8 +1015,6 @@
                 }
             }
 
-
-            // kiểm tra có sản phẩm nào chênh giá thực tế và giá bán đề xuất hơn maxDiscount không
             for (let item of payload.items) {
                 let discountPercentage = ((item.discount - item.price) / item.price) * 100;
 
@@ -1026,7 +1024,7 @@
                     let result = await Swal.fire({
                         title: "Giá bán không hợp lệ!",
                         html: `Sản phẩm <b>"${item.productName}"</b> có giá thay đổi quá mức cho phép.<br>
-                       <b>${discountPercentage.toFixed(2)}% > ${maxDiscount}%</b>.<br><br>
+                       <b>${Math.abs(discountPercentage.toFixed(2))}% > ${maxDiscount}%</b>.<br><br>
                        Bạn có muốn tiếp tục bán không?`,
                         icon: "warning",
                         showCancelButton: true,

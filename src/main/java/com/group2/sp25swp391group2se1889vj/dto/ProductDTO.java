@@ -1,10 +1,7 @@
 package com.group2.sp25swp391group2se1889vj.dto;
 
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -23,6 +20,7 @@ public class ProductDTO extends BaseDTO {
     @Pattern(regexp = "^[^!@#$%^&*()_+=\\[\\]{}|,;:'\"<>?/\\\\~`]*$", message = "Tên kho gạo được chứa ký tự đặc biệt")
     private String name;
     @NotNull(message = "Giá không được để trống")
+    @Min(value = 0, message = "Giá không được nhỏ hơn 0")
     private BigDecimal price;
     @NotBlank(message = "Mô tả không được để trống")
     private String description;
